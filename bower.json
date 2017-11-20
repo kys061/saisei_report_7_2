@@ -1,0 +1,45 @@
+{
+  "name": "saisei_report",
+  "description": "",
+  "main": "./js/app.js",
+  "authors": [
+    "yskang"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "report"
+  ],
+  "homepage": "https://github.com/kys061/saisei_report",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "install": {
+    "path": {
+      "css": "lib/css",
+      "less": "lib/less",
+      "js": "lib/js"
+    }
+  },
+  "dependencies": {
+    "alasql": "^0.4.3",
+    "angular": "^1.6.6",
+    "angular-route": "^1.6.6",
+    "angular-chart.js": "^1.1.1",
+    "angular-loading-bar": "^0.9.0",
+    "angular-momentjs": "^0.2.2",
+    "angularjs-datetime-picker": "^0.1.16",
+    "bootstrap": "^3.3.7",
+    "html2canvas": "^0.5.0-beta4",
+    "moment": "^2.18.1",
+    "notie": "^4.3.1",
+    "pdfmake": "^0.1.32",
+    "sugar": "^2.0.4",
+    "angularjs-dropdown-multiselect": "^1.11.8",
+    "angular-base64": "^2.0.5",
+    "bootswatch": "^3.3.7"
+  }
+}

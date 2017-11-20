@@ -1,0 +1,294 @@
+<head>
+    <style>
+        .table {
+            border: 1.5px solid;
+        }
+
+        .table thead>tr>th {
+            border-bottom: none;
+        }
+
+        .table thead>tr>th,
+        .table tbody>tr>th,
+        .table tfoot>tr>th,
+        .table thead>tr>td,
+        .table tbody>tr>td,
+        .table tfoot>tr>td {
+            border: 1.5px solid;
+        }
+
+        th {
+            font-size: 1.3em;
+        }
+
+        td {
+            color: #444444;
+            font-size: 1.05em;
+        }
+
+        .panel {
+            border: 0.08em solid;
+        }
+
+        .panel-heading {
+            border: 0.08em solid;
+        }
+
+        .jumbotron {
+            padding: 30px 30px 30px 30px;
+            border: 1.5px solid;
+        }
+
+        #loading-bar .bar {
+            background: #33ba3a;
+            height: 15px;
+        }
+
+        #loading-bar-spinner {
+            pointer-events: none;
+            -webkit-pointer-events: none;
+            -webkit-transition: 350ms linear all;
+            -moz-transition: 350ms linear all;
+            -o-transition: 350ms linear all;
+            transition: 350ms linear all;
+        }
+
+        #loading-bar-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+        }
+
+        #loading-bar-spinner .spinner-icon {
+            width: 120px;
+            height: 120px;
+
+            border: solid 4px transparent;
+            border-top-color: #000;
+            border-left-color: #ccc;
+            border-radius: 50%;
+
+            -webkit-animation: loading-bar-spinner 400ms linear infinite;
+            -moz-animation: loading-bar-spinner 400ms linear infinite;
+            -ms-animation: loading-bar-spinner 400ms linear infinite;
+            -o-animation: loading-bar-spinner 400ms linear infinite;
+            animation: loading-bar-spinner 400ms linear infinite;
+        }
+
+        @-webkit-keyframes loading-bar-spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @-moz-keyframes loading-bar-spinner {
+            0% {
+                -moz-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -moz-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @-o-keyframes loading-bar-spinner {
+            0% {
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @-ms-keyframes loading-bar-spinner {
+            0% {
+                -ms-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                -ms-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes loading-bar-spinner {
+            0% {
+                transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<div id="exportthis" class="container" style="margin-top: 60px;">
+    <div class="btn-group pull-right" role="group" aria-label="First group">
+        <button id="export" ng-click="export()" type="submit" class="btn btn-primary">PDF 출력</button>
+        <button ng-click="export_xls()" type="submit" class="btn btn-primary">CSV 출력</button>
+        <a href="/saisei_report/" ng-click="back()" class="btn btn-primary">뒤로가기(BACK)</a>
+    </div>
+    <div class="page-header">
+    </div>
+    <!--<button pdf-save-button="idOne" pdf-name="someone.pdf" class="btn">print as pdf</button>-->
+    <!--<button pdf-save-button="idOne" pdf-name="someone.pdf" class="btn">print report as pdf</button>-->
+    <div id="header_page">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <div class="jumbotron jumbotron-fluid">
+                    <div class="container">
+                        <h1 class="display-3">Saisei Report</h1>
+                        <hr class="my-4">
+                        <p class="lead">기간 : ({{from}} ~ {{until}})</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="first_page" ng-show="getGraphState(grpState, 'int_report')">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><b>인터페이스 트래픽({{ int_name }})</b></h4>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="line" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <table id="table1" class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>날짜</th>
+                        <th>수신 트래픽(Mbit/s)</th>
+                        <th>송신 트래픽(Mbit/s)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="data in int_data">
+                        <td>{{$index+1}}</td>
+                        <td>{{ data.date }}</td>
+                        <td>{{ data.rcv_avg }} Mbit/s</td>
+                        <td>{{ data.trs_avg }} Mbit/s</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="second_page" ng-show="getGraphState(grpState, 'user_report')">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><b>사용자 트래픽</b></h4>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="users" class="chart-horizontal-bar" chart-data="_users_data" chart-labels="_users_label" chart-series="_users_series" chart-colors="colors" chart-options="_users_option">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <table id="table2" class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>사용자</th>
+                        <th>기간</th>
+                        <th>총 사용량</th>
+                        <th>다운로드 사용량</th>
+                        <th>업로드 사용량</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="user in _users_tb_data">
+                        <td>{{$index+1}}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{user.from}} ~ {{user.until}}</td>
+                        <td>{{ user.total }} Mbit/s</td>
+                        <td>{{ user.down }} Mbit/s</td>
+                        <td>{{ user.up }} Mbit/s</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="third_page" ng-show="getGraphState(grpState, 'user_report')">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><b>사용자-어플리케이션 연관 추이</b></h4>
+                    </div>
+                    <div class="panel-body">
+                        <canvas id="users_app" class="chart-horizontal-bar" chart-data="_users_app_data" chart-labels="_users_app_label" chart-series="_users_app_series" chart-colors="colors" chart-options="_users_app_option">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <table id="table3" class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>사용자</th>
+                        <th>기간</th>
+                        <th>TOP APP 1</th>
+                        <th>기간</th>
+                        <th>TOP APP 2</th>
+                        <th>기간</th>
+                        <th>TOP APP 3</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="user_app in _users_app">
+                        <td>{{$index+1}}</td>
+                        <td>{{ user_app.user_name }}</td>
+                        <td>{{user_app.top1_app_from}} ~ <br>{{user_app.top1_app_until}}</td>
+                        <td>{{ user_app.top1_app_name }} <br>{{user_app.top1_app_total}} Mbit/s</td>
+                        <td>{{user_app.top2_app_from}} ~ <br>{{user_app.top2_app_until}}</td>
+                        <td>{{ user_app.top2_app_name }} <br>{{user_app.top2_app_total}} Mbit/s</td>
+                        <td>{{user_app.top3_app_from}} ~ <br>{{user_app.top3_app_until}}</td>
+                        <td>{{ user_app.top3_app_name }} <br>{{user_app.top3_app_total}} Mbit/s</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="last_page">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3>saisei copyright</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

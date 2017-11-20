@@ -1,0 +1,42 @@
+{
+  "config": {
+    "common": {
+      "id": "admin",
+      "passwd": "admin",
+      "ip": "http://10.161.147.55:",
+      "port": "5000",
+      "path": "/rest/nhntestserver/configurations/running/",
+      "class": "common"
+    },
+    "interface_rcv": {
+      "class": "interface",
+      "section": "interfaces/p1p1-ext1",
+      "attr": "receive_rate",
+      "operation": "raw",
+      "hist_point": "true"
+    },
+    "interface_trs": {
+      "class": "interface",
+      "section": "interfaces/p1p1-ext1",
+      "attr": "transmit_rate",
+      "operation": "raw",
+      "hist_point": "true"
+    },
+    "users_tr": {
+      "class": "users_tr",
+      "section": "users/",
+      "attr": "total_rate,dest_smoothed_rate,source_smoothed_rate",
+      "order": "<total_rate",
+      "limit": "10",
+      "with": "total_rate>=0.01"
+    },
+    "user_app": {
+      "class": "user_app",
+      "section": "users/:userID/applications/",
+      "attr": "total_rate",
+      "order": "<total_rate",
+      "limit": "5",
+      "with": "total_rate>=0.01"
+    }
+  }
+}

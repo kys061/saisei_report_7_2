@@ -1,0 +1,47 @@
+{
+  "name": "saisei_report",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./js/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yskang",
+  "license": "ISC",
+  "dependencies": {
+    "alasql": "^0.4.3",
+    "angular": "^1.6.6",
+    "angular-chart.js": "^1.1.1",
+    "angular-loading-bar": "^0.9.0",
+    "angular-moment-picker": "^0.10.1",
+    "angular-momentjs": "^0.2.2",
+    "angular-promise-buttons": "^0.1.20",
+    "angular-route": "^1.6.6",
+    "angular-save-html-to-pdf": "^1.3.2",
+    "angular-ui-bootstrap": "^2.5.0",
+    "angularjs-datepicker": "^2.1.23",
+    "angularjs-datetime-picker": "^0.1.16",
+    "angularjs-dropdown-multiselect": "^2.0.0-beta.10",
+    "bootstrap": "^3.3.7",
+    "file-saverjs": "^1.3.6",
+    "html2canvas": "^0.5.0-beta4",
+    "moment": "^2.18.1",
+    "ng-table-to-csv": "^0.3.3",
+    "notie": "^4.3.1",
+    "pdfmake": "^0.1.32",
+    "sugar": "^2.0.4",
+    "tableexport": "^4.0.11"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-bower-task": "^0.5.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-connect": "^1.0.2",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^3.1.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-htmlhint": "^0.9.13",
+    "grunt-include-js": "^1.0.3"
+  }
+}
