@@ -67,15 +67,15 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                         var user_until = new Date(_users[i]['until']);
                         _users_until.push(user_until.setHours(user_until.getHours() + 9));
                         _users_total.push((_users[i]['total_rate'] * 0.001).toFixed(3));
-                        _users_download.push((_users[i]['dest_smoothed_rate'] * 0.001).toFixed(3));
-                        _users_upload.push((_users[i]['source_smoothed_rate'] * 0.001).toFixed(3));
+                        _users_download.push((_users[i]['dest_rate'] * 0.001).toFixed(3));
+                        _users_upload.push((_users[i]['source_rate'] * 0.001).toFixed(3));
                         _users_tb_data.push({
                             name: _users[i]['name'],
                             from: user_from.toLocaleString(),
                             until: user_until.toLocaleString(),
                             total: (_users[i]['total_rate'] * 0.001).toFixed(3),
-                            down: (_users[i]['dest_smoothed_rate'] * 0.001).toFixed(3),
-                            up: (_users[i]['source_smoothed_rate'] * 0.001).toFixed(3)
+                            down: (_users[i]['dest_rate'] * 0.001).toFixed(3),
+                            up: (_users[i]['source_rate'] * 0.001).toFixed(3)
                         });
                     }
                     // var _users_data = [_users_total, _users_download, _users_upload];

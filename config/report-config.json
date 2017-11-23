@@ -25,7 +25,7 @@
     "users_tr": {
       "class": "users_tr",
       "section": "users/",
-      "attr": "total_rate,dest_smoothed_rate,source_smoothed_rate",
+      "attr": "total_rate,dest_rate,source_rate",
       "order": "<total_rate",
       "limit": "10",
       "with": "total_rate>=0.01"

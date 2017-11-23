@@ -63,7 +63,7 @@ reportApp.service('ReportInterfaceTotalRate', function($window, $q, ReportData) 
                     */
 
                     for (var i = 0; i < _history_length_rcv_rate; i++) {
-                        if (i % 5 === 0) {
+                        if (i % 20 === 0) {
                             var t = new Date(_history_rcv[i][0]);
                             label.push(t.toLocaleString());
                             data_rcv_rate.push((_history_rcv[i][1] * 0.001).toFixed(3));
@@ -115,7 +115,7 @@ reportApp.service('ReportInterfaceTotalRate', function($window, $q, ReportData) 
                            1. data_trs_rate : total rate for trs interface
                         */
                         for (var i = 0; i < _history_length_trs_rate; i++) {
-                            if (i % 5 === 0) {
+                            if (i % 20 === 0) {
                                 data_trs_rate.push((_history_trs[i][1] * 0.001).toFixed(3));
                             }
                             // raw_data_trs_rate.push(_history_trs[i][1]);

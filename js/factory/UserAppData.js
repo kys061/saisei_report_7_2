@@ -51,7 +51,18 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
             headers: headers
         }).
         then(function(data, status, headers, config) {
-                return data;
+                console.log(data);
+                console.log(data.data.collection.length);
+                if (data.data.collection.length === 0){
+                    notie.alert({
+                        type: 'error',
+                        stay: 'true',
+                        time: 3600,
+                        text: 'ERROR - 유저-앱 연관 데이터가 존재하지 않습니다.'
+                    });
+                } else {
+                    return data;
+                }
             },
             function onError(response) {
                 if (response.status < 0) {
