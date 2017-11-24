@@ -20,7 +20,7 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
         async: true
     });
 
-    function getUserAppData(userid) {
+    function getUserAppData(hostname, userid) {
         var rest_from = new ReportFrom("")
             .setFrom(from)
             .getFrom();
@@ -36,7 +36,7 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
             .addUntil('&until='+rest_until)
             .getQstring();
         var rest_url = new ReportUrl("")
-            .addDefault(config.common.ip, config.common.port, config.common.path)
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
             .addSection(config.user_app.section.replace(':userID', userid))
             .addQstring(rest_qstring)
             .getUrls();

@@ -1,13 +1,13 @@
 reportApp.service('ReportInterfaceTotalRate', function($window, $q, ReportData) {
     var InterfaceRate = function() {
         var self = this;
-        this.q_intData = function(from, until, duration, isset) {
+        this.q_intData = function(hostname, int_name, from, until, duration, isset) {
             var deferred = $q.defer();
             var from = from;
             var until = until;
             var duration = duration;
             if (isset) {
-                ReportData.getIntRcvData().then(function (data) {
+                ReportData.getIntRcvData(hostname, int_name).then(function (data) {
                     /**********************************/
                     /* RCV DATA OF INTERFACE          */
                     /**********************************/
@@ -105,7 +105,7 @@ reportApp.service('ReportInterfaceTotalRate', function($window, $q, ReportData) 
                     }, {
                         yAxisID: 'y-axis-2'
                     }];
-                    ReportData.getIntTrsData().then(function (data) {
+                    ReportData.getIntTrsData(hostname, int_name).then(function (data) {
                         /**********************************/
                         /* TRS DATA OF INTERFACE          */
                         /**********************************/

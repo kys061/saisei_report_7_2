@@ -1,14 +1,18 @@
 reportApp.controller('ReportCtrl', function ReportCtrl(
     $rootScope, $scope, $log, ReportData, SharedData, UserAppData, $location, $route, $window, cfpLoadingBar,
-    $q, $timeout, ReportInterfaceTotalRate, ReportUserData) {
+    $q, $timeout, ReportInterfaceTotalRate, ReportUserData, ReportMetaData, ReportIntName) {
+
     $scope.$on('$routeChangeStart', function(scope, next, current) {
         SharedData.setCurrentState(true);
         console.log("change back");
         $location.path('/');
         $window.location.href = '/saisei_report/';
     });
+
+    // 메타 데이터 요청 + 인터페이스 데이터 요청(수신, 송신) + 유저 데이터 요청 + 10명의 유저에 대한 각 앱 사용량 요청
+    var req_count = 1+2+1+10;
     $scope.complete_count = 0;
-    $scope.complete_check_count = 13; // 나중에 계산 수식 필요~!!
+    $scope.complete_check_count = req_count; // 나중에 계산 수식 필요~!!
     $rootScope.$on('cfpLoadingBar:loaded', function() {
         $scope.complete_count += 1;
         console.log("complete_count : " + $scope.complete_count);
@@ -394,40 +398,100 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             }
         );
     };
-    // 그래프
-    var intGrpDataset = new ReportInterfaceTotalRate();
-    intGrpDataset.q_intData(from, until, duration, $scope.grpState[0].state).then(
-        function(val){
-            $scope.data = val.data;
-            $scope.labels = val.labels;
-            $scope.series = val.series;
-            $scope.colors = val.colors;
-            $scope.options = val.options;
-            $scope.datasetOverride = val.datasetOverride;
-            $scope.int_data = val.int_data;
-            $scope.int_name = val.int_name;
-        },
-        function(val){
-            console.log(val);
-        }
-    );
 
-    var userGrpDataset = new ReportUserData();
-    userGrpDataset.q_userData(from, until, duration, $scope.grpState[1].state).then(
+    // 메타데이터 가져오기 정의
+    var getMetaData = function() {
+        return $q(function(resolve, reject){
+            // 메타데이터
+            var metaLink = new ReportMetaData();
+            metaLink.q_metaLinkData().then(
+                function(val){
+                    $scope.metadata = val.metadata;
+                    $scope.intLink = $scope.metadata.data.collection[0]['interfaces'].link.href;
+                    $scope.hostname = $scope.metadata.data.collection[0]['system_name'];
+                    console.log($scope.metadata);
+                    console.log($scope.intLink); // /rest/stm/configurations/running/interfaces/
+                    console.log($scope.hostname); // stm
+
+                    var IntName = new ReportIntName();
+                    IntName.q_intName($scope.hostname).then(
+                        // success
+                        function (val) {
+                            console.log(val);
+                            var collection = val.int_data.data.collection;
+                            $scope.int_ext_name = [];
+                            for (var i = 0; i < collection.length; i++){
+                                $scope.int_ext_name.push(collection[i].name);
+                            }
+                            resolve({
+                                hostname: $scope.hostname,
+                                int_ext_name: $scope.int_ext_name
+                            });
+                        },
+                        // failure
+                        function (val) {
+                            console.log(val);
+                        }
+
+                    );
+                    //resolve('get meata data!');
+                    // get interface of external : http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
+                },
+                function(val){
+                    console.log(val);
+                    resolve('D\'ONT get meata data!');
+                }
+            );
+
+        });
+    };
+    // 메타데이터 가져오기
+    getMetaData().then(
+        // success
         function(val){
-            $scope._users_tb_data = val.user._users_tb_data;
-            $scope._users_data = val.user._users_data;
-            $scope._users_label = val.user._users_label;
-            $scope._users_series = val.user._users_series;
-            $scope._users_option = val.user._users_option;
-            $scope.colors = val.user.colors;
-            //
-            $scope._users_app = val.user_app._users_app; // for table
-            $scope._users_app_data = val.user_app._users_app_data;
-            $scope._users_app_label = val.user_app._users_app_label;
-            $scope._users_app_series = val.user_app._users_app_series;
-            $scope._users_app_option = val.user_app._users_app_option;
+            var hostname = val.hostname;
+            var int_name = val.int_ext_name[0];
+            // 그래프
+            // 인터페이스
+            var intGrpDataset = new ReportInterfaceTotalRate();
+            intGrpDataset.q_intData(hostname, int_name, from, until, duration, $scope.grpState[0].state).then(
+                function(val){
+                    $scope.data = val.data;
+                    $scope.labels = val.labels;
+                    $scope.series = val.series;
+                    $scope.colors = val.colors;
+                    $scope.options = val.options;
+                    $scope.datasetOverride = val.datasetOverride;
+                    $scope.int_data = val.int_data;
+                    $scope.int_name = val.int_name;
+                },
+                function(val){
+                    console.log(val);
+                }
+            );
+            // 유저
+            var userGrpDataset = new ReportUserData();
+            userGrpDataset.q_userData(hostname, from, until, duration, $scope.grpState[1].state).then(
+                function(val){
+                    $scope._users_tb_data = val.user._users_tb_data;
+                    $scope._users_data = val.user._users_data;
+                    $scope._users_label = val.user._users_label;
+                    $scope._users_series = val.user._users_series;
+                    $scope._users_option = val.user._users_option;
+                    $scope.colors = val.user.colors;
+                    //
+                    $scope._users_app = val.user_app._users_app; // for table
+                    $scope._users_app_data = val.user_app._users_app_data;
+                    $scope._users_app_label = val.user_app._users_app_label;
+                    $scope._users_app_series = val.user_app._users_app_series;
+                    $scope._users_app_option = val.user_app._users_app_option;
+                },
+                function(val){
+                    console.log(val);
+                }
+            );
         },
+        // failure
         function(val){
             console.log(val);
         }

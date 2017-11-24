@@ -136,7 +136,7 @@
     <div class="btn-group pull-right" role="group" aria-label="First group">
         <button id="export" ng-click="export()" type="submit" class="btn btn-primary">PDF 출력</button>
         <button ng-click="export_xls()" type="submit" class="btn btn-primary">CSV 출력</button>
-        <a href="/saisei_report/" ng-click="back()" class="btn btn-primary">뒤로가기(BACK)</a>
+        <a href="/saisei_report/" ng-click="back()" class="btn btn-primary">리포트 다시 출력(BACK)</a>
     </div>
     <div class="page-header">
     </div>
@@ -198,7 +198,7 @@
             <div class="col-lg-12 col-sm-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4><b>사용자 트래픽</b></h4>
+                        <h4><b>사용자 트래픽(TOP10)</b></h4>
                     </div>
                     <div class="panel-body">
                         <canvas id="users" class="chart-horizontal-bar" chart-data="_users_data" chart-labels="_users_label" chart-series="_users_series" chart-colors="colors" chart-options="_users_option">
@@ -240,7 +240,7 @@
             <div class="col-lg-12 col-sm-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4><b>사용자-어플리케이션 연관 추이</b></h4>
+                        <h4><b>사용자-어플리케이션 연관 추이(TOP10)</b></h4>
                     </div>
                     <div class="panel-body">
                         <canvas id="users_app" class="chart-horizontal-bar" chart-data="_users_app_data" chart-labels="_users_app_label" chart-series="_users_app_series" chart-colors="colors" chart-options="_users_app_option">

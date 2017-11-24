@@ -5,19 +5,20 @@
       "passwd": "admin",
       "ip": "http://10.161.147.55:",
       "port": "5000",
-      "path": "/rest/nhntestserver/configurations/running/",
+      "metapath": "/rest/top/configurations/running",
+      "path": "/rest/:hostname/configurations/running/",
       "class": "common"
     },
     "interface_rcv": {
       "class": "interface",
-      "section": "interfaces/p1p1-ext1",
+      "section": "interfaces/:int_name",
       "attr": "receive_rate",
       "operation": "raw",
       "hist_point": "true"
     },
     "interface_trs": {
       "class": "interface",
-      "section": "interfaces/p1p1-ext1",
+      "section": "interfaces/:int_name",
       "attr": "transmit_rate",
       "operation": "raw",
       "hist_point": "true"
