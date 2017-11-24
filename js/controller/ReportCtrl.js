@@ -431,6 +431,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         // failure
                         function (val) {
                             console.log(val);
+                            reject( Error("failure!!") );
                         }
 
                     );
@@ -439,7 +440,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                 },
                 function(val){
                     console.log(val);
-                    resolve('D\'ONT get meata data!');
+                    reject( Error("failure!!") );
                 }
             );
 
