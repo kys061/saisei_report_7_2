@@ -61,7 +61,6 @@ reportApp.service('ReportInterfaceTotalRate', function($window, $q, ReportData) 
                        1. label : date,
                        2. data_rcv_rate : interface rcv,
                     */
-
                     for (var i = 0; i < _history_length_rcv_rate; i++) {
                         if (i % 20 === 0) {
                             var t = new Date(_history_rcv[i][0]);

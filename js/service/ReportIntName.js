@@ -12,7 +12,15 @@ reportApp.service('ReportIntName', function($window, $q, ReportData) {
                 /* MetaLinkData          */
                 /**********************************/
                 // console.log(data);
-                deferred.resolve({ int_data: data });
+                var collection = data.data.collection;
+                var int_ext_name = [];
+                for (var i = 0; i < collection.length; i++){
+                    int_ext_name.push(collection[i].name);
+                }
+                // deferred.resolve({ int_data: data });
+                deferred.resolve({
+                    int_ext_name: int_ext_name
+                });
             });
             return deferred.promise;
         };
