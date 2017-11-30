@@ -40,6 +40,7 @@
     "sugar": "^2.0.4",
     "angularjs-dropdown-multiselect": "^1.11.8",
     "angular-base64": "^2.0.5",
-    "bootswatch": "^3.3.7"
+    "bootswatch": "^3.3.7",
+    "underscore": "^1.8.3"
   }
 }

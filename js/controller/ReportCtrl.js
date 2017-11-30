@@ -9,8 +9,8 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         $window.location.href = '/saisei_report/';
     });
 
-    // 메타 데이터 요청 + 인터페이스 데이터 요청(수신, 송신) + 유저 데이터 요청 + 10명의 유저에 대한 각 앱 사용량 요청
-    var req_count = 1+2+1+10;
+    // 메타 데이터 요청 + 인터페이스 데이터 요청(수신, 송신) + 유저 데이터 요청 + ?(3) + 10명의 유저에 대한 각 앱 사용량 요청
+    var req_count = 1+2+1+3+10;
     $scope.complete_count = 0;
     $scope.complete_check_count = req_count; // 나중에 계산 수식 필요~!!
     $rootScope.$on('cfpLoadingBar:loaded', function() {
@@ -234,14 +234,34 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         }
                     };
 
-                    console.log(size.first_page.width + " : " + size.first_page.height + " : " + size.second_page.height + " : " + size.second_page.height);
+                    console.log(
+                        "head_width : " + size.header_page.width + " : " +
+                        "head_height : " + size.header_page.height + " : " +
+                        "first_width : " + size.first_page.width + " : " +
+                        "first_height : " + size.first_page.height + " : " +
+                        "sec_width : " + size.second_page.width + " : " +
+                        "sec_height : " + size.second_page.height + " : " +
+                        "third_width : " + size.third_page.width + " : " +
+                        "third_height : " + size.third_page.height
+                    );
+                    // head_width : 1140 : head_height : 254.733
+                    // first_width : 1140 : first_height : 1709.6  // 30일의 경우
+                    // sec_width : 1140 : sec_height : 1632.27 // 그래프 2개 시
+                    // third_width : 1140 : third_height : 717.6
                     // formular : (original height / original width) x new_width = new_height
                     if (duration >= 20) {
                         var ratio = 3;
                     } else if (10 < duration && duration < 20) {
                         var ratio = 2.6;
                     } else {
-                        var ratio = 2.2;
+                        if (size.second_page.height > 1600){
+                            var second_ratio = 2.5;
+                            var ratio = 2.2;
+                        } else {
+                            var second_ratio = 2.5;
+                            var ratio = 2.2;
+                        }
+
                     }
                     // margin: [left, top, right, bottom]
                     var mod_doc_config = {
@@ -262,8 +282,8 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         },
                         second_page: {
                             image: $scope.second_page,
-                            width: Math.ceil(size.second_page.width / ratio),
-                            height: Math.ceil((size.second_page.height / size.second_page.width) * Math.ceil(size.second_page.width / ratio)),
+                            width: Math.ceil(size.second_page.width / second_ratio),
+                            height: Math.ceil((size.second_page.height / size.second_page.width) * Math.ceil(size.second_page.width / second_ratio)),
                             margin: [0, 15, 0, 0],
                             style: 'defaultStyle',
                             pageBreak: 'after'
@@ -406,26 +426,28 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             var metaLink = new ReportMetaData();
             metaLink.q_metaLinkData().then(
                 function(val){
-                    $scope.metadata = val.metadata;
-                    $scope.intLink = $scope.metadata.data.collection[0]['interfaces'].link.href;
-                    $scope.hostname = $scope.metadata.data.collection[0]['system_name'];
-                    console.log($scope.metadata);
-                    console.log($scope.intLink); // /rest/stm/configurations/running/interfaces/
-                    console.log($scope.hostname); // stm
-
+                    // $scope.metadata = val.metadata;
+                    // $scope.intLink = $scope.metadata.data.collection[0]['interfaces'].link.href;
+                    // $scope.hostname = $scope.metadata.data.collection[0]['system_name'];
+                    // console.log($scope.metadata);
+                    // console.log($scope.intLink); // /rest/stm/configurations/running/interfaces/
+                    // console.log($scope.hostname); // stm
+                    console.log(val);
+                    $scope.intLink = val.int_link;
+                    $scope.hostname = val.hostname;
                     var IntName = new ReportIntName();
                     IntName.q_intName($scope.hostname).then(
                         // success
                         function (val) {
                             console.log(val);
-                            var collection = val.int_data.data.collection;
-                            $scope.int_ext_name = [];
-                            for (var i = 0; i < collection.length; i++){
-                                $scope.int_ext_name.push(collection[i].name);
-                            }
+                            // var collection = val.int_data.data.collection;
+                            // $scope.int_ext_name = [];
+                            // for (var i = 0; i < collection.length; i++){
+                            //     $scope.int_ext_name.push(collection[i].name);
+                            // }
                             resolve({
                                 hostname: $scope.hostname,
-                                int_ext_name: $scope.int_ext_name
+                                int_ext_name: val.int_ext_name
                             });
                         },
                         // failure
@@ -470,15 +492,19 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     console.log(val);
                 }
             );
-            // 유저
+            // 유저 트래픽 그래프
             var userGrpDataset = new ReportUserData();
             userGrpDataset.q_userData(hostname, from, until, duration, $scope.grpState[1].state).then(
                 function(val){
                     $scope._users_tb_data = val.user._users_tb_data;
                     $scope._users_data = val.user._users_data;
+                    $scope._users_flow_disc_data = val.user._users_flow_disc_data;
                     $scope._users_label = val.user._users_label;
                     $scope._users_series = val.user._users_series;
+                    $scope._users_flow_disc_series = val.user._users_flow_disc_series;
                     $scope._users_option = val.user._users_option;
+                    $scope._users_flow_disc_option = val.user._users_flow_disc_option;
+                    $scope._users_datasetOverride = val.user._users_datasetOverride;
                     $scope.colors = val.user.colors;
                     //
                     $scope._users_app = val.user_app._users_app; // for table
@@ -491,6 +517,16 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     console.log(val);
                 }
             );
+            // 유저 raw 플로우 정보
+            // var userGrpDataset2 = new ReportUserData();
+            // userGrpDataset2.q_userFlowData(hostname, from, until, duration, $scope.grpState[1].state).then(
+            //     function(val){
+            //         console.log(val);
+            //     },
+            //     function(val){
+            //         console.log(val);
+            //     }
+            // );
         },
         // failure
         function(val){

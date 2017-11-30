@@ -18,12 +18,12 @@
         }
 
         th {
-            font-size: 1.3em;
+            font-size: 0.9em;
         }
 
         td {
             color: #444444;
-            font-size: 1.05em;
+            font-size: 0.8em;
         }
 
         .panel {
@@ -163,7 +163,9 @@
                         <h4><b>인터페이스 트래픽({{ int_name }})</b></h4>
                     </div>
                     <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" chart-data="data" chart-labels="labels" chart-series="series" chart-options="options" chart-dataset-override="datasetOverride" chart-colors="colors">
+                        <canvas id="line" class="chart chart-line" chart-data="data" chart-labels="labels"
+                                chart-series="series" chart-options="options"
+                                chart-dataset-override="datasetOverride" chart-colors="colors">
                         </canvas>
                     </div>
                 </div>
@@ -176,8 +178,8 @@
                     <tr>
                         <th>#</th>
                         <th>날짜</th>
-                        <th>수신 트래픽(Mbit/s)</th>
-                        <th>송신 트래픽(Mbit/s)</th>
+                        <th>수신 평균 트래픽(Mbit/s)</th>
+                        <th>송신 평균 트래픽(Mbit/s)</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -201,7 +203,36 @@
                         <h4><b>사용자 트래픽(TOP10)</b></h4>
                     </div>
                     <div class="panel-body">
-                        <canvas id="users" class="chart-horizontal-bar" chart-data="_users_data" chart-labels="_users_label" chart-series="_users_series" chart-colors="colors" chart-options="_users_option">
+                        <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
+                                <!--chart-labels="_users_label" chart-series="_users_series" chart-options="_users_option"-->
+                                <!--chart-dataset-override="_users_datasetOverride" chart-colors="colors">-->
+                        <!--</canvas>-->
+                        <canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"
+                                chart-labels="_users_label" chart-series="_users_series"
+                                chart-options="_users_option" chart-colors="colors">
+                        </canvas>
+                        <!--<canvas id="users_flow_disc" class="chart-horizontal-bar" chart-data="_users_flow_disc_data"-->
+                                <!--chart-labels="_users_label" chart-series="_users_flow_disc_series"-->
+                                <!--chart-colors="colors" chart-options="_users_flow_disc_option">-->
+                        <!--</canvas>-->
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4><b>사용자 플로우 사용량 / 트래픽 제어량(TOP10)</b></h4>
+                    </div>
+                    <div class="panel-body">
+                        <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
+                        <!--chart-labels="_users_label" chart-series="_users_series" chart-options="_users_option"-->
+                        <!--chart-dataset-override="_users_datasetOverride" chart-colors="colors">-->
+                        <!--</canvas>-->
+                        <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
+                        <!--chart-labels="_users_label" chart-series="_users_series"-->
+                        <!--chart-options="_users_option" chart-colors="colors">-->
+                        <!--</canvas>-->
+                        <canvas id="users_flow_disc" class="chart-horizontal-bar" chart-data="_users_flow_disc_data"
+                                chart-labels="_users_label" chart-series="_users_flow_disc_series"
+                                chart-colors="colors" chart-options="_users_flow_disc_option">
                         </canvas>
                     </div>
                 </div>
@@ -218,6 +249,9 @@
                         <th>총 사용량</th>
                         <th>다운로드 사용량</th>
                         <th>업로드 사용량</th>
+                        <th>플로우 평균 사용량</th>
+                        <th>플로우 최대 사용량</th>
+                        <th>제어량</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -228,6 +262,9 @@
                         <td>{{ user.total }} Mbit/s</td>
                         <td>{{ user.down }} Mbit/s</td>
                         <td>{{ user.up }} Mbit/s</td>
+                        <td>{{ user.flows }} /s</td>
+                        <td>{{ user.max_flows }} /s</td>
+                        <td>{{ user.disc_rate }} /s</td>
                     </tr>
                     </tbody>
                 </table>

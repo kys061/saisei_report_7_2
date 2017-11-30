@@ -26,6 +26,8 @@ var reportApp = angular.module('reportApp', [
         cfpLoadingBarProvider.latencyThreshold = 1200;
         cfpLoadingBarProvider.parentSelector = '#loading-bar-container';
         cfpLoadingBarProvider.spinnerTemplate = '<div id="loading-bar-spinner"><div class="spinner-icon"></div></div>';
-    }]).run(function($rootScope) {
+    }])
+    .run(function($rootScope) {
         $rootScope.users_app_top1 = [];
-    });
+    })
+    .constant('_', window._);

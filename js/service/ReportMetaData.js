@@ -12,7 +12,14 @@ reportApp.service('ReportMetaData', function($window, $q, ReportData) {
                 /* MetaLinkData          */
                 /**********************************/
                 // console.log(data);
-                deferred.resolve({ metadata: data });
+                var metadata = data;
+                var intLink = metadata.data.collection[0]['interfaces'].link.href;
+                var hostname = metadata.data.collection[0]['system_name'];
+
+                deferred.resolve({
+                    int_link: intLink,
+                    hostname: hostname
+                });
             });
             return deferred.promise;
         };

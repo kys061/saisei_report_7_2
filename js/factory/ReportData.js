@@ -127,6 +127,86 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             })
     }
     /*
+     *   get user's total rate
+     */
+    function getUserActiveFlows(hostname) {
+        // set urls
+        var rest_qstring = new ReportQstring("")
+            .addSelect('?select='+config.users_active_flows.attr)
+            .addFrom('&from='+rest_from)
+            .addOperation('&operation=raw')
+            .addHistPoint('&history_points='+config.users_active_flows.hist_point)
+            .addLimit('&limit='+config.users_active_flows.limit)
+            .addOrder('&order='+config.users_active_flows.order)
+            .addUntil('&until='+rest_until)
+            .getQstring();
+        var rest_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
+            .addSection(config.users_tr.section)
+            .addQstring(rest_qstring)
+            .getUrls();
+        console.log("get active url : " + rest_url);
+        return $http({
+            method: 'GET',
+            url: rest_url,
+            headers: headers
+        }).
+        then(function(data, status, headers, config) {
+                return data;
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        stay: 'true',
+                        time: 3600,
+                        text: 'ERROR - 유저 ActiveFlows데이터가 존재하지 않습니다.'
+                    });
+                }
+            })
+    }
+    /*
+     *   get user's packet disc rate
+     */
+    function getUserPacketDiscRate(hostname) {
+        // set urls
+        var rest_qstring = new ReportQstring("")
+            .addSelect('?select='+config.users_tr.attr)
+            //.addOperation('&operation=raw')
+            .addOrder('&order='+config.users_tr.order)
+            .addLimit('&limit='+config.users_tr.limit)
+            .addWith('&with='+config.users_tr.with)
+            .addFrom('&from='+rest_from)
+            .addUntil('&until='+rest_until)
+            .getQstring();
+        var rest_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
+            .addSection(config.users_tr.section)
+            .addQstring(rest_qstring)
+            .getUrls();
+        console.log(rest_url);
+        return $http({
+            method: 'GET',
+            url: rest_url,
+            headers: headers
+        }).
+        then(function(data, status, headers, config) {
+                return data;
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        stay: 'true',
+                        time: 3600,
+                        text: 'ERROR - 유저 패킷 제어양 데이터가 존재하지 않습니다.'
+                    });
+                }
+            })
+    }
+    /*
      *   get interface rcv rate
      */
     function getIntRcvData(hostname, int_name) {
@@ -208,6 +288,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
         getInterfaceName: getInterfaceName,
         getMetaLink: getMetaLink,
         getUserData: getUserData,
+        getUserActiveFlows: getUserActiveFlows,
         getIntRcvData: getIntRcvData,
         getIntTrsData: getIntTrsData
     };

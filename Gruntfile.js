@@ -7,6 +7,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-htmlhint');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-htmlmin');
+    grunt.loadNpmTasks('grunt-stripcomments');
     // grunt.loadNpmTasks('grunt-include-js');
 
     grunt.initConfig({
@@ -90,10 +92,41 @@ module.exports = function(grunt) {
                     mangle: false,
                     compress: {
                         drop_console: true
+                        // comments: false
                     }
                 }
             }
         },
+        htmlmin: {                                     // Task
+            dist: {                                      // Target
+                options: {                                 // Target options
+                    removeComments: true,
+                    collapseWhitespace: true
+                },
+                files: {                                   // Dictionary of files
+                    'saisei_report/index.html': 'saisei_report/index.html',     // 'destination': 'source'
+                    'saisei_report/templates/report.html': 'saisei_report/templates/report.html'
+                }
+            }
+            // dev: {                                       // Another target
+            //     files: {
+            //         'dist/index.html': 'src/index.html',
+            //         'dist/contact.html': 'src/contact.html'
+            //     }
+            // }
+        },
+        comments: {
+            dist: {
+                // Target-specific file lists and/or options go here.
+                options: {
+                    singleline: true,
+                    multiline: true,
+                    keepSpecialComments: false
+                },
+                src: [ 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js'] // files to remove comments from
+            }
+        },
+        // 배포할 폴더로 복사한다.
         copy: {
             main: {
                 expand: true,
@@ -116,7 +149,8 @@ module.exports = function(grunt) {
                     '*.html',
                     'templates/*.html'
                 ],
-                tasks: ['htmlhint','jshint', 'copy', 'concat']
+                // 여기서 concat 실행
+                tasks: ['htmlhint','jshint', 'copy', 'concat', 'uglify:dist', 'htmlmin:dist', 'comments:dist']
             }
         },
         // 서버를 열어서 브라우져에서 확인합니다.
@@ -136,7 +170,7 @@ module.exports = function(grunt) {
     grunt.registerTask('serve', function (target) {
         console.log(target);
         if (target === 'dist') {
-            return grunt.task.run(['bower', 'copy', 'connect', 'uglify:dist', 'watch' ]);
+            return grunt.task.run(['bower', 'copy', 'connect', 'uglify:dist', 'htmlmin:dist', 'comments:dist', 'watch' ]);
         }
         grunt.task.run([
             // 'default',

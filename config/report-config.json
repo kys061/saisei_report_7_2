@@ -26,10 +26,29 @@
     "users_tr": {
       "class": "users_tr",
       "section": "users/",
-      "attr": "total_rate,dest_rate,source_rate",
+      "attr": "total_rate,dest_rate,source_rate,active_flows,packet_discard_rate",
       "order": "<total_rate",
       "limit": "10",
-      "with": "total_rate>=0.01"
+      "with": "total_rate>=0.01",
+      "operation": "raw"
+    },
+    "users_active_flows": {
+      "class": "users_active_flows",
+      "section": "users/",
+      "attr": "active_flows",
+      "order": "<total_rate",
+      "limit": "10",
+      "operation": "raw",
+      "hist_point": "true"
+    },
+    "users_packet_disc_rate": {
+      "class": "users_packet_disc_rate",
+      "section": "users/",
+      "attr": "packet_discard_rate",
+      "order": "<total_rate",
+      "limit": "10",
+      "operation": "raw",
+      "hist_point": "true"
     },
     "user_app": {
       "class": "user_app",
