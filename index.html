@@ -142,84 +142,89 @@
 </head>
 
 <body ng-app="reportApp">
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#"><b>Saisei Report</b></a>
-        </div>
-    </div>
-</nav>
+<!--<nav class="navbar navbar-default navbar-fixed-top">-->
+    <!--<div class="container">-->
+        <!--<div class="navbar-header">-->
+            <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">-->
+                <!--<span class="sr-only">Toggle navigation</span>-->
+                <!--<span class="icon-bar"></span>-->
+                <!--<span class="icon-bar"></span>-->
+                <!--<span class="icon-bar"></span>-->
+            <!--</button>-->
+            <!--<a class="navbar-brand" href="#"><b>Saisei Report</b></a>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</nav>-->
 
 <div class="container" ng-controller="MainCtrl" style="margin-top: 60px">
     <div class="jumbotron jumbotron-fluid" ng-show="currentState">
         <div class="container">
-            <h1 class="display-3">Saisei Report</h1>
-            <hr class="my-4">
-            <p class="lead">기간을 선택하여 리포트를 만들 수 있습니다.
-            </p>
-        </div>
-    </div>
-    <div id="select_page" ng-show="currentState">
-        <div class="row">
-            <div class="col-lg-2 col-sm-2">
+            <div class="row">
+                <h1 class="display-3">Saisei Network Usage Report</h1>
+                <p class="lead">기간을 선택하여 리포트를 만들 수 있습니다.</p>
+                <hr class="my-4">
+                <br>
+                <br>
             </div>
-            <div class="col-lg-8 col-sm-8">
-                <div class="well bs-componet">
-                    <form class="form-horizontal">
-                        <fieldset>
-                            <legend>리포트 기간 선택</legend>
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label">Strat(시작)</label>
-                                <div class="col-lg-7">
-                                    <!--<input class="form-control"-->
-                                    <!--ng-model="date_from"-->
-                                    <!--ng-model-options="{ updateOn: 'blur' }"-->
-                                    <!--placeholder="시작날짜를 선택해 주세요..."-->
-                                    <!--locale="ko"-->
-                                    <!--today="true"-->
-                                    <!--moment-picker="MainCtrl.date_from" />-->
-                                    <input datetime-picker id="inputFrom" class="form-control" ng-model="date_from" date-format="yyyy-MM-dd HH:mm:ss" close-on-select="true" />
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="col-lg-2 control-label">End(종료)</label>
-                                <div class="col-lg-7">
-                                    <!--<input class="form-control"-->
-                                    <!--ng-model="date_until"-->
-                                    <!--ng-model-options="{ updateOn: 'blur' }"-->
-                                    <!--placeholder="종료날짜를 선택해 주세요..."-->
-                                    <!--locale="ko"-->
-                                    <!--today="true"-->
-                                    <!--moment-picker="MainCtrl.date_until" />-->
-                                    <input datetime-picker id="inputUntil" class="form-control" ng-model="date_until" date-format="yyyy-MM-dd HH:mm:ss" close-on-select="true" />
-                                </div>
-                            </div>
-                            <br>
-                            <legend>리포트 유형 선택</legend>
-                            <div class="form-group">
-                                <label for="select" class="col-lg-2 control-label">유형 선택</label>
-                                <div class="col-lg-7">
-                                    <div ng-dropdown-multiselect="" id="select" events="" options="select2data" selected-model="select2model" extra-settings="select2settings"></div>
-                                </div>
-                            </div>
-                            <legend></legend>
-                            <div class="form-group">
-                                <div class="col-lg-10 col-lg-offset-2">
-                                    <a ng-click="sendDate()" class="btn btn-primary pull-right">보고서 만들기</a>
-                                </div>
-                            </div>
-                        </fieldset>
-                    </form>
+            <div id="select_page" ng-show="currentState">
+                <div class="row">
+                    <!--<div class="col-lg-4 col-sm-4">-->
+                    <!--</div>-->
+                    <div class="col-lg-12 col-sm-12">
+                        <!--<div class="well bs-componet">-->
+                        <div class="container">
+                            <form class="form-horizontal">
+                                <fieldset>
+                                    <legend>리포트 기간 선택</legend>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">Strat(시작)</label>
+                                        <div class="col-lg-7">
+                                            <!--<input class="form-control"-->
+                                            <!--ng-model="date_from"-->
+                                            <!--ng-model-options="{ updateOn: 'blur' }"-->
+                                            <!--placeholder="시작날짜를 선택해 주세요..."-->
+                                            <!--locale="ko"-->
+                                            <!--today="true"-->
+                                            <!--moment-picker="MainCtrl.date_from" />-->
+                                            <input datetime-picker id="inputFrom" class="form-control" ng-model="date_from" date-format="yyyy-MM-dd HH:mm:ss" close-on-select="true" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-lg-2 control-label">End(종료)</label>
+                                        <div class="col-lg-7">
+                                            <!--<input class="form-control"-->
+                                            <!--ng-model="date_until"-->
+                                            <!--ng-model-options="{ updateOn: 'blur' }"-->
+                                            <!--placeholder="종료날짜를 선택해 주세요..."-->
+                                            <!--locale="ko"-->
+                                            <!--today="true"-->
+                                            <!--moment-picker="MainCtrl.date_until" />-->
+                                            <input datetime-picker id="inputUntil" class="form-control" ng-model="date_until" date-format="yyyy-MM-dd HH:mm:ss" close-on-select="true" />
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <legend>리포트 유형 선택</legend>
+                                    <div class="form-group">
+                                        <label for="select" class="col-lg-2 control-label">유형 선택</label>
+                                        <div class="col-lg-7">
+                                            <div ng-dropdown-multiselect="" id="select" events="" options="select2data" selected-model="select2model" extra-settings="select2settings"></div>
+                                        </div>
+                                    </div>
+                                    <legend></legend>
+                                    <div class="form-group">
+                                        <div class="col-lg-10 col-lg-offset-2">
+                                            <a ng-click="sendDate()" class="btn btn-primary pull-right">보고서 만들기</a>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
     <ng-view></ng-view>
     <div id="loading-bar-container"></div>
 </div>
