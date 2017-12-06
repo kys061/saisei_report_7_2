@@ -1,5 +1,8 @@
 <head>
     <style>
+        .btn {
+            padding: 6px 10px;
+        }
         #exportthis {
             width: 1200px;
         }
@@ -134,202 +137,232 @@
         }
     </style>
 </head>
-
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><b>Saisei Report</b></a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                </ul>
+                <form class="navbar-form navbar-right">
+                    <button id="export_print" ng-click="export_print()" type="submit" class="btn btn-secondary my-0 my-sm-0">프린트</button>
+                    <!--<button id="export" ng-click="export()" type="submit" class="btn btn-primary">PDF 출력</button>-->
+                    <!--<button ng-click="export_xls()" type="submit" class="btn btn-primary">CSV 출력</button>-->
+                    <button type="submit" class="btn btn-secondary my-0 my-sm-0"><a href="/saisei_report/" ng-click="back()">리포트 다시 출력(BACK)</a></button>
+                </form>
+            </div><!-- /.navbar-collapse -->
+        </div>
+    </div>
+</nav>
 <div id="exportthis" class="container" style="margin-top: 60px;">
-    <div class="btn-group pull-right" role="group" aria-label="First group">
-        <button id="export" ng-click="export()" type="submit" class="btn btn-primary">PDF 출력</button>
-        <button ng-click="export_xls()" type="submit" class="btn btn-primary">CSV 출력</button>
-        <button id="export_print" ng-click="export_print()" type="submit" class="btn btn-primary">프린트 출력</button>
-        <a href="/saisei_report/" ng-click="back()" class="btn btn-primary">리포트 다시 출력(BACK)</a>
-    </div>
-
-    <div class="page-header">
-    </div>
+    <!--<div class="page-header">-->
+    <!--</div>-->
     <!--<button pdf-save-button="idOne" pdf-name="someone.pdf" class="btn">print as pdf</button>-->
     <!--<button pdf-save-button="idOne" pdf-name="someone.pdf" class="btn">print report as pdf</button>-->
     <div id="header_page" class="row">
 
-            <div class="col-lg-12 col-sm-12">
-                <div class="jumbotron jumbotron-fluid">
-                    <div class="container">
-                        <h1 class="display-3">Saisei Report</h1>
-                        <hr class="my-4">
-                        <p class="lead">기간 : ({{from}} ~ {{until}})</p>
-                    </div>
+        <div class="col-lg-12 col-sm-12">
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <h1 class="display-3">Saisei Network Usage Report</h1>
+                    <hr class="my-4">
+                    <p class="lead">기간 : ({{from}} ~ {{until}})</p>
                 </div>
             </div>
+        </div>
 
     </div>
     <div id="first_page" class="row" ng-show="getGraphState(grpState, 'int_report')">
 
-            <div class="col-lg-12 col-sm-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4><b>인터페이스 트래픽({{ int_name }})</b></h4>
-                    </div>
-                    <div class="panel-body">
-                        <canvas id="line" class="chart chart-line" chart-data="data" chart-labels="labels"
-                                chart-series="series" chart-options="options"
-                                chart-dataset-override="datasetOverride" chart-colors="colors">
-                        </canvas>
-                    </div>
+        <div class="col-lg-12 col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><b>네트워크 트래픽 현황</b></h4>
+                </div>
+                <div class="panel-body">
+                    <canvas id="line" class="chart chart-line" chart-data="data" chart-labels="labels"
+                            chart-series="series" chart-options="options"
+                            chart-dataset-override="datasetOverride" chart-colors="colors">
+                    </canvas>
                 </div>
             </div>
+        </div>
 
 
-            <div class="col-lg-12 col-sm-12">
-                <table id="table1" class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>날짜</th>
-                        <th>수신 평균 트래픽(Mbit/s)</th>
-                        <th>송신 평균 트래픽(Mbit/s)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="data in int_data">
-                        <td>{{$index+1}}</td>
-                        <td>{{ data.date }}</td>
-                        <td>{{ data.rcv_avg }} Mbit/s</td>
-                        <td>{{ data.trs_avg }} Mbit/s</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-lg-12 col-sm-12">
+            <table id="table1" class="table table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>날짜</th>
+                    <th>수신 트래픽 평균 속도(Mbit/s)</th>
+                    <th>송신 트래픽 평균 속도(Mbit/s)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="data in int_data">
+                    <td>{{$index+1}}</td>
+                    <td>{{ data.date }}</td>
+                    <td>{{ data.rcv_avg }} Mbit/s</td>
+                    <td>{{ data.trs_avg }} Mbit/s</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
     </div>
 
     <div id="second_page" class="row" ng-show="getGraphState(grpState, 'user_report')">
 
-            <div class="col-lg-12 col-sm-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4><b>사용자 트래픽(TOP10)</b></h4>
-                    </div>
-                    <div class="panel-body">
-                        <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
-                        <!--chart-labels="_users_label" chart-series="_users_series" chart-options="_users_option"-->
-                        <!--chart-dataset-override="_users_datasetOverride" chart-colors="colors">-->
-                        <!--</canvas>-->
-                        <canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"
-                                chart-labels="_users_label" chart-series="_users_series"
-                                chart-options="_users_option" chart-colors="colors">
-                        </canvas>
-                        <!--<canvas id="users_flow_disc" class="chart-horizontal-bar" chart-data="_users_flow_disc_data"-->
-                        <!--chart-labels="_users_label" chart-series="_users_flow_disc_series"-->
-                        <!--chart-colors="colors" chart-options="_users_flow_disc_option">-->
-                        <!--</canvas>-->
-                    </div>
+        <div class="col-lg-12 col-sm-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><b>사용자별 TOP10 네트워크 트래픽 현황</b></h4>
                 </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4><b>사용자 플로우 사용량 / 트래픽 제어량(TOP10)</b></h4>
-                    </div>
-                    <div class="panel-body">
-                        <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
-                        <!--chart-labels="_users_label" chart-series="_users_series" chart-options="_users_option"-->
-                        <!--chart-dataset-override="_users_datasetOverride" chart-colors="colors">-->
-                        <!--</canvas>-->
-                        <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
-                        <!--chart-labels="_users_label" chart-series="_users_series"-->
-                        <!--chart-options="_users_option" chart-colors="colors">-->
-                        <!--</canvas>-->
-                        <canvas id="users_flow_disc" class="chart-horizontal-bar" chart-data="_users_flow_disc_data"
-                                chart-labels="_users_label" chart-series="_users_flow_disc_series"
-                                chart-colors="colors" chart-options="_users_flow_disc_option">
-                        </canvas>
-                    </div>
+                <div class="panel-body">
+                    <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
+                    <!--chart-labels="_users_label" chart-series="_users_series" chart-options="_users_option"-->
+                    <!--chart-dataset-override="_users_datasetOverride" chart-colors="colors">-->
+                    <!--</canvas>-->
+                    <canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"
+                            chart-labels="_users_label" chart-series="_users_series"
+                            chart-options="_users_option" chart-colors="colors">
+                    </canvas>
+                    <!--<canvas id="users_flow_disc" class="chart-horizontal-bar" chart-data="_users_flow_disc_data"-->
+                    <!--chart-labels="_users_label" chart-series="_users_flow_disc_series"-->
+                    <!--chart-colors="colors" chart-options="_users_flow_disc_option">-->
+                    <!--</canvas>-->
+                    <br>
+                    <table id="table2" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>사용자</th>
+                            <th>기간</th>
+                            <!--<th>총 사용량</th>-->
+                            <th>다운로드속도(AVG)</th>
+                            <th>업로드속도(MAX)</th>
+                            <th>플로우수(AVG)</th>
+                            <th>플로우수(MAX)</th>
+                            <th>제어횟수</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user in _users_tb_data">
+                            <td>{{$index+1}}</td>
+                            <td>{{ user.name }}</td>
+                            <td>{{user.from}} ~ {{user.until}}</td>
+                            <!--<td>{{ user.total }} Mbit/s</td>-->
+                            <td>{{ user.down }} Mbit/s</td>
+                            <td>{{ user.up }} Mbit/s</td>
+                            <td>{{ user.flows }} /s</td>
+                            <td>{{ user.max_flows }} /s</td>
+                            <td>{{ user.disc_rate }} /s</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+            <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading">-->
+            <!--<h4><b>사용자 플로우 사용량 / 트래픽 제어량(TOP10)</b></h4>-->
+            <!--</div>-->
+            <!--<div class="panel-body">-->
+            <!--&lt;!&ndash;<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"&ndash;&gt;-->
+            <!--&lt;!&ndash;chart-labels="_users_label" chart-series="_users_series" chart-options="_users_option"&ndash;&gt;-->
+            <!--&lt;!&ndash;chart-dataset-override="_users_datasetOverride" chart-colors="colors">&ndash;&gt;-->
+            <!--&lt;!&ndash;</canvas>&ndash;&gt;-->
+            <!--&lt;!&ndash;<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"&ndash;&gt;-->
+            <!--&lt;!&ndash;chart-labels="_users_label" chart-series="_users_series"&ndash;&gt;-->
+            <!--&lt;!&ndash;chart-options="_users_option" chart-colors="colors">&ndash;&gt;-->
+            <!--&lt;!&ndash;</canvas>&ndash;&gt;-->
+            <!--<canvas id="users_flow_disc" class="chart-horizontal-bar" chart-data="_users_flow_disc_data"-->
+            <!--chart-labels="_users_label" chart-series="_users_flow_disc_series"-->
+            <!--chart-colors="colors" chart-options="_users_flow_disc_option">-->
+            <!--</canvas>-->
+            <!--</div>-->
+            <!--</div>-->
+        </div>
 
 
-            <div class="col-lg-12 col-sm-12">
-                <table id="table2" class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>사용자</th>
-                        <th>기간</th>
-                        <th>총 사용량</th>
-                        <th>다운로드 사용량</th>
-                        <th>업로드 사용량</th>
-                        <th>플로우 평균 사용량</th>
-                        <th>플로우 최대 사용량</th>
-                        <th>제어량</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="user in _users_tb_data">
-                        <td>{{$index+1}}</td>
-                        <td>{{ user.name }}</td>
-                        <td>{{user.from}} ~ {{user.until}}</td>
-                        <td>{{ user.total }} Mbit/s</td>
-                        <td>{{ user.down }} Mbit/s</td>
-                        <td>{{ user.up }} Mbit/s</td>
-                        <td>{{ user.flows }} /s</td>
-                        <td>{{ user.max_flows }} /s</td>
-                        <td>{{ user.disc_rate }} /s</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!--<div class="col-lg-12 col-sm-12">-->
+
+        <!--</div>-->
 
     </div>
 
     <div id="third_page" class="row" ng-show="getGraphState(grpState, 'user_report')">
 
-            <div class="col-lg-12 col-sm-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4><b>사용자-어플리케이션 연관 추이(TOP10)</b></h4>
-                    </div>
-                    <div class="panel-body">
-                        <canvas id="users_app" class="chart-horizontal-bar" chart-data="_users_app_data"
-                                chart-labels="_users_app_label" chart-series="_users_app_series"
-                                chart-colors="colors" chart-options="_users_app_option">
-                        </canvas>
-                    </div>
-                </div>
+        <div class="col-lg-12 col-sm-12">
+            <!--<div class="panel panel-default">-->
+            <!--<div class="panel-heading">-->
+            <!--<h4><b>사용자-어플리케이션 연관 추이(TOP10)</b></h4>-->
             <!--</div>-->
-        <!---->
-        <!---->
+            <!--<div class="panel-body">-->
+            <!--<canvas id="users_app" class="chart-horizontal-bar" chart-data="_users_app_data"-->
+            <!--chart-labels="_users_app_label" chart-series="_users_app_series"-->
+            <!--chart-colors="colors" chart-options="_users_app_option">-->
+            <!--</canvas>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!--</div>-->
+            <!---->
+            <!---->
             <!--<div class="col-lg-12 col-sm-12">-->
-                <table id="table3" class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>사용자</th>
-                        <th>기간</th>
-                        <th>TOP APP 1</th>
-                        <th>기간</th>
-                        <th>TOP APP 2</th>
-                        <th>기간</th>
-                        <th>TOP APP 3</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="user_app in _users_app">
-                        <td>{{$index+1}}</td>
-                        <td>{{ user_app.user_name }}</td>
-                        <td>{{user_app.top1_app_from}} ~ <br>{{user_app.top1_app_until}}</td>
-                        <td>{{ user_app.top1_app_name }} <br>{{user_app.top1_app_total}} Mbit/s</td>
-                        <td>{{user_app.top2_app_from}} ~ <br>{{user_app.top2_app_until}}</td>
-                        <td>{{ user_app.top2_app_name }} <br>{{user_app.top2_app_total}} Mbit/s</td>
-                        <td>{{user_app.top3_app_from}} ~ <br>{{user_app.top3_app_until}}</td>
-                        <td>{{ user_app.top3_app_name }} <br>{{user_app.top3_app_total}} Mbit/s</td>
-                    </tr>
-                    </tbody>
-                </table>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4><b>사용자별 TOP3 어플리케이션</b></h4>
+                </div>
+                <div class="panel-body">
+                    <table id="table3" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>사용자</th>
+                            <th>기간</th>
+                            <th>APP1(AVG)</th>
+                            <th>기간</th>
+                            <th>APP2(AVG)</th>
+                            <th>기간</th>
+                            <th>APP3(AVG)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user_app in _users_app">
+                            <td>{{$index+1}}</td>
+                            <td>{{ user_app.user_name }}</td>
+                            <td>{{user_app.top1_app_from}} ~ <br>{{user_app.top1_app_until}}</td>
+                            <td>{{ user_app.top1_app_name }} <br>{{user_app.top1_app_total}} Mbit/s</td>
+                            <td>{{user_app.top2_app_from}} ~ <br>{{user_app.top2_app_until}}</td>
+                            <td>{{ user_app.top2_app_name }} <br>{{user_app.top2_app_total}} Mbit/s</td>
+                            <td>{{user_app.top3_app_from}} ~ <br>{{user_app.top3_app_until}}</td>
+                            <td>{{ user_app.top3_app_name }} <br>{{user_app.top3_app_total}} Mbit/s</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <!--<canvas id="users_app" class="chart-horizontal-bar" chart-data="_users_app_data"-->
+                    <!--chart-labels="_users_app_label" chart-series="_users_app_series"-->
+                    <!--chart-colors="colors" chart-options="_users_app_option">-->
+                    <!--</canvas>-->
+                </div>
             </div>
 
+        </div>
     </div>
     <div id="fourth_page" ng-show="getGraphState(grpState, 'user_group_report')">
         <div class="row">
             <div class="col-lg-12 col-sm-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4><b>사용자 그룹 트래픽({{_user_group_size}} 그룹)</b></h4>
+                        <h4><b>그룹별 네트워크 사용량({{_user_group_size}} 그룹)</b></h4>
                     </div>
                     <div class="panel-body">
                         <!--<canvas id="users" class="chart-horizontal-bar" chart-data="_users_data"-->
@@ -344,6 +377,35 @@
                         <!--chart-labels="_users_label" chart-series="_users_flow_disc_series"-->
                         <!--chart-colors="colors" chart-options="_users_flow_disc_option">-->
                         <!--</canvas>-->
+                        <br>
+                        <table id="table4" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>사용자 그룹</th>
+                            <th>기간</th>
+                            <th>총 사용량</th>
+                            <th>다운로드속도(AVG)</th>
+                            <th>업로드속도(MAX)</th>
+                            <th>플로우수(AVG)</th>
+                            <!--<th>플로우 최대 사용량</th>-->
+                            <th>제어량</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="user_group in _user_group_tb_data">
+                            <td>{{$index+1}}</td>
+                            <td>{{ user_group.name }}</td>
+                            <td>{{user_group.from}} ~ {{user_group.until}}</td>
+                            <td>{{ user_group.total }} Mbit/s</td>
+                            <td>{{ user_group.down }} Mbit/s</td>
+                            <td>{{ user_group.up }} Mbit/s</td>
+                            <td>{{ user_group.flows }} /s</td>
+                            <!--<td>{{ user.max_flows }} /s</td>-->
+                            <td>{{ user_group.disc_rate }} /s</td>
+                        </tr>
+                        </tbody>
+                    </table>
                     </div>
                 </div>
                 <!--<div class="panel panel-default">-->
@@ -367,38 +429,7 @@
                 <!--</div>-->
             </div>
         </div>
-        <div class="row">
-            <div class="col-lg-12 col-sm-12">
-                <table id="table4" class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>사용자 그룹</th>
-                        <th>기간</th>
-                        <th>총 사용량</th>
-                        <th>다운로드 사용량</th>
-                        <th>업로드 사용량</th>
-                        <th>플로우 평균 사용량</th>
-                        <!--<th>플로우 최대 사용량</th>-->
-                        <th>제어량</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="user_group in _user_group_tb_data">
-                        <td>{{$index+1}}</td>
-                        <td>{{ user_group.name }}</td>
-                        <td>{{user_group.from}} ~ {{user_group.until}}</td>
-                        <td>{{ user_group.total }} Mbit/s</td>
-                        <td>{{ user_group.down }} Mbit/s</td>
-                        <td>{{ user_group.up }} Mbit/s</td>
-                        <td>{{ user_group.flows }} /s</td>
-                        <!--<td>{{ user.max_flows }} /s</td>-->
-                        <td>{{ user_group.disc_rate }} /s</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+
     </div>
 
     <div id="fifth_page" ng-show="getGraphState(grpState, 'user_group_report')">
@@ -406,100 +437,55 @@
             <div class="col-lg-12 col-sm-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h4><b>사용자 트래픽(TOP5)</b></h4>
+                        <h4><b>그룹별 TOP5 사용자</b></h4>
                     </div>
                     <div class="panel-body">
-                        <canvas id="user_in_group" class="chart-horizontal-bar" chart-data="_user_in_group_tr_data"
-                                chart-labels="_user_in_group_label" chart-series="_user_in_group_series"
-                                chart-colors="colors" chart-options="_user_in_group_option">
-                        </canvas>
+                        <!--<canvas id="user_in_group" class="chart-horizontal-bar" chart-data="_user_in_group_tr_data"-->
+                                <!--chart-labels="_user_in_group_label" chart-series="_user_in_group_series"-->
+                                <!--chart-colors="colors" chart-options="_user_in_group_option">-->
+                        <!--</canvas>-->
+                        <br>
+                        <div class="col-lg-12 col-sm-12" ng-repeat="user_ingroup in _user_in_group_tb">
+                            <table id="table5_{{$index + 1}}" class="table table-hover" >
+                                <thead>
+                                <tr>
+                                    <!--<th>{{$index + 1}}</th>-->
+                                    <th colspan="8">{{$index+1}}. 그룹: {{ user_ingroup.user_group_name }}</th>
+                                </tr>
+                                <tr>
+                                    <th>#</th>
+                                    <th>사용자</th>
+                                    <th>기간</th>
+                                    <th>총 사용량</th>
+                                    <th>다운로드 사용량</th>
+                                    <th>업로드 사용량</th>
+                                    <th>플로우 평균 사용량</th>
+                                    <!--<th>플로우 최대 사용량</th>-->
+                                    <th>제어량</th>
+                                </tr>
+                                </thead>
+                                <tbody ng-repeat="top_users in user_ingroup.top_user_data">
+                                <tr>
+                                    <!--<td rowspan="5">{{ user_ingroup.user_group_name }}</td>-->
+                                    <!--<td ng-if="$index==0" rowspan="{{user_ingroup.top_user_data.length}}"></td>-->
+                                    <!--<td ng-if="$index!=0"></td>-->
+                                    <td>{{$index+1}}</td>
+                                    <td><b>{{ top_users.top_user_name }}</b></td>
+                                    <td>{{top_users.top_user_from}} ~ <br>{{top_users.top_user_until}}</td>
+                                    <td>{{top_users.top_user_total}} Mbit/s</td>
+                                    <td>{{top_users.top_user_down}} Mbit/s</td>
+                                    <td>{{top_users.top_user_up}} Mbit/s</td>
+                                    <td>{{top_users.top_user_active_flow}} /s</td>
+                                    <td>{{top_users.top_user_packet_disc_rate}} /s</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-12 col-sm-12" ng-repeat="user_ingroup in _user_in_group_tb">
-                <table id="table5_{{$index + 1}}" class="table table-hover" >
-                    <thead>
-                    <tr>
-                        <!--<th>{{$index + 1}}</th>-->
-                        <th>{{$index+1}}. 그룹({{ user_ingroup.user_group_name }})</th>
-                    </tr>
-                    <tr>
-                        <th>#</th>
-                        <th>사용자</th>
-                        <th>기간</th>
-                        <th>총 사용량</th>
-                        <th>다운로드 사용량</th>
-                        <th>업로드 사용량</th>
-                        <th>플로우 평균 사용량</th>
-                        <!--<th>플로우 최대 사용량</th>-->
-                        <th>제어량</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="top_users in user_ingroup.top_user_data">
-                        <!--<td rowspan="5">{{ user_ingroup.user_group_name }}</td>-->
-                        <!--<td ng-if="$index==0" rowspan="{{user_ingroup.top_user_data.length}}"></td>-->
-                        <!--<td ng-if="$index!=0"></td>-->
-                        <td>{{$index+1}}</td>
-                        <td><b>{{ top_users.top_user_name }}</b></td>
-                        <td>{{top_users.top_user_from}} ~ <br>{{top_users.top_user_until}}</td>
-                        <td>{{top_users.top_user_total}} Mbit/s</td>
-                        <td>{{top_users.top_user_down}} Mbit/s</td>
-                        <td>{{top_users.top_user_up}} Mbit/s</td>
-                        <td>{{top_users.top_user_active_flow}} /s</td>
-                        <td>{{top_users.top_user_packet_disc_rate}} /s</td>
-                    </tr>
-                    <!--<tr>-->
-                    <!--<td rowspan="5">{{ user_ingroup.user_group_name }}</td>-->
-                    <!--<td>{{ user_ingroup.top1_user_name }}</td>-->
-                    <!--<td>{{user_ingroup.top1_user_from}} ~ <br>{{user_ingroup.top1_user_until}}</td>-->
-                    <!--<td>{{user_ingroup.top1_user_total}} Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--</tr>-->
-                    <!--<tr>-->
-                    <!--<td>{{ user_ingroup.top2_user_name }}</td>-->
-                    <!--<td>{{user_ingroup.top2_user_from}} ~ <br>{{user_ingroup.top2_user_until}}</td>-->
-                    <!--<td>{{user_ingroup.top2_user_total}} Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--</tr>-->
-                    <!--<tr>-->
-                    <!--<td>{{ user_ingroup.top3_user_name }}</td>-->
-                    <!--<td>{{user_ingroup.top3_user_from}} ~ <br>{{user_ingroup.top3_user_until}}</td>-->
-                    <!--<td>{{user_ingroup.top3_user_total}} Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--</tr>-->
-                    <!--<tr>-->
-                    <!--<td>{{ user_ingroup.top4_user_name }}</td>-->
-                    <!--<td>{{user_ingroup.top4_user_from}} ~ <br>{{user_ingroup.top4_user_until}}</td>-->
-                    <!--<td>{{user_ingroup.top4_user_total}} Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--</tr>-->
-                    <!--<tr>-->
-                    <!--<td>{{ user_ingroup.top5_user_name }}</td>-->
-                    <!--<td>{{user_ingroup.top5_user_from}} ~ <br>{{user_ingroup.top5_user_until}}</td>-->
-                    <!--<td>{{user_ingroup.top5_user_total}} Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--<td> Mbit/s</td>-->
-                    <!--</tr>-->
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
     <!--<div id="space_for_user_in_group"></div>-->
