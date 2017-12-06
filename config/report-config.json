@@ -57,6 +57,22 @@
       "order": "<total_rate",
       "limit": "5",
       "with": "total_rate>=0.01"
+    },
+    "user_group_tr": {
+      "class": "user_group_tr",
+      "section": "user_groups/",
+      "attr": "name,source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
+      "order": "<total_rate",
+      "limit": "100",
+      "operation": "auto"
+    },
+    "user_in_group_tr": {
+      "class": "user_in_group_tr",
+      "section": "user_groups/:user_group_name/users/",
+      "attr": "name,source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
+      "order": "<total_rate",
+      "limit": "10",
+      "operation": "auto"
     }
   }
 }

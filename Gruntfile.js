@@ -147,7 +147,8 @@ module.exports = function(grunt) {
                     'js/app.js',
                     'js/*/*.js',
                     '*.html',
-                    'templates/*.html'
+                    'templates/*.html',
+                    'config/report-config.json'
                 ],
                 // 여기서 concat 실행
                 tasks: ['htmlhint','jshint', 'copy', 'concat', 'uglify:dist', 'htmlmin:dist', 'comments:dist']
@@ -179,8 +180,6 @@ module.exports = function(grunt) {
             'watch'
         ]);
     });
-
-
     grunt.registerTask('package', ['bower', 'concat', 'copy']);
     grunt.registerTask('default', ['bower', 'connect', 'watch']);
 };

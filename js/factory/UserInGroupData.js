@@ -1,4 +1,4 @@
-reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil, ReportUrl, ReportQstring, ReportAuth, SharedData) {
+reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil, ReportUrl, ReportQstring, ReportAuth, SharedData) {
     var from = SharedData.getFrom();
     var until = SharedData.getUntil();
     // open sync
@@ -20,7 +20,7 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
         async: true
     });
 
-    function getUserAppData(hostname, userid) {
+    function getUserInGroupData(hostname, user_group_name) {
         var rest_from = new ReportFrom("")
             .setFrom(from)
             .getFrom();
@@ -28,38 +28,38 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
             .setUntil(until)
             .getUntil();
         var rest_qstring = new ReportQstring("")
-            .addSelect('?select='+config.user_app.attr)
-            .addOrder('&order='+config.user_app.order)
-            .addLimit('&limit='+config.user_app.limit)
-            .addWith('&with='+config.user_app.with)
+            .addSelect('?select='+config.user_in_group_tr.attr)
+            .addOrder('&order='+config.user_in_group_tr.order)
+            .addLimit('&limit='+config.user_in_group_tr.limit)
+            .addOperation('&operation='+config.user_in_group_tr.operation)
+            // .addWith('&with='+config.user_app.with)
             .addFrom('&from='+rest_from)
             .addUntil('&until='+rest_until)
             .getQstring();
         var rest_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
-            .addSection(config.user_app.section.replace(':userID', userid))
+            .addSection(config.user_in_group_tr.section.replace(':user_group_name', user_group_name))
             .addQstring(rest_qstring)
             .getUrls();
         var headers = new ReportAuth("")
             .addId(config.common.id)
             .addPasswd(config.common.passwd)
             .getAuth();
-
+        // console.log("user in usergroup url");
+        // console.log(rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
             headers: headers
         }).
         then(function(data, status, headers, config) {
-                // console.log(data);
-                // console.log(data.data.collection.length);
+                console.log(data.data.collection.length);
                 if (data.data.collection.length === 0){
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
-                        text: 'ERROR - 유저-앱 연관 데이터가 존재하지 않습니다.'
+                        text: 'WARN - '+user_group_name+'그룹 내에 유저 데이터가 존재하지 않습니다.'
                     });
+                    return data;
                 } else {
                     return data;
                 }
@@ -70,13 +70,13 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
                         type: 'error',
                         stay: 'true',
                         time: 3600,
-                        text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
+                        text: 'ERROR - 그룹 내 유저 데이터를 받아 올 수 없습니다.'
                     });
                 }
             })
     }
 
     return {
-        getUserAppData: getUserAppData
+        getUserInGroupData: getUserInGroupData
     };
 });
