@@ -21,11 +21,12 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
     $.ajaxSetup({
         async: true
     });
+    console.log(config);
     // set date and headers
     var rest_from = new ReportFrom("").setFrom(from).getFrom();
     var rest_until = new ReportUntil("").setUntil(until).getUntil();
     var headers = new ReportAuth("").addId(config.common.id).addPasswd(config.common.passwd).getAuth();
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
      *   get meta data link
      */
@@ -36,7 +37,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection("interfaces/")
             .addQstring("?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description")
             .getUrls();
-        console.log(int_url);
+        // console.log(int_url);
         return $http({
             method: 'GET',
             url: int_url,
@@ -66,7 +67,8 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection("")
             .addQstring("")
             .getUrls();
-        console.log(meta_url);
+        // console.log("meta_url");
+        // console.log(meta_url);
         return $http({
             method: 'GET',
             url: meta_url,
@@ -90,6 +92,88 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
     /*
      *   get user's total rate
      */
+    function getUserGroupSize(hostname) {
+        // set urls
+        var rest_qstring = new ReportQstring("")
+            .addLimit('?limit=0')
+            .getQstring();
+        var rest_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
+            .addSection(config.user_group_tr.section)
+            .addQstring(rest_qstring)
+            .getUrls();
+        // console.log(rest_url);
+        return $http({
+            method: 'GET',
+            url: rest_url,
+            headers: headers
+        }).
+        then(
+            function(data, status, headers, config) {
+                return data;
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        stay: 'true',
+                        time: 3600,
+                        text: 'ERROR - 유저 그룹 사이즈가 존재하지 않습니다.'
+                    });
+                }
+            }
+        )
+    }
+    /*
+     *   get user's total rate
+     */
+    function getUserGroupData(hostname, group_size) {
+        // set urls
+        var rest_qstring = new ReportQstring("")
+            .addSelect('?select='+config.user_group_tr.attr)
+            .addOrder('&order='+config.user_group_tr.order)
+            .addLimit('&limit='+group_size)
+            // .addWith('&with='+config.user_group_tr.with)
+            .addFrom('&from='+rest_from)
+            .addUntil('&until='+rest_until)
+            .getQstring();
+        var rest_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
+            .addSection(config.user_group_tr.section)
+            .addQstring(rest_qstring)
+            .getUrls();
+        // console.log(rest_url);
+        return $http({
+            method: 'GET',
+            url: rest_url,
+            headers: headers
+        }).
+        then(function(data, status, headers, config) {
+                if (data.data.collection.length === 0){
+                    notie.alert({
+                        type: 'error',
+                        text: 'WARN - 그룹 데이터가 존재하지 않습니다.'
+                    });
+                } else {
+                    return data;
+                }
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        stay: 'true',
+                        time: 3600,
+                        text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
+                    });
+                }
+            })
+    }
+    /*
+     *   get user's total rate
+     */
     function getUserData(hostname) {
         // set urls
         var rest_qstring = new ReportQstring("")
@@ -105,7 +189,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        console.log(rest_url);
+        // console.log(rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -145,7 +229,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        console.log("get active url : " + rest_url);
+        // console.log("get active url : " + rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -185,7 +269,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        console.log(rest_url);
+        // console.log(rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -289,6 +373,8 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
         getMetaLink: getMetaLink,
         getUserData: getUserData,
         getUserActiveFlows: getUserActiveFlows,
+        getUserGroupSize: getUserGroupSize,
+        getUserGroupData: getUserGroupData,
         getIntRcvData: getIntRcvData,
         getIntTrsData: getIntTrsData
     };

@@ -2,7 +2,7 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     var from;
     var until;
     var today = new $window.Sugar.Date(new Date());
-    $scope.report_def = {1: 'int_report', 2: 'user_report'};
+    $scope.report_def = {1: 'int_report', 2: 'user_report', 3:'user_group_report'};
     $scope.select2model = [];
     $scope.select2data = [
         {
@@ -12,6 +12,10 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         {
             id: 2,
             label: "사용자 트래픽"
+        },
+        {
+            id: 3,
+            label: "사용자 그룹 트래픽"
         }
         // {
         //     id: 3,
@@ -81,6 +85,7 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                 SharedData.setUntil(until);
                 SharedData.setSelect2model($scope.select2model);
                 SharedData.setReportType($scope.report_type);
+                console.log($scope.report_type);
                 $location.path('/report');
             }else{
                 notie.alert({

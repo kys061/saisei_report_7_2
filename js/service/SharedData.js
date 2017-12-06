@@ -7,6 +7,7 @@ reportApp.service('SharedData', function() {
     sharedData.until;
     sharedData.select2model;
     sharedData.report_type;
+    sharedData.group_size = 0;
     return {
         setCurrentState: function(arg) {
             sharedData.currentState = arg;
@@ -40,6 +41,12 @@ reportApp.service('SharedData', function() {
         },
         getReportType: function() {
             return sharedData.report_type;
+        },
+        setGroupSize: function(size) {
+            sharedData.group_size = size;
+        },
+        getGroupSize: function() {
+            return sharedData.group_size;
         }
     };
 });
