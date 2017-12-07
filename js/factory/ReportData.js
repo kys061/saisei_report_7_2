@@ -89,6 +89,53 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
                 }
             })
     }
+/*
+ *   get user's total rate
+ */
+    function getUserGroupActiveFlows(hostname, size) {
+        // set urls
+        //http://10.161.147.55:5000/rest/stm/configurations/running/user_groups/
+        // ?select=active_flows
+        // &from=-24h
+        // &operation=raw
+        // &history_points=true
+        // &limit=50
+        // &order=%3Cactive_flows
+        var rest_qstring = new ReportQstring("")
+            .addSelect('?select='+config.user_group_active_flows.attr)
+            .addFrom('&from='+rest_from)
+            .addOperation('&operation=raw')
+            .addHistPoint('&history_points='+config.user_group_active_flows.hist_point)
+            .addLimit('&limit='+size)
+            .addOrder('&order='+config.user_group_active_flows.order)
+            .addUntil('&until='+rest_until)
+            .getQstring();
+        var rest_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
+            .addSection(config.user_group_active_flows.section)
+            .addQstring(rest_qstring)
+            .getUrls();
+        // console.log("get active url : " + rest_url);
+        return $http({
+            method: 'GET',
+            url: rest_url,
+            headers: headers
+        }).
+        then(function(data, status, headers, config) {
+                return data;
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        stay: 'true',
+                        time: 3600,
+                        text: 'ERROR - 유저그룹 ActiveFlows 데이터가 존재하지 않습니다.'
+                    });
+                }
+            })
+    }
     /*
      *   get user's total rate
      */
@@ -229,7 +276,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        // console.log("get active url : " + rest_url);
+        console.log("get active url : " + rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -375,6 +422,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
         getUserActiveFlows: getUserActiveFlows,
         getUserGroupSize: getUserGroupSize,
         getUserGroupData: getUserGroupData,
+        getUserGroupActiveFlows: getUserGroupActiveFlows,
         getIntRcvData: getIntRcvData,
         getIntTrsData: getIntTrsData
     };

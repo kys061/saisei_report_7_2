@@ -55,6 +55,17 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         }
     ];
 
+    $scope.segState =[
+        {
+            name: "seg1",
+            state: false
+        },
+        {
+            name: "seg2",
+            state: false
+        }
+    ];
+
     for (var k = 0; k < report_type.length; k++) {
         if (report_type[k].status) {
             for (var j = 0; j < $scope.grpState.length; j++) {
@@ -87,6 +98,13 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     };
     console.log(from + " - " + until);
 
+    $scope.getSegState = function(arr, name) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i].name === name) {
+                return arr[i].state === true;
+            }
+        }
+    };
 
     // 메타데이터 가져오기 정의
     var getMetaData = function() {
@@ -146,25 +164,73 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         // success
         function(val){
             var hostname = val.hostname;
-            var int_name = val.int_ext_name[0];
-            // 그래프
-            // 1. 인터페이스
-            var intGrpDataset = new ReportInterfaceTotalRate();
-            intGrpDataset.q_intData(hostname, int_name, from, until, duration, $scope.grpState[0].state).then(
-                function(val){
-                    $scope.data = val.data;
-                    $scope.labels = val.labels;
-                    $scope.series = val.series;
-                    $scope.colors = val.colors;
-                    $scope.options = val.options;
-                    $scope.datasetOverride = val.datasetOverride;
-                    $scope.int_data = val.int_data;
-                    $scope.int_name = val.int_name;
-                },
-                function(val){
-                    console.log(val);
-                }
-            );
+
+            if (val.int_ext_name.length > 1){
+                var first_seg_int_name = val.int_ext_name[0];
+                var second_seg_int_name = val.int_ext_name[1];
+                _.each($scope.segState, function(state){
+                    state.state = true
+                });
+                // 그래프
+                // 1. 인터페이스
+                var intGrpDataset = new ReportInterfaceTotalRate();
+                intGrpDataset.q_firstSegIntData(hostname, first_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
+                    function(val){
+                        $scope.data = val.data;
+                        $scope.labels = val.labels;
+                        $scope.series = val.series;
+                        $scope.colors = val.colors;
+                        $scope.options = val.options;
+                        $scope.datasetOverride = val.datasetOverride;
+                        $scope.int_data = val.int_data;
+                        $scope.int_name = val.int_name;
+                    },
+                    function(val){
+                        console.log(val);
+                    }
+                );
+
+                intGrpDataset.q_secondSegIntData(hostname, second_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
+                    function(val){
+                        $scope.second_seg_data = val.data;
+                        $scope.second_seg_labels = val.labels;
+                        $scope.second_seg_series = val.series;
+                        $scope.second_seg_colors = val.colors;
+                        $scope.second_seg_options = val.options;
+                        $scope.second_seg_datasetOverride = val.datasetOverride;
+                        $scope.second_seg_int_data = val.int_data;
+                        $scope.second_seg_int_name = val.int_name;
+                    },
+                    function(val){
+                        console.log(val);
+                    }
+                );
+            }else{
+                _.each($scope.segState, function(state, state_index){
+                    if(state_index === 0) state.state = true;
+                });
+                var first_seg_int_name = val.int_ext_name[0];
+                var intGrpDataset = new ReportInterfaceTotalRate();
+                intGrpDataset.q_firstSegIntData(hostname, first_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
+                    function(val){
+                        $scope.data = val.data;
+                        $scope.labels = val.labels;
+                        $scope.series = val.series;
+                        $scope.colors = val.colors;
+                        $scope.options = val.options;
+                        $scope.datasetOverride = val.datasetOverride;
+                        $scope.int_data = val.int_data;
+                        $scope.int_name = val.int_name;
+                    },
+                    function(val){
+                        console.log(val);
+                    }
+                );
+            }
+
+
+
+
             // 2. 유저 트래픽 그래프
             var userGrpDataset = new ReportUserData();
             userGrpDataset.q_userData(hostname, from, until, duration, $scope.grpState[1].state).then(

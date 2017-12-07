@@ -23,7 +23,7 @@ var reportApp = angular.module('reportApp', [
         $locationProvider.html5Mode(true);
     })
     .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
-        cfpLoadingBarProvider.latencyThreshold = 1200;
+        cfpLoadingBarProvider.latencyThreshold = 400;
         cfpLoadingBarProvider.parentSelector = '#loading-bar-container';
         cfpLoadingBarProvider.spinnerTemplate = '<div id="loading-bar-spinner"><div class="spinner-icon"></div></div>';
     }])
