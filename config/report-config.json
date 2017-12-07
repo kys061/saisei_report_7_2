@@ -66,6 +66,24 @@
       "limit": "100",
       "operation": "auto"
     },
+    "user_group_active_flows": {
+      "class": "user_group_active_flows",
+      "section": "user_groups/",
+      "attr": "active_flows",
+      "order": "<total_rate",
+      "limit": "50",
+      "operation": "raw",
+      "hist_point": "true"
+    },
+    "user_in_group_active_flows": {
+      "class": "user_in_group_active_flows",
+      "section": "/users/:user_name",
+      "attr": "active_flows",
+      "order": "<total_rate",
+      "limit": "50",
+      "operation": "raw",
+      "hist_point": "true"
+    },
     "user_in_group_tr": {
       "class": "user_in_group_tr",
       "section": "user_groups/:user_group_name/users/",
