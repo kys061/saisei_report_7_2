@@ -1,5 +1,5 @@
-reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFrom, ReportUntil, ReportUrl,
-                                         ReportQstring, ReportAuth, ReportConfig, SharedData)
+reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFrom, ReportUntil, ReportUrl,
+                                               ReportQstring, ReportAuth, ReportConfig, SharedData)
 {
     var from = SharedData.getFrom();
     var until = SharedData.getUntil();
@@ -90,9 +90,9 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
                 }
             })
     }
-/*
- *   get user's total rate
- */
+    /*
+     *   get user's total rate
+     */
     function getUserGroupActiveFlows(hostname, size) {
         // set urls
         //http://10.161.147.55:5000/rest/stm/configurations/running/user_groups/

@@ -33,6 +33,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     var until = SharedData.getUntil();
     var select2model = SharedData.getSelect2model();
     var report_type = SharedData.getReportType();
+    console.log("from : until -> " + from + ':' + until);
     /*
      *  그래프 상태 체크
      *  [0] : 인터페이스 그래프
@@ -235,6 +236,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             var userGrpDataset = new ReportUserData();
             userGrpDataset.q_userData(hostname, from, until, duration, $scope.grpState[1].state).then(
                 function(val){
+                    console.log(val.user._users_data);
                     $scope._users_tb_data = val.user._users_tb_data;
                     $scope._users_data = val.user._users_data;
                     $scope._users_flow_disc_data = val.user._users_flow_disc_data;

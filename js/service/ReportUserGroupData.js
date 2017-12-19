@@ -38,7 +38,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                             var _user_group_label = [];
                             var _user_group_from = [];
                             var _user_group_until = [];
-                            var _user_group_series = ['총사용량(Mbit/s)', '다운로드 사용량(Mbit/s)', '업로드 사용량(Mbit/s)'];
+                            var _user_group_series = ['다운로드 사용량(Mbit/s)', '업로드 사용량(Mbit/s)'];
                             var _user_group_flow_disc_series = ['플로우 사용량(/s)', '제어량(/s)'];
                             var _user_group_total = [];
                             var _user_group_download = [];
@@ -91,7 +91,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                     disc_rate: elem.packet_discard_rate
                                 });
                             });
-                            _user_group_data.push(_user_group_total);
+                            // _user_group_data.push(_user_group_total);
                             _user_group_data.push(_user_group_download);
                             _user_group_data.push(_user_group_upload);
                             console.log("user_group_act_flow_max_data", user_group_act_flow_max_data);

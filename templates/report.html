@@ -9,7 +9,9 @@
         .table {
             border: 1.5px solid;
         }
-
+        #main{
+            margin-top: 30px;
+        }
         /*.table thead>tr>th {*/
         /*border-bottom: none;*/
         /*}*/
@@ -196,12 +198,6 @@
                             ng-show="getSegState(segState, 'seg1')">
                     </canvas>
                     <hr>
-                    <canvas id="second_seg_int" class="chart chart-line" chart-data="second_seg_data" chart-labels="second_seg_labels"
-                            chart-series="second_seg_series" chart-options="second_seg_options"
-                            chart-dataset-override="second_seg_datasetOverride" chart-colors="second_seg_colors"
-                            ng-show="getSegState(segState, 'seg2')">
-                    </canvas>
-                    <hr>
                     <table id="table1" class="table table-hover">
                         <thead>
                         <tr>
@@ -210,8 +206,8 @@
                         <tr>
                             <th>#</th>
                             <th>날짜</th>
-                            <th>수신 트래픽 속도(Mbit/s, AVG)</th>
-                            <th>송신 트래픽 속도(Mbit/s, AVG)</th>
+                            <th>수신 평균 트래픽 속도(Mbit/s)</th>
+                            <th>송신 평균 트래픽 속도(Mbit/s)</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -222,26 +218,33 @@
                             <td>{{ data.trs_avg }} Mbit/s</td>
                         </tr>
                         </tbody>
-                        <!--</table>-->
-                        <!--<table id="second_seg_table1" class="table table-hover">-->
+                    </table>
+                    <hr>
+                    <canvas id="second_seg_int" class="chart chart-line" chart-data="second_seg_data" chart-labels="second_seg_labels"
+                            chart-series="second_seg_series" chart-options="second_seg_options"
+                            chart-dataset-override="second_seg_datasetOverride" chart-colors="second_seg_colors"
+                            ng-show="getSegState(segState, 'seg2')">
+                    </canvas>
+                    <hr>
+                    <table id="second_seg_table1" class="table table-hover">
                         <thead ng-show="getSegState(segState, 'seg2')">
-                        <tr>
-                            <th colspan="2">2번 세그먼트</th>
-                        </tr>
-                        <tr>
-                            <th>#</th>
-                            <th>날짜</th>
-                            <th>수신 트래픽 속도(Mbit/s, AVG)</th>
-                            <th>송신 트래픽 속도(Mbit/s, AVG)</th>
-                        </tr>
+                            <tr>
+                                <th colspan="2">2번 세그먼트</th>
+                            </tr>
+                            <tr>
+                                <th>#</th>
+                                <th>날짜</th>
+                                <th>수신 트래픽 속도(Mbit/s, AVG)</th>
+                                <th>송신 트래픽 속도(Mbit/s, AVG)</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="data in second_seg_int_data">
-                            <td>{{$index+1}}</td>
-                            <td>{{ data.date }}</td>
-                            <td>{{ data.rcv_avg }} Mbit/s</td>
-                            <td>{{ data.trs_avg }} Mbit/s</td>
-                        </tr>
+                            <tr ng-repeat="data in second_seg_int_data">
+                                <td>{{$index+1}}</td>
+                                <td>{{ data.date }}</td>
+                                <td>{{ data.rcv_avg }} Mbit/s</td>
+                                <td>{{ data.trs_avg }} Mbit/s</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -270,7 +273,7 @@
                     <!--chart-labels="_users_label" chart-series="_users_flow_disc_series"-->
                     <!--chart-colors="colors" chart-options="_users_flow_disc_option">-->
                     <!--</canvas>-->
-                    <br>
+                    <hr>
                     <table id="table2" class="table table-hover">
                         <thead>
                         <tr>

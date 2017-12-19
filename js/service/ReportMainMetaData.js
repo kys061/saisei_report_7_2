@@ -1,4 +1,4 @@
-reportApp.service('ReportMetaData', function($window, $q, ReportData) {
+reportApp.service('ReportMainMetaData', function($window, $q, ReportMain) {
     var metaData = function() {
         var self = this;
         this.q_metaLinkData = function() {
@@ -7,7 +7,7 @@ reportApp.service('ReportMetaData', function($window, $q, ReportData) {
             // var until = until;
             // var duration = duration;
             // if (isset) {
-            ReportData.getMetaLink().then(function (data) {
+            ReportMain.getMetaLink().then(function (data) {
                 /**********************************/
                 /* MetaLinkData          */
                 /**********************************/
