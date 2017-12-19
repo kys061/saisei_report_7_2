@@ -120,7 +120,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                         var _users_label = [];
                         var _users_from = [];
                         var _users_until = [];
-                        var _users_series = ['총사용량(Mbit/s)', '다운로드 사용량(Mbit/s)', '업로드 사용량(Mbit/s)'];
+                        var _users_series = ['다운로드 사용량(Mbit/s)', '업로드 사용량(Mbit/s)'];
                         var _users_flow_disc_series = ['플로우 사용량(/s)', '제어량(/s)'];
                         var _users_total = [];
                         var _users_download = [];
@@ -200,7 +200,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                         console.log(_users_tb_data);
 
                         // var _users_data = [_users_total, _users_download, _users_upload];
-                        _users_data.push(_users_total);
+                        // _users_data.push(_users_total);
                         _users_data.push(_users_download);
                         _users_data.push(_users_upload);
                         // _users_data.push(_users_active_flows);
