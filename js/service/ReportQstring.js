@@ -5,8 +5,16 @@ reportApp.service('ReportQstring', function() {
             start = start + attr;
             return self;
         };
+        this.addOperation = function(operation){
+            start = start + operation;
+            return self;
+        };
         this.addOrder = function(order){
             start = start + order;
+            return self;
+        };
+        this.addHistPoint = function(val){
+            start = start + val;
             return self;
         };
         this.addLimit = function(limit){
@@ -25,6 +33,7 @@ reportApp.service('ReportQstring', function() {
             start = start + until;
             return self;
         };
+
         this.getQstring = function(){
             return start;
         };

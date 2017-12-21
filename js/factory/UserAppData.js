@@ -51,8 +51,8 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
             headers: headers
         }).
         then(function(data, status, headers, config) {
-                console.log(data);
-                console.log(data.data.collection.length);
+                // console.log(data);
+                // console.log(data.data.collection.length);
                 if (data.data.collection.length === 0){
                     notie.alert({
                         type: 'error',

@@ -1,8 +1,9 @@
-reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templateCache, $location, $window, SharedData) {
+reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templateCache, $location, $window, $q, _,
+                                                   SharedData, ReportMain, ReportMainMetaData) {
     var from;
     var until;
     var today = new $window.Sugar.Date(new Date());
-    $scope.report_def = {1: 'int_report', 2: 'user_report'};
+    $scope.report_def = {1: 'int_report', 2: 'user_report', 3:'user_group_report'};
     $scope.select2model = [];
     $scope.select2data = [
         {
@@ -12,6 +13,10 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         {
             id: 2,
             label: "사용자 트래픽"
+        },
+        {
+            id: 3,
+            label: "사용자 그룹 트래픽"
         }
         // {
         //     id: 3,
@@ -39,6 +44,47 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         console.log(val);
         // $scope.until = new Date(val);
     });
+
+    // 메타데이터 가져오기 정의
+    var getMetaData = function() {
+        return $q(function(resolve, reject){
+            // 메타데이터
+            var metaLink = new ReportMainMetaData();
+            metaLink.q_metaLinkData().then(
+                function(val){
+                    $scope.hostname = val.hostname;
+                    resolve({
+                        hostname: $scope.hostname
+                    });
+                },
+                function(val){
+                    reject( Error("failure!!") );
+                }
+            )
+        });
+    };
+
+    getMetaData().then(
+        function(val){
+            console.log(val);
+            var hostname = val.hostname;
+            ReportMain.getUserGroupSize(hostname).then(
+                function (size) {
+                console.log("group_size", size.data.size);
+                $scope.group_size = size.data.size
+                },
+                function(val){
+                    notie.alert({
+                        type: 'error',
+                        text: '사용자 그룹 정보를 가지고 올 수 없습니다!!!'
+                    })
+                }
+            );
+        },
+        function(val){
+            console.log(val);
+        }
+    );
 
     $scope.sendDate = function() {
         var duration = $window.Sugar.Date.range(from, until).every('days').length;
@@ -75,13 +121,41 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
             });
         } else {
             if($scope.select2model.length > 0) {
-                $scope.currentState = false;
-                $scope.currentDurationState = false;
-                SharedData.setFrom(from);
-                SharedData.setUntil(until);
-                SharedData.setSelect2model($scope.select2model);
-                SharedData.setReportType($scope.report_type);
-                $location.path('/report');
+                console.log($scope.group_size);
+                var count_group = 0;
+                _($scope.select2model).each(function(elem, index){
+                    if (elem.id === 3){
+                        count_group += 1;
+                    }
+                });
+                if ($scope.group_size > 0) {
+                    console.log('count_group', count_group);
+                    $scope.currentState = false;
+                    $scope.currentDurationState = false;
+                    SharedData.setFrom(from);
+                    SharedData.setUntil(until);
+                    SharedData.setSelect2model($scope.select2model);
+                    SharedData.setReportType($scope.report_type);
+                    console.log($scope.report_type);
+                    $location.path('/report');
+                } else {
+                    console.log('count_group', count_group);
+                    if (count_group > 0) {
+                        notie.alert({
+                            type: 'error',
+                            text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹 트래픽은 해제해 주십시요!!!'
+                        })
+                    } else{
+                        $scope.currentState = false;
+                        $scope.currentDurationState = false;
+                        SharedData.setFrom(from);
+                        SharedData.setUntil(until);
+                        SharedData.setSelect2model($scope.select2model);
+                        SharedData.setReportType($scope.report_type);
+                        console.log($scope.report_type);
+                        $location.path('/report');
+                    }
+                }
             }else{
                 notie.alert({
                     type: 'error',
