@@ -10,8 +10,10 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
             var from = from;
             var until = until;
             var duration = duration;
+            var complete_count = 0;
             if (isset) {
                 ReportData.getUserActiveFlows(hostname).then(function (data) {
+                    complete_count += 1;
                     // 1. 데이터를 가져온다.
                     // 2. 시간과 데이터의 값을 각각의 배열로 만든다.
                     // 3. 데이터 배열에서 max값을 가진 index를 구한다.
@@ -109,6 +111,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                     // console.log(users_act_flow_data.indexOf(Math.max.apply(Math, users_act_flow_data)));
 
                     ReportData.getUserData(hostname).then(function (data) {
+                        complete_count += 1;
                         /*
                          * USER TOTAL RATE OF INTERFACE
                          */
@@ -175,8 +178,8 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                             _users_packet_disc_rate.push(_users[i]['packet_discard_rate']);
                             _users_tb_data.push({
                                 name: _users[i]['name'],
-                                from: user_from.toLocaleString(),
-                                until: user_until.toLocaleString(),
+                                from: (_.has(_users[i], "from")) ? user_from.toLocaleString():"None",
+                                until: (_.has(_users[i], "until")) ? user_until.toLocaleString():"None",
                                 total: (_users[i]['total_rate'] * 0.001).toFixed(3),
                                 down: (_users[i]['dest_rate'] * 0.001).toFixed(3),
                                 up: (_users[i]['source_rate'] * 0.001).toFixed(3),
@@ -320,6 +323,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                             xAxisID: 'x-axis-2'
                         }];
                         for (var i = 0; i < _users_label.length; i++) {
+                            complete_count += 1;
                             /**********************************/
                             /* USER-APP DATA                  */
                             /**********************************/
@@ -334,49 +338,103 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                                     7. _users_app_label : user name and app name for graph
                                     8. _users_app_option : options for graph
                                 */
-                                var top1_from = new Date(data['data']['collection'][0]['from']);
-                                top1_from.setHours(top1_from.getHours() + 9);
-                                var top1_until = new Date(data['data']['collection'][0]['until']);
-                                top1_until.setHours(top1_until.getHours() + 9);
-                                var top2_from = new Date(data['data']['collection'][1]['from']);
-                                top2_from.setHours(top2_from.getHours() + 9);
-                                var top2_until = new Date(data['data']['collection'][1]['until']);
-                                top2_until.setHours(top2_until.getHours() + 9);
-                                var top3_from = new Date(data['data']['collection'][2]['from']);
-                                top3_from.setHours(top3_from.getHours() + 9);
-                                var top3_until = new Date(data['data']['collection'][2]['until']);
-                                top3_until.setHours(top3_until.getHours() + 9);
+
+                                if (_.has(data['data']['collection'][0], "from") && _.has(data['data']['collection'][0], "until")) {
+                                    var top1_from = new Date(data['data']['collection'][0]['from']);
+                                    top1_from.setHours(top1_from.getHours() + 9);
+                                    var top1_until = new Date(data['data']['collection'][0]['until']);
+                                    top1_until.setHours(top1_until.getHours() + 9);
+                                }else{
+                                    var top1_from = "None";
+                                    var top1_until = "None";
+                                }
+                                if (_.has(data['data']['collection'][1], "from") && _.has(data['data']['collection'][1], "until")) {
+                                    var top2_from = new Date(data['data']['collection'][1]['from']);
+                                    top2_from.setHours(top2_from.getHours() + 9);
+                                    var top2_until = new Date(data['data']['collection'][1]['until']);
+                                    top2_until.setHours(top2_until.getHours() + 9);
+                                }else{
+                                    var top2_from = "None";
+                                    var top2_until = "None";
+                                }
+                                if (_.has(data['data']['collection'][2], "from") && _.has(data['data']['collection'][2], "until")) {
+                                    var top3_from = new Date(data['data']['collection'][2]['from']);
+                                    top3_from.setHours(top3_from.getHours() + 9);
+                                    var top3_until = new Date(data['data']['collection'][2]['until']);
+                                    top3_until.setHours(top3_until.getHours() + 9);
+                                }else{
+                                    var top3_from = "None";
+                                    var top3_until = "None";
+                                }
+                                // var top3_from = new Date(data['data']['collection'][2]['from']);
+                                // top3_from.setHours(top3_from.getHours() + 9);
+                                // var top3_until = new Date(data['data']['collection'][2]['until']);
+                                // top3_until.setHours(top3_until.getHours() + 9);
                                 // console.log(data['data']['collection'][0].link.href.split('/')[6]);
                                 _users_app.push({
                                     "user_name": data['data']['collection'][0].link.href.split('/')[6],
-                                    "top1_app_name": data['data']['collection'][0]['name'],
-                                    "top1_app_total": (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3),
+                                    "top1_app_name": (_.has(data['data']['collection'][0], "name")) ? data['data']['collection'][0]['name']:'None',
+                                    "top1_app_total": (_.has(data['data']['collection'][0], "total_rate")) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
                                     "top1_app_from": top1_from.toLocaleString(),
                                     "top1_app_until": top1_until.toLocaleString(),
-                                    "top2_app_name": data['data']['collection'][1]['name'],
-                                    "top2_app_total": (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3),
+                                    "top2_app_name": (_.has(data['data']['collection'][1], "name")) ? data['data']['collection'][1]['name']:'None',
+                                    "top2_app_total": (_.has(data['data']['collection'][1], "total_rate")) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
                                     "top2_app_from": top2_from.toLocaleString(),
                                     "top2_app_until": top2_until.toLocaleString(),
-                                    "top3_app_name": data['data']['collection'][2]['name'],
-                                    "top3_app_total": (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3),
+                                    "top3_app_name": (_.has(data['data']['collection'][2], "name")) ? data['data']['collection'][2]['name']:'None',
+                                    "top3_app_total": (_.has(data['data']['collection'][2], "total_rate")) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
                                     "top3_app_from": top3_from.toLocaleString(),
                                     "top3_app_until": top3_until.toLocaleString()
                                 });
                                 _users_app.sort(function (a, b) { // DESC
                                     return b['top1_app_total'] - a['top1_app_total'];
                                 });
-                                _users_app_top1.push((data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3));
-                                _users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3));
-                                _users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3));
-                                _users_appName_top1.push(data['data']['collection'][0]['name']);
-                                _users_appName_top2.push(data['data']['collection'][1]['name']);
-                                _users_appName_top3.push(data['data']['collection'][2]['name']);
+                                (_.has(data['data']['collection'][0], "total_rate"))?_users_app_top1.push((data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3)):_users_app_top1.push(0);
+                                (_.has(data['data']['collection'][1], "total_rate"))?_users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3)):_users_app_top2.push(0);
+                                (_.has(data['data']['collection'][2], "total_rate"))?_users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3)):_users_app_top3.push(0);
+                                // _users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3));
+                                // _users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3));
+                                (_.has(data['data']['collection'][0], "name"))?_users_appName_top1.push((data['data']['collection'][0]['name'] * 0.001).toFixed(3)):_users_appName_top1.push(0);
+                                (_.has(data['data']['collection'][1], "name"))?_users_appName_top2.push((data['data']['collection'][1]['name'] * 0.001).toFixed(3)):_users_appName_top2.push(0);
+                                (_.has(data['data']['collection'][2], "name"))?_users_appName_top3.push((data['data']['collection'][2]['name'] * 0.001).toFixed(3)):_users_appName_top3.push(0);
+                                // _users_appName_top1.push(data['data']['collection'][0]['name']);
+                                // _users_appName_top2.push(data['data']['collection'][1]['name']);
+                                // _users_appName_top3.push(data['data']['collection'][2]['name']);
                                 // $rootScope._users_app_top1 = _users_app_top1;
-                                _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
-                                    "1." + data['data']['collection'][0]['name'] + "," +
-                                    "2." + data['data']['collection'][1]['name'] + "," +
-                                    "3." + data['data']['collection'][2]['name'] + ")"
-                                );
+                                if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][1], "name") && _.has(data['data']['collection'][2], "name")){
+                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                        "1." + data['data']['collection'][0]['name'] + "," +
+                                        "2." + data['data']['collection'][1]['name'] + "," +
+                                        "3." + data['data']['collection'][2]['name'] + ")"
+                                    );
+                                }else if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][1], "name")){
+                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                        "1." + data['data']['collection'][0]['name'] + "," +
+                                        "2." + data['data']['collection'][1]['name'] + ")"
+                                    );
+                                }else if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][2], "name")){
+                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                        "1." + data['data']['collection'][0]['name'] + "," +
+                                        "3." + data['data']['collection'][2]['name'] + ")"
+                                    );
+                                }else if (_.has(data['data']['collection'][1], "name") && _.has(data['data']['collection'][2], "name")){
+                                    _users_app_label.push(data['data']['collection'][1].link.href.split('/')[6] + "(" +
+                                        "2." + data['data']['collection'][1]['name'] + "," +
+                                        "3." + data['data']['collection'][2]['name'] + ")"
+                                    );
+                                }else if (_.has(data['data']['collection'][0], "name")){
+                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                        "1." + data['data']['collection'][0]['name'] + ")"
+                                    );
+                                }else if (_.has(data['data']['collection'][1], "name")){
+                                    _users_app_label.push(data['data']['collection'][1].link.href.split('/')[6] + "(" +
+                                        "2." + data['data']['collection'][1]['name'] + ")"
+                                    );
+                                }else{
+                                    _users_app_label.push(data['data']['collection'][2].link.href.split('/')[6] + "(" +
+                                        "3." + data['data']['collection'][2]['name'] + ")"
+                                    );
+                                }
                             });
                             // console.log("status : " + cfpLoadingBar.status());
                         }
@@ -434,7 +492,8 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                                 _users_app_series: _users_app_series,
                                 _users_app_option: _users_app_option,
                                 colors: colors
-                            }
+                            },
+                            complete_count: complete_count
                         });
                     });
                 });

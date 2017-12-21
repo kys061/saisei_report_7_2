@@ -61,8 +61,8 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 그룹 내에 유저 ActiveFlows 데이터가 존재하지 않습니다.'
                     });
                 }
@@ -104,8 +104,8 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
                 if (data.data.collection.length === 0){
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저-앱 연관 데이터가 존재하지 않습니다.'
                     });
                 } else {
@@ -116,8 +116,8 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
                     });
                 }
@@ -171,8 +171,8 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 그룹 내 유저 데이터를 받아 올 수 없습니다.'
                     });
                 }

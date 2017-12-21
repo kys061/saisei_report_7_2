@@ -9,27 +9,37 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         $window.location.href = '/saisei_report/';
     });
 
-    // 메타 데이터 요청 + 인터페이스 데이터 요청(수신, 송신) + 유저 데이터 요청 + ?(3) + 10명의 유저에 대한 각 앱 사용량 요청
-    var req_count = 1+2+1+3+10;
-    $scope.complete_count = 0;
+    // 메타 데이터 요청(1) + 인터페이스 정보 요청(1) + 인터페이스 데이터 요청(수신, 송신)(세그먼트*2) + 유저 데이터 요청 + ?(3) + 10명의 유저에 대한 각 앱 사용량 요청
+    var req_count = 2+4+12+3+22;
     $scope.complete_check_count = req_count; // 나중에 계산 수식 필요~!!
+    $scope.loaded_count = 0;
+    $scope.started_count = 0;
+
     // report create time
     $scope.created_time = (new Date()).toLocaleString();
+    // cfpLoadingBar:started
+    $rootScope.$on('cfpLoadingBar:loading', function() {
+        $scope.started_count += 1;
+        // console.log("started_count : " + $scope.started_count);
+    });
 
     $rootScope.$on('cfpLoadingBar:loaded', function() {
-        $scope.complete_count += 1;
-        console.log("complete_count : " + $scope.complete_count);
+        $scope.loaded_count += 1;
+        console.log("loaded_count : " + $scope.loaded_count);
     });
 
     $rootScope.$on('cfpLoadingBar:completed', function() {
-        if ($scope.complete_count === $scope.complete_check_count) {
-            notie.alert({
-                type: 'info',
-                stay: 'true',
-                time: 30,
-                text: 'SAISEI 트래픽 보고서가 완성 되었습니다!!!'
-            });
-        }
+        console.log('cfpLoadingBar:completed!!!!!!!!!!!!!!!!!!!');
+        // if ($scope.complete_check_count === $scope.loaded_count) {
+        // console.log('user_count', $scope.complete_user_count+$scope.complete_first_seg_count+$scope.complete_second_seg_count+$scope.complete_usergroup_count);
+        // if (2+$scope.complete_user_count+$scope.complete_first_seg_count+$scope.complete_second_seg_count+$scope.complete_usergroup_count === $scope.loaded_count) {
+        //     notie.alert({
+        //         type: 'info',
+        //         stay: 'true',
+        //         time: 30,
+        //         text: 'SAISEI 트래픽 보고서가 완성 되었습니다!!!'
+        //     });
+        // }
     });
 
     var from = SharedData.getFrom();
@@ -188,6 +198,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         $scope.datasetOverride = val.datasetOverride;
                         $scope.int_data = val.int_data;
                         $scope.int_name = val.int_name;
+                        $scope.complete_first_seg_count = val.complete_count;
                     },
                     function(val){
                         console.log(val);
@@ -204,6 +215,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         $scope.second_seg_datasetOverride = val.datasetOverride;
                         $scope.second_seg_int_data = val.int_data;
                         $scope.second_seg_int_name = val.int_name;
+                        $scope.complete_second_seg_count = val.complete_count;
                     },
                     function(val){
                         console.log(val);
@@ -225,6 +237,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         $scope.datasetOverride = val.datasetOverride;
                         $scope.int_data = val.int_data;
                         $scope.int_name = val.int_name;
+                        $scope.complete_first_seg_count = val.complete_count;
                     },
                     function(val){
                         console.log(val);
@@ -256,6 +269,9 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     $scope._users_app_label = val.user_app._users_app_label;
                     $scope._users_app_series = val.user_app._users_app_series;
                     $scope._users_app_option = val.user_app._users_app_option;
+                    //
+                    console.log('user_count: ', val.complete_count);
+                    $scope.complete_user_count = val.complete_count;
                 },
                 function(val){
                     console.log(val);
@@ -288,6 +304,9 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     // $scope._user_group_flow_disc_series = val.user_group._user_group_flow_disc_series;
                     // $scope._user_group_flow_disc_option = val.user._users_flow_disc_option;
                     // $scope._user_group_datasetOverride = val.user._users_datasetOverride;
+
+                    //
+                    $scope.complete_usergroup_count = val.complete_count;
                 },
                 function(val) {
                     console.log(val);
