@@ -1,6 +1,6 @@
 reportApp.controller('ReportCtrl', function ReportCtrl(
     $rootScope, $scope, $log, _, ReportData, SharedData, UserAppData, $location, $route, $window, cfpLoadingBar,
-    $q, $timeout, ReportInterfaceTotalRate, ReportUserData, ReportMetaData, ReportIntName, ReportUserGroupData) {
+    $q, $timeout, ReportInterfaceData, ReportUserData, ReportMetaData, ReportIntName, ReportUserGroupData) {
 
     $scope.$on('$routeChangeStart', function(scope, next, current) {
         SharedData.setCurrentState(true);
@@ -13,6 +13,9 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     var req_count = 1+2+1+3+10;
     $scope.complete_count = 0;
     $scope.complete_check_count = req_count; // 나중에 계산 수식 필요~!!
+    // report create time
+    $scope.created_time = (new Date()).toLocaleString();
+
     $rootScope.$on('cfpLoadingBar:loaded', function() {
         $scope.complete_count += 1;
         console.log("complete_count : " + $scope.complete_count);
@@ -174,7 +177,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                 });
                 // 그래프
                 // 1. 인터페이스
-                var intGrpDataset = new ReportInterfaceTotalRate();
+                var intGrpDataset = new ReportInterfaceData();
                 intGrpDataset.q_firstSegIntData(hostname, first_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
                     function(val){
                         $scope.data = val.data;
@@ -899,6 +902,10 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         });
     };
 
+
+    $('#elementID').bind('click', function () {
+        console.log("I would also be triggered!");
+    });
     $scope.export_print =  function(){
         $window.print();
     };
