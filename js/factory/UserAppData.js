@@ -56,8 +56,8 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
                 if (data.data.collection.length === 0){
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저-앱 연관 데이터가 존재하지 않습니다.'
                     });
                 } else {
@@ -68,8 +68,8 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
                     });
                 }

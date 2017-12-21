@@ -26,7 +26,7 @@
         }
 
         th {
-            font-size: 1.05em;
+            font-size: 0.97em;
         }
 
         td {
@@ -180,7 +180,7 @@
                 <div class="container">
                     <h1 class="display-3">Saisei Network Usage Report</h1>
                     <hr class="my-4">
-                    <p class="lead">기간 : ({{from}} ~ {{until}})</p>
+                    <p class="lead">기  간 : ({{from}} ~ {{until}})</p>
                 </div>
             </div>
         </div>
@@ -292,7 +292,7 @@
                         <tr>
                             <th>#</th>
                             <th>사용자</th>
-                            <th>기간</th>
+                            <th>기  간</th>
                             <!--<th>총 사용량</th>-->
                             <th>다운로드속도(AVG)</th>
                             <th>업로드속도(AVG)</th>
@@ -373,11 +373,11 @@
                         <tr>
                             <th>#</th>
                             <th>사용자</th>
-                            <th>기간</th>
+                            <th>기  간</th>
                             <th>APP1(AVG)</th>
-                            <th>기간</th>
+                            <th>기  간</th>
                             <th>APP2(AVG)</th>
-                            <th>기간</th>
+                            <th>기  간</th>
                             <th>APP3(AVG)</th>
                         </tr>
                         </thead>
@@ -429,7 +429,7 @@
                         <tr>
                             <th>#</th>
                             <th>사용자 그룹</th>
-                            <th>기간</th>
+                            <th>기  간</th>
                             <!--<th>총 사용량</th>-->
                             <th>다운로드속도(AVG)</th>
                             <th>업로드속도(AVG)</th>
@@ -447,7 +447,7 @@
                             <td>{{ user_group.down }} Mbit/s</td>
                             <td>{{ user_group.up }} Mbit/s</td>
                             <td>{{ user_group.flows }} /s</td>
-                            <td>{{ user_group.max_flows_time}}: {{user_group.max_flows }}</td>
+                            <td>{{ user_group.max_flows_time}}<br>{{user_group.max_flows}}</td>
                             <td>{{ user_group.disc_rate }} /s</td>
                         </tr>
                         </tbody>
@@ -504,7 +504,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>사용자</th>
-                                    <th>기간</th>
+                                    <th>기  간</th>
                                     <!--<th>총 사용량</th>-->
                                     <th>다운로드속도(AVG)</th>
                                     <th>업로드속도(AVG)</th>
@@ -525,7 +525,7 @@
                                     <td>{{top_users.top_user_down}} Mbit/s</td>
                                     <td>{{top_users.top_user_up}} Mbit/s</td>
                                     <td>{{top_users.top_user_active_flow}} /s</td>
-                                    <td>{{top_users.top_user_max_flow}}</td>
+                                    <td>{{top_users.top_user_max_flow_time}} <br> {{top_users.top_user_max_flow}}</td>
                                     <td>{{top_users.top_user_packet_disc_rate}} /s</td>
                                 </tr>
                                 </tbody>
@@ -539,11 +539,11 @@
                                 <tr>
                                     <th>#</th>
                                     <th>사용자</th>
-                                    <th>기간</th>
+                                    <th>기  간</th>
                                     <th>APP1(AVG)</th>
-                                    <th>기간</th>
+                                    <th>기  간</th>
                                     <th>APP2(AVG)</th>
-                                    <th>기간</th>
+                                    <th>기  간</th>
                                     <th>APP3(AVG)</th>
                                 </tr>
                                 </thead>

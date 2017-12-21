@@ -10,11 +10,14 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
             var from = from;
             var until = until;
             var duration = duration;
+            var complete_count = 0;
             if (isset) {
                 ReportData.getUserGroupSize(hostname).then(function (size) {
+                    complete_count += 1;
                     console.log(size.group_size);
                     // SharedData.setGroupSize(size.group_size);
                     ReportData.getUserGroupActiveFlows(hostname, size.group_size).then(function(group_flow_data){
+                        complete_count += 1;
                         var _history_user_group_active_flows_data = group_flow_data['data']['collection'];
                         var user_group_act_flow_max_data = [];
 
@@ -33,6 +36,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                         });
 
                         ReportData.getUserGroupData(hostname, size.group_size).then(function (data) {
+                            complete_count += 1;
                             // console.log(data);
                             // for users data
                             var _user_group_label = [];
@@ -151,6 +155,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                             var user_inGroup_tb_count=0;
                             var _user_in_group_tb_count=0;
                             _(_user_group_label).each(function(elem, index) {
+                                complete_count += 1;
                                 /*
                                     1. top1_user_app1_from, top1_user_app1_until
                                     2. top1_user_app2_from, top1_user_app2_until
@@ -163,25 +168,26 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                 */
                                 _group_name_tb.push(elem);
                                 // elem: group_name
-                                ReportData.getUserActiveFlows(hostname, elem).then(function(user_in_group_flow_data){
-                                    var _history_user_group_active_flows_data = group_flow_data['data']['collection'];
-                                    var user_group_act_flow_max_data = [];
-
-                                    _.each(_history_user_group_active_flows_data, function(collection) {
-
-                                        user_group_act_flow_max_data.push(_.max(collection['_history_active_flows'], function(history_active_flows){
-                                            return history_active_flows[1];
-                                        }));
-                                    });
-                                    // data : users_act_flow_max_data
-                                    // elem : element
-                                    // index : index of element
-                                    _.each(user_group_act_flow_max_data, function(elem, index, data){
-                                        var t = new Date(elem[0]);
-                                        elem.push(t.toLocaleString());
-                                    });
-                                });
+                                // ReportData.getUserActiveFlows(hostname, elem).then(function(user_in_group_flow_data){
+                                //     var _history_user_group_active_flows_data = group_flow_data['data']['collection'];
+                                //     var user_group_act_flow_max_data = [];
+                                //
+                                //     _.each(_history_user_group_active_flows_data, function(collection) {
+                                //
+                                //         user_group_act_flow_max_data.push(_.max(collection['_history_active_flows'], function(history_active_flows){
+                                //             return history_active_flows[1];
+                                //         }));
+                                //     });
+                                //     // data : users_act_flow_max_data
+                                //     // elem : element
+                                //     // index : index of element
+                                //     _.each(user_group_act_flow_max_data, function(elem, index, data){
+                                //         var t = new Date(elem[0]);
+                                //         elem.push(t.toLocaleString());
+                                //     });
+                                // });
                                 // elem: group_name
+                                // 1. 그룹내에 유저 데이터를 가져온다(그룹 사이즈 만큼의 각 그룹 전체 데이터(total, down, up 등등))
                                 UserInGroupData.getUserInGroupData(hostname, elem).then(function(data) {
                                     //parsing here
                                     // console.log("그룹내 유저 데이터 시작");
@@ -215,9 +221,16 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                     var top_user_app = [];
                                     if (data['data']['collection'].length !== 0){
                                         _(data['data']['collection']).each(function(e, i){
+                                            complete_count += 2;
                                             if(i===0) {
+                                                complete_count += 2;
+                                                // 1. elem(그룹이름)에 존재하는 각각 유저의 히스토리 active flows의 데이터를 가져온다.
+                                                // 2. elem(그룹이름)에 존재하는 각각 유저의 top5 app의 데이터를 가져온다.
                                                 UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
                                                     UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data){
+                                                        // top 1 데이터
+                                                        // name, total, down, up, act flow, pkt disc rate, max flow, max flow time
+                                                        // top1 app, top2 app, top3 app
                                                         try {
                                                             top1_user_from = new Date(e['from']);
                                                             top1_user_from.setHours(top1_user_from.getHours() + 9);
@@ -240,7 +253,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                                     return history_user_in_grp_active_flows[1];
                                                                 });
                                                             top1_user_max_flow = top1_user_max_flow_data[1];
-                                                            top1_user_max_flow_time = top1_user_max_flow_data[0];
+                                                            top1_user_max_flow_time = (new Date(top1_user_max_flow_data[0])).toLocaleString();
                                                          } catch(exception) {
                                                             top1_user_max_flow = 0; top1_user_max_flow_time = "none";
                                                         }
@@ -308,6 +321,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                 });
                                             }
                                             if(i===1){
+                                                complete_count += 2;
                                                 UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
                                                     UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data){
                                                         try {
@@ -333,7 +347,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                                     return history_user_in_grp_active_flows[1];
                                                                 });
                                                             top2_user_max_flow = top2_user_max_flow_data[1];
-                                                            top2_user_max_flow_time = top2_user_max_flow_data[0];
+                                                            top2_user_max_flow_time = (new Date(top2_user_max_flow_data[0])).toLocaleString();
 
                                                         } catch(exception) {
                                                             top2_user_max_flow = 0; top2_user_max_flow_time = "none";
@@ -402,6 +416,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                 });
                                             }
                                             if(i===2) {
+                                                complete_count += 2;
                                                 UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
                                                     UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
                                                         try {
@@ -429,7 +444,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                                     return history_user_in_grp_active_flows[1];
                                                                 });
                                                             top3_user_max_flow = top3_user_max_flow_data[1];
-                                                            top3_user_max_flow_time = top3_user_max_flow_data[0];
+                                                            top3_user_max_flow_time = (new Date(top3_user_max_flow_data[0])).toLocaleString();
                                                         } catch(exception) {
                                                             top3_user_max_flow = 0; top3_user_max_flow_time = "none";
                                                         }
@@ -497,6 +512,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                 });
                                             }
                                             if(i===3) {
+                                                complete_count += 2;
                                                 UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
                                                     UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
                                                         try {
@@ -524,7 +540,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                                     return history_user_in_grp_active_flows[1];
                                                                 });
                                                             top4_user_max_flow = top4_user_max_flow_data[1];
-                                                            top4_user_max_flow_time = top4_user_max_flow_data[0];
+                                                            top4_user_max_flow_time = (new Date(top4_user_max_flow_data[0])).toLocaleString();
                                                         } catch(exception) {
                                                             top4_user_max_flow = 0; top4_user_max_flow_time = "none";
                                                         }
@@ -595,6 +611,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                 });
                                             }
                                             if(i===4) {
+                                                complete_count += 2;
                                                 UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
                                                     UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
                                                         try {
@@ -656,7 +673,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                                     return history_user_in_grp_active_flows[1];
                                                                 });
                                                             top5_user_max_flow = top5_user_max_flow_data[1];
-                                                            top5_user_max_flow_time = top5_user_max_flow_data[0];
+                                                            top5_user_max_flow_time = (new Date(top5_user_max_flow_data[0])).toLocaleString();
                                                         } catch(exception) {
                                                             top5_user_max_flow = 0; top5_user_max_flow_time = "none";
                                                         }
@@ -689,12 +706,12 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                                         });
 
                                                     });
-
                                                 });
                                             }
                                         });
+                                        // 그룹내 콜렉션의 사이즈가 없을때,(데이터가 존재하지 않을때)
                                     } else{
-                                        // 테이블에 들어갈 탑 유저 데이터 준비
+                                        // 테이블에 들어갈 탑 유저 데이터 준비 top1
                                         top_user_data.push({
                                             "top_user_name": (data['data']['collection'].length !== 0) ? top1_user_name:"None",
                                             "top_user_total": (data['data']['collection'].length !== 0) ? top1_user_total:0,
@@ -721,7 +738,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                             "top_user_app3_from": "None",
                                             "top_user_app3_until": "None"
                                         });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비
+                                        // 테이블에 들어갈 탑 유저 데이터 준비 top2
                                         top_user_data.push({
                                             "top_user_name": (data['data']['collection'].length !== 0) ? top2_user_name:"None",
                                             "top_user_total": (data['data']['collection'].length !== 0) ? top2_user_total:0,
@@ -748,7 +765,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                             "top_user_app3_from": "None",
                                             "top_user_app3_until": "None"
                                         });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비
+                                        // 테이블에 들어갈 탑 유저 데이터 준비 top3
                                         top_user_data.push({
                                             "top_user_name": (data['data']['collection'].length !== 0) ? top3_user_name:"None",
                                             "top_user_total": (data['data']['collection'].length !== 0) ? top3_user_total:0,
@@ -775,7 +792,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                             "top_user_app3_from": "None",
                                             "top_user_app3_until": "None"
                                         });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비
+                                        // 테이블에 들어갈 탑 유저 데이터 준비 top4
                                         top_user_data.push({
                                             "top_user_name": (data['data']['collection'].length !== 0) ? top4_user_name:"None",
                                             "top_user_total": (data['data']['collection'].length !== 0) ? top4_user_total:0,
@@ -802,7 +819,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                             "top_user_app3_from": "None",
                                             "top_user_app3_until": "None"
                                         });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비
+                                        // 테이블에 들어갈 탑 유저 데이터 준비 top5
                                         top_user_data.push({
                                             "top_user_name": (data['data']['collection'].length !== 0) ? top5_user_name:"None",
                                             "top_user_total": (data['data']['collection'].length !== 0) ? top5_user_total:0,
@@ -1046,7 +1063,8 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                     _user_in_group_series: _user_in_group_series,
                                     _user_in_group_option: _user_in_group_option,
                                     _user_in_group_colors: _user_group_colors
-                                }
+                                },
+                                complete_count: complete_count
                             });
                         });
                     });

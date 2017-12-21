@@ -3,6 +3,8 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     var from;
     var until;
     var today = new $window.Sugar.Date(new Date());
+    var complete_count;
+
     $scope.report_def = {1: 'int_report', 2: 'user_report', 3:'user_group_report'};
     $scope.select2model = [];
     $scope.select2data = [
@@ -130,6 +132,16 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                 });
                 if ($scope.group_size > 0) {
                     console.log('count_group', count_group);
+                    // 1. 메타 데이터 요청(1) + 인터페이스 정보 요청(1): (2)
+                    // 2. 인터페이스 데이터 요청(수신, 송신): (세그먼트*2)
+                    // 3. 유저 데이터 요청(1. active flow 요청 : 1, 2. rate 요청 : 1, 3. 유저별 앱 요청: 10): (12)
+                    // 4. 그룹 사이즈 요청: 1, 그룹 히스토리 raw active flow 요청: 1, 그룹 이름을 알기 위한 rate요청: 1,
+                    //    - 그룹 사이즈 만큼의 그룹별 요청: size,
+                    //    아래 2가지는 그룹별 요청을 했을때 리턴되는 사이즈 만큼 크기
+                    //    예를 들어 어떤 그룹에서는 유저가 한명도 없었다면, 해당 그룹에 대한 요청은 0이됨.
+                    //    - 각 그룹별 top5 데이터 요청: size*5,
+                    //    - 각 그룹별 top5 raw 히스토리 act flow 데이터 요청(max값 계산용): size*5
+                    complete_count=2+4+12+3+$scope.group_size;
                     $scope.currentState = false;
                     $scope.currentDurationState = false;
                     SharedData.setFrom(from);

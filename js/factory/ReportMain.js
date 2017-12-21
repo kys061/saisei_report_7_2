@@ -83,8 +83,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 메타 데이터가 존재하지 않습니다.'
                     });
                 }
@@ -130,8 +130,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저그룹 ActiveFlows 데이터가 존재하지 않습니다.'
                     });
                 }
@@ -165,8 +165,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저 그룹 사이즈가 존재하지 않습니다.'
                     });
                 }
@@ -251,8 +251,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
                     });
                 }
@@ -291,8 +291,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저 ActiveFlows데이터가 존재하지 않습니다.'
                     });
                 }
@@ -331,8 +331,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 유저 패킷 제어양 데이터가 존재하지 않습니다.'
                     });
                 }
@@ -370,8 +370,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 인터페이스 수신 데이터가 존재하지 않습니다.'
                     });
                     //alert("ERROR! - 데이터가 존재하지 않습니다.");
@@ -409,8 +409,8 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
                 if (response.status < 0) {
                     notie.alert({
                         type: 'error',
-                        stay: 'true',
-                        time: 3600,
+                        // stay: 'true',
+                        // time: 3600,
                         text: 'ERROR - 인터페이스 송신 데이터가 존재하지 않습니다.'
                     });
                 }
