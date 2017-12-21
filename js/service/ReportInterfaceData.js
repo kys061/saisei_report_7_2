@@ -6,8 +6,10 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             var from = from;
             var until = until;
             var duration = duration;
+            var complete_count = 0;
             if (isset) {
                 ReportData.getIntRcvData(hostname, int_name).then(function (data) {
+                    complete_count += 1;
                     /**********************************/
                     /* RCV DATA OF INTERFACE          */
                     /**********************************/
@@ -128,6 +130,7 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                         yAxisID: 'y-axis-2'
                     }];
                     ReportData.getIntTrsData(hostname, int_name).then(function (data) {
+                        complete_count += 1;
                         /**********************************/
                         /* TRS DATA OF INTERFACE          */
                         /**********************************/
@@ -280,7 +283,8 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                             options: options,
                             datasetOverride: datasetOverride,
                             int_data: int_data,
-                            int_name: int_name
+                            int_name: int_name,
+                            complete_count: complete_count
                         });
                     });
                 });
@@ -292,8 +296,10 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             var from = from;
             var until = until;
             var duration = duration;
+            var complete_count = 0;
             if (isset) {
                 ReportData.getIntRcvData(hostname, int_name).then(function (data) {
+                    complete_count += 1;
                     /**********************************/
                     /* RCV DATA OF INTERFACE          */
                     /**********************************/
@@ -414,6 +420,7 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                         yAxisID: 'y-axis-2'
                     }];
                     ReportData.getIntTrsData(hostname, int_name).then(function (data) {
+                        complete_count += 1;
                         /**********************************/
                         /* TRS DATA OF INTERFACE          */
                         /**********************************/
@@ -566,7 +573,8 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                             options: options,
                             datasetOverride: datasetOverride,
                             int_data: int_data,
-                            int_name: int_name
+                            int_name: int_name,
+                            complete_count: complete_count
                         });
                     });
                 });
