@@ -16,7 +16,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     $scope.started_count = 0;
 
     // report create time
-    $scope.created_time = (new Date()).toLocaleString();
+    $scope.created_time = (new Date()).toLocaleString('ko-KR',{hour12: false}).replace('시 ', ':').replace('분 ', ':').replace('초','');
     // cfpLoadingBar:started
     $rootScope.$on('cfpLoadingBar:loading', function() {
         $scope.started_count += 1;
