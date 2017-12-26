@@ -6,7 +6,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         SharedData.setCurrentState(true);
         console.log("change back");
         $location.path('/');
-        $window.location.href = '/saisei_report/';
+        $window.location.href = '/report/';
     });
 
     // 메타 데이터 요청(1) + 인터페이스 정보 요청(1) + 인터페이스 데이터 요청(수신, 송신)(세그먼트*2) + 유저 데이터 요청 + ?(3) + 10명의 유저에 대한 각 앱 사용량 요청
