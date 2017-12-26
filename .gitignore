@@ -6,3 +6,5 @@ css/
 .idea/
 js/saisei_report-1.0.0.js
 saisei_report/
+dist/
+report/
