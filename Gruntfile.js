@@ -18,7 +18,8 @@ module.exports = function(grunt) {
                 options: {
                     install: true,
                     copy: true,
-                    targetDir: 'saisei_report/libs/',
+                    // targetDir: 'saisei_report/libs/',
+                    targetDir: 'report/libs/',
                     cleanTargetDir: false
                 }
             },
@@ -49,7 +50,8 @@ module.exports = function(grunt) {
             dist: {
                 src: [ 'js/app.js', 'js/controller/*.js', 'js/service/*.js', 'js/factory/*.js'],
                 // dest: 'dist/app.js'
-                dest: 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js'
+                // dest: 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js'
+                dest: 'report/js/<%= pkg.name %>-<%= pkg.version %>.js'
             },
             dev_dist: {
                 src: [ 'js/app.js', 'js/controller/*.js', 'js/service/*.js', 'js/factory/*.js'],
@@ -86,7 +88,8 @@ module.exports = function(grunt) {
         uglify: {
             dist: {
                 files: {
-                    'saisei_report/js/saisei_report-1.0.0.min.js': [ 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js' ]
+                    // 'saisei_report/js/saisei_report-1.0.0.min.js': [ 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js' ]
+                    'report/js/saisei_report-1.0.0.min.js': [ 'report/js/<%= pkg.name %>-<%= pkg.version %>.js' ]
                 },
                 options: {
                     mangle: false,
@@ -104,8 +107,10 @@ module.exports = function(grunt) {
                     collapseWhitespace: true
                 },
                 files: {                                   // Dictionary of files
-                    'saisei_report/index.html': 'saisei_report/index.html',     // 'destination': 'source'
-                    'saisei_report/templates/report.html': 'saisei_report/templates/report.html'
+                    // 'saisei_report/index.html': 'saisei_report/index.html',     // 'destination': 'source'
+                    // 'saisei_report/templates/report.html': 'saisei_report/templates/report.html'
+                    'report/index.html': 'report/index.html',     // 'destination': 'source'
+                    'report/templates/report.html': 'report/templates/report.html'
                 }
             }
             // dev: {                                       // Another target
@@ -123,7 +128,8 @@ module.exports = function(grunt) {
                     multiline: true,
                     keepSpecialComments: false
                 },
-                src: [ 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js'] // files to remove comments from
+                // src: [ 'saisei_report/js/<%= pkg.name %>-<%= pkg.version %>.js'] // files to remove comments from
+                src: [ 'report/js/<%= pkg.name %>-<%= pkg.version %>.js'] // files to remove comments from
             }
         },
         // 배포할 폴더로 복사한다.
@@ -132,7 +138,8 @@ module.exports = function(grunt) {
                 expand: true,
                 cwd: './',
                 src: ['*.html', 'templates/*.html', 'config/*.json'],
-                dest: 'saisei_report/'
+                // dest: 'saisei_report/'
+                dest: 'report/'
                 // flatten: true
                 // filter: 'isFile'
             }
@@ -163,7 +170,8 @@ module.exports = function(grunt) {
                     livereload: 35729,
                     // keepalive: true,
                     base: './',
-                    open: 'http://<%= connect.server.options.hostname %>:<%= connect.server.options.port %>/saisei_report/'
+                    // open: 'http://<%= connect.server.options.hostname %>:<%= connect.server.options.port %>/saisei_report/'
+                    open: 'http://<%= connect.server.options.hostname %>:<%= connect.server.options.port %>/report/'
                 }
             }
         }
