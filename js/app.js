@@ -2,7 +2,7 @@
 
 var reportApp = angular.module('reportApp', [
     "ngRoute", 'base64', 'chart.js', 'angular-momentjs', 'angular-loading-bar',
-    'angularjs-datetime-picker', 'angularjs-dropdown-multiselect'
+    'angularjs-datetime-picker', 'angularjs-dropdown-multiselect', 'ui-notification'
 ])
     .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
         cfpLoadingBarProvider.latencyThreshold = 400;
@@ -31,6 +31,17 @@ var reportApp = angular.module('reportApp', [
             });
         $locationProvider.html5Mode(true);
     })
+    // .config(function(NotificationProvider){
+    //     NotificationProvider.setOption({
+    //         delay: 30000,
+    //         startTop: 20,
+    //         startRight: 10,
+    //         verticalSpacing: 20,
+    //         horizontalSpacing: 20,
+    //         positionX: 'right',
+    //         positionY: 'top'
+    //     });
+    // })
     .run(function($rootScope) {
         $rootScope.users_app_top1 = [];
     })

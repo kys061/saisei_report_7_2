@@ -97,6 +97,11 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                                 rcv_len[j] += 1;
                                 int_rcv_duration_max_data[j].push(_history_rcv[i][1]*0.001);
                                 int_rcv_duration_max_date[j].push(_history_rcv[i][0]);
+                            }else {
+                                rcv_tot[j] += 0;
+                                rcv_len[j] += 1;
+                                int_rcv_duration_max_data[j].push(0);
+                                int_rcv_duration_max_date[j].push(NaN);
                             }
                         }
                     }
@@ -165,7 +170,11 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                                     int_trs_duration_max_data[j].push(_history_trs[i][1]*0.001);
                                     int_trs_duration_max_date[j].push(_history_trs[i][0]);
                                     console.log(int_cmp_date[j].raw);
-
+                                }else {
+                                    trs_tot[j] += 0;
+                                    trs_len[j] += 1;
+                                    int_trs_duration_max_data[j].push(0);
+                                    int_trs_duration_max_date[j].push(NaN);
                                 }
                             }
                         }
