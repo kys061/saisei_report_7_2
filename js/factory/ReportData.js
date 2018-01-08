@@ -29,14 +29,76 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
     var headers = new ReportAuth("").addId(config.common.id).addPasswd(config.common.passwd).getAuth();
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
-     *   get meta data link
+     *   get interface name
      */
     function getInterfaceName(hostname) {
         //http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
         var int_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.path.replace(':hostname', hostname))
             .addSection("interfaces/")
-            .addQstring("?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description")
+            .addQstring("?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,peer,state,description")
+            .getUrls();
+        // console.log(int_url);
+        return $http({
+            method: 'GET',
+            url: int_url,
+            headers: headers
+        }).
+        then(function(data, status, headers, config) {
+                return data;
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        // stay: 'true',
+                        // time: 3600,
+                        text: 'ERROR - DPDK 인터페이스 이름이 존재하지 않습니다.'
+                    });
+                }
+            })
+    }
+    /*
+     *   get EXT interface name
+     */
+    function getExtInterfaceNameWithSpan(hostname) {
+        //http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
+        var int_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(':hostname', hostname))
+            .addSection("interfaces/")
+            .addQstring("?token=1&order=%3Eactual_direction&with=actual_direction=external,span_port=true,class%3C=ethernet_interface,&start=0&limit=10&select=name,type,actual_direction,state,description,span_port")
+            .getUrls();
+        // console.log(int_url);
+        return $http({
+            method: 'GET',
+            url: int_url,
+            headers: headers
+        }).
+        then(function(data, status, headers, config) {
+                return data;
+                // successcb(data);
+            },
+            function onError(response) {
+                if (response.status < 0) {
+                    notie.alert({
+                        type: 'error',
+                        // stay: 'true',
+                        // time: 3600,
+                        text: 'ERROR - DPDK 인터페이스 이름이 존재하지 않습니다.'
+                    });
+                }
+            })
+    }
+    /*
+     *   get INT interface name
+     */
+    function getIntInterfaceNameWithSpan(hostname) {
+        //http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
+        var int_url = new ReportUrl("")
+            .addDefault(config.common.ip, config.common.port, config.common.path.replace(':hostname', hostname))
+            .addSection("interfaces/")
+            .addQstring("?token=1&order=%3Eactual_direction&with=actual_direction=internal,span_port=true,class%3C=ethernet_interface,&start=0&limit=10&select=name,type,actual_direction,state,description,span_port")
             .getUrls();
         // console.log(int_url);
         return $http({
@@ -418,6 +480,8 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
     }
     return {
         getInterfaceName: getInterfaceName,
+        getExtInterfaceNameWithSpan: getExtInterfaceNameWithSpan,
+        getIntInterfaceNameWithSpan: getIntInterfaceNameWithSpan,
         getMetaLink: getMetaLink,
         getUserData: getUserData,
         getUserActiveFlows: getUserActiveFlows,
