@@ -1,6 +1,7 @@
 reportApp.controller('ReportCtrl', function ReportCtrl(
     $rootScope, $scope, $log, _, ReportData, SharedData, UserAppData, $location, $route, $window, cfpLoadingBar,
-    $q, $timeout, ReportInterfaceData, ReportUserData, ReportMetaData, ReportIntName, ReportUserGroupData) {
+    $q, $timeout, ReportInterfaceData, ReportUserData, ReportMetaData, ReportIntName, ReportUserGroupData,
+    Notification) {
 
     $scope.$on('$routeChangeStart', function(scope, next, current) {
         SharedData.setCurrentState(true);

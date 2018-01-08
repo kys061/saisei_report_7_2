@@ -1,6 +1,8 @@
-reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil, ReportUrl, ReportQstring, ReportAuth, SharedData) {
+reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil,
+                                              ReportUrl, ReportQstring, ReportAuth, SharedData, Notification) {
     var from = SharedData.getFrom();
     var until = SharedData.getUntil();
+    var errorCode = SharedData.getErrorCode();
     // open sync
     $.ajaxSetup({
         async: false
@@ -59,12 +61,13 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
             function onError(response) {
                 console.log(response);
                 if (response.status < 0) {
-                    notie.alert({
-                        type: 'error',
-                        // stay: 'true',
-                        // time: 3600,
-                        text: 'ERROR - 그룹 내에 유저 ActiveFlows 데이터가 존재하지 않습니다.'
-                    });
+                    Notification.error(errorCode.user.E04);
+                    // notie.alert({
+                    //     type: 'error',
+                    //     // stay: 'true',
+                    //     // time: 3600,
+                    //     text: 'ERROR - 그룹 내에 유저 ActiveFlows 데이터가 존재하지 않습니다.'
+                    // });
                 }
             })
     }
@@ -102,24 +105,26 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
                 // console.log(data);
                 // console.log(data.data.collection.length);
                 if (data.data.collection.length === 0){
-                    notie.alert({
-                        type: 'error',
-                        // stay: 'true',
-                        // time: 3600,
-                        text: 'ERROR - 유저-앱 연관 데이터가 존재하지 않습니다.'
-                    });
+                    Notification.error(errorCode.user.W05);
+                    // notie.alert({
+                    //     type: 'error',
+                    //     // stay: 'true',
+                    //     // time: 3600,
+                    //     text: 'ERROR - 유저-앱 연관 데이터가 존재하지 않습니다.'
+                    // });
                 } else {
                     return data;
                 }
             },
             function onError(response) {
                 if (response.status < 0) {
-                    notie.alert({
-                        type: 'error',
-                        // stay: 'true',
-                        // time: 3600,
-                        text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
-                    });
+                    Notification.error(errorCode.user.E05);
+                    // notie.alert({
+                    //     type: 'error',
+                    //     // stay: 'true',
+                    //     // time: 3600,
+                    //     text: 'ERROR - 유저 데이터가 존재하지 않습니다.'
+                    // });
                 }
             })
     }
@@ -158,10 +163,11 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
         then(function(data, status, headers, config) {
                 console.log(data.data.collection.length);
                 if (data.data.collection.length === 0){
-                    notie.alert({
-                        type: 'error',
-                        text: 'WARN - '+user_group_name+'그룹 내에 유저 데이터가 존재하지 않습니다.'
-                    });
+                    Notification.error({message: 'WARN - '+user_group_name+'그룹 내에 유저 데이터가 존재하지 않습니다.', delay: 30000});
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: 'WARN - '+user_group_name+'그룹 내에 유저 데이터가 존재하지 않습니다.'
+                    // });
                     return data;
                 } else {
                     return data;
@@ -169,12 +175,13 @@ reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, Rep
             },
             function onError(response) {
                 if (response.status < 0) {
-                    notie.alert({
-                        type: 'error',
-                        // stay: 'true',
-                        // time: 3600,
-                        text: 'ERROR - 그룹 내 유저 데이터를 받아 올 수 없습니다.'
-                    });
+                    Notification.error('ERROR - '+user_group_name+'그룹 내 유저 데이터를 받아 올 수 없습니다.');
+                    // notie.alert({
+                    //     type: 'error',
+                    //     // stay: 'true',
+                    //     // time: 3600,
+                    //     text: 'ERROR - 그룹 내 유저 데이터를 받아 올 수 없습니다.'
+                    // });
                 }
             })
     }

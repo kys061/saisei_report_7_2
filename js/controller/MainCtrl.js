@@ -73,7 +73,19 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
             ReportMain.getUserGroupSize(hostname).then(
                 function (size) {
                 console.log("group_size", size.data.size);
-                $scope.group_size = size.data.size
+                $scope.group_size = size.data.size;
+                ReportMain.getUserSize(hostname).then(
+                    function (size) {
+                        console.log("users_size", size.data.size);
+                        $scope.users_size = size.data.size
+                    },
+                    function(val){
+                        notie.alert({
+                            type: 'error',
+                            text: '사용자 그룹 정보를 가지고 올 수 없습니다!!!'
+                        })
+                    }
+                );
                 },
                 function(val){
                     notie.alert({
@@ -122,15 +134,21 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                 text: '리포트 시작 시점은 현재보다 미래로 설정할 수 없습니다!!'
             });
         } else {
+            // 리포트를 한개 이상 선택 한 경우
             if($scope.select2model.length > 0) {
                 console.log($scope.group_size);
                 var count_group = 0;
+                var count_users = 0;
                 _($scope.select2model).each(function(elem, index){
                     if (elem.id === 3){
                         count_group += 1;
                     }
+                    if (elem.id === 2){
+                        count_users += 1;
+                    }
                 });
-                if ($scope.group_size > 0) {
+                // 그룹/사용자가 1개 이상 존재 하는 경우
+                if ($scope.group_size > 0 && $scope.users_size > 0) {
                     console.log('count_group', count_group);
                     // 1. 메타 데이터 요청(1) + 인터페이스 정보 요청(1): (2)
                     // 2. 인터페이스 데이터 요청(수신, 송신): (세그먼트*2)
@@ -150,12 +168,13 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                     SharedData.setReportType($scope.report_type);
                     console.log($scope.report_type);
                     $location.path('/report');
-                } else {
-                    console.log('count_group', count_group);
-                    if (count_group > 0) {
+                }
+                // 사용자 가 존재 하지 않는 경우
+                else if ($scope.group_size > 0 && $scope.users_size <= 0){
+                    if (count_users > 0) {
                         notie.alert({
                             type: 'error',
-                            text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹 트래픽은 해제해 주십시요!!!'
+                            text: '사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!'
                         })
                     } else{
                         $scope.currentState = false;
@@ -168,7 +187,53 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                         $location.path('/report');
                     }
                 }
-            }else{
+                // 그룹이 존재 하지 않는 경우
+                else if ($scope.group_size <= 0 && $scope.users_size > 0){
+                    if (count_group > 0) {
+                        notie.alert({
+                            type: 'error',
+                            text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹은 해제해 주십시요!!!'
+                        })
+                    } else{
+                        $scope.currentState = false;
+                        $scope.currentDurationState = false;
+                        SharedData.setFrom(from);
+                        SharedData.setUntil(until);
+                        SharedData.setSelect2model($scope.select2model);
+                        SharedData.setReportType($scope.report_type);
+                        console.log($scope.report_type);
+                        $location.path('/report');
+                    }
+                }
+                // 사용자와 그룹 둘 다 존재 하지 않는 경우
+                else {
+                    console.log('count_group', count_group);
+                    if (count_group > 0) {
+                        notie.alert({
+                            type: 'error',
+                            text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹 트래픽은 해제해 주십시요!!!'
+                        })
+                    }
+                    else if(count_users > 0){
+                        notie.alert({
+                            type: 'error',
+                            text: '사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!'
+                        })
+                    }
+                    else{
+                        $scope.currentState = false;
+                        $scope.currentDurationState = false;
+                        SharedData.setFrom(from);
+                        SharedData.setUntil(until);
+                        SharedData.setSelect2model($scope.select2model);
+                        SharedData.setReportType($scope.report_type);
+                        console.log($scope.report_type);
+                        $location.path('/report');
+                    }
+                }
+            }
+            // 리포트를 선택하지 않앗을 경우
+            else{
                 notie.alert({
                     type: 'error',
                     text: '최소 하나의 리포트를 선택해주세요!'
