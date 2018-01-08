@@ -126,7 +126,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             // 메타데이터
             var metaLink = new ReportMetaData();
             metaLink.q_metaLinkData().then(
-                function(val){
+                function(val) {
                     // $scope.metadata = val.metadata;
                     // $scope.intLink = $scope.metadata.data.collection[0]['interfaces'].link.href;
                     // $scope.hostname = $scope.metadata.data.collection[0]['system_name'];
@@ -148,24 +148,24 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                             // }
                             resolve({
                                 hostname: $scope.hostname,
-                                int_ext_name: val.int_ext_name
+                                int_ext_name: val.int_ext_name,
+                                int_int_name: val.int_int_name,
+                                use_span: false
                             });
                         },
                         // failure
                         function (val) {
                             console.log(val);
+                            reject(Error("failure!!"));
+                        }
+                    );
+
+                        },
+                        function(val){
+                            console.log(val);
                             reject( Error("failure!!") );
                         }
-
                     );
-                    //resolve('get meata data!');
-                    // get interface of external : http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
-                },
-                function(val){
-                    console.log(val);
-                    reject( Error("failure!!") );
-                }
-            );
 
         });
     };
@@ -175,20 +175,26 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         2. 메타 데이터를 가져오는 것에 성공하면, 각각 세부 그래프를 위한 데이터 처리를 한다.
      */
     getMetaData().then(
-        // success
+        // get metadata success
         function(val){
             var hostname = val.hostname;
-
+            // 스팬포트를 사용하지 않는 경우
+            // if(!val.use_span){
+                // 세그먼트가 2개인 경우
             if (val.int_ext_name.length > 1){
-                var first_seg_int_name = val.int_ext_name[0];
-                var second_seg_int_name = val.int_ext_name[1];
+                var first_seg_int_ext_name = val.int_ext_name[0];
+                var second_seg_int_ext_name = val.int_ext_name[1];
+                var first_seg_int_int_name = val.int_int_name[0];
+                var second_seg_int_int_name = val.int_int_name[1];
+                console.log('인터페이스 이름: ', val.int_ext_name, val.int_int_name);
                 _.each($scope.segState, function(state){
                     state.state = true
                 });
                 // 그래프
                 // 1. 인터페이스
-                var intGrpDataset = new ReportInterfaceData();
-                intGrpDataset.q_firstSegIntData(hostname, first_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
+                var firstSegIntGrpDataset = new ReportInterfaceData();
+                // 1번 세그먼트 ext데이터 추출
+                firstSegIntGrpDataset.q_intData(hostname, first_seg_int_ext_name, first_seg_int_int_name, from, until, duration, $scope.grpState[0].state).then(
                     function(val){
                         $scope.data = val.data;
                         $scope.labels = val.labels;
@@ -204,8 +210,9 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         console.log(val);
                     }
                 );
-
-                intGrpDataset.q_secondSegIntData(hostname, second_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
+                var secondSegIntGrpDataset = new ReportInterfaceData();
+                // 2번 세그먼트 ext 데이터 추출
+                secondSegIntGrpDataset.q_intData(hostname, second_seg_int_ext_name, second_seg_int_int_name, from, until, duration, $scope.grpState[0].state).then(
                     function(val){
                         $scope.second_seg_data = val.data;
                         $scope.second_seg_labels = val.labels;
@@ -221,13 +228,16 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         console.log(val);
                     }
                 );
+             // 세그먼트가 1개인 경우
             }else{
                 _.each($scope.segState, function(state, state_index){
                     if(state_index === 0) state.state = true;
                 });
-                var first_seg_int_name = val.int_ext_name[0];
-                var intGrpDataset = new ReportInterfaceTotalRate();
-                intGrpDataset.q_firstSegIntData(hostname, first_seg_int_name, from, until, duration, $scope.grpState[0].state).then(
+                var first_seg_int_ext_name = val.int_ext_name[0];
+                var first_seg_int_int_name = val.int_int_name[0];
+                var firstSegIntGrpDataset = new ReportInterfaceData();
+
+                firstSegIntGrpDataset.q_intData(hostname, first_seg_int_ext_name, first_seg_int_int_name, from, until, duration, $scope.grpState[0].state).then(
                     function(val){
                         $scope.data = val.data;
                         $scope.labels = val.labels;
@@ -244,9 +254,13 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     }
                 );
             }
-
-
-
+            // 스팬포트를 사용하는 경우
+            // } else {
+            //     notie.alert({
+            //         type: 'error',
+            //         text: '인터페이스에 스팬 포트 사용 시 리포트 생성기능 필요!!!'
+            //     })
+            // }
 
             // 2. 유저 트래픽 그래프
             var userGrpDataset = new ReportUserData();
@@ -312,11 +326,16 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     console.log(val);
                 })
         },
-        // failure
+        // get metadata fail
         function(val){
             console.log(val);
         }
     );
+    // 프린트
+    $scope.export_print =  function(){
+        $window.print();
+    };
+
     // var _dataset = [];
     // var _data = [];
     // _.each($scope._user_in_group_label, function(_label, _index){
@@ -925,9 +944,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     // $('#elementID').bind('click', function () {
     //     console.log("I would also be triggered!");
     // });
-    // $scope.export_print =  function(){
-    //     $window.print();
-    // };
+
     //
     // $scope.export = function() {
     //     /*
