@@ -310,11 +310,17 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     $scope._user_group_size = val.user_group._user_group_size;
 
                     // 그룹내 유저 데이터
+                    // var sort_cnt = 0;
+                    // if (val.user_in_group._user_in_group_tb.length !== 0)
+                    //     val.user_in_group._user_in_group_tb.top_user_data.sort(function (a, b) { return b['top_user_total'] - a['top_user_total']; });
+                    //     sort_cnt += 1;
+                    // $scope._user_in_group_tb = val.user_in_group._user_in_group_tb; // for table
                     $scope._user_in_group_tb = val.user_in_group._user_in_group_tb; // for table
                     $scope._user_in_group_tr_data = val.user_in_group._user_in_group_tr_data;
                     $scope._user_in_group_label = val.user_in_group._user_in_group_label;
                     $scope._user_in_group_series = val.user_in_group._user_in_group_series;
                     $scope._user_in_group_option = val.user_in_group._user_in_group_option;
+
                     // $scope._user_group_flow_disc_data = val.user_group._user_group_flow_disc_data;
                     // $scope._user_group_flow_disc_series = val.user_group._user_group_flow_disc_series;
                     // $scope._user_group_flow_disc_option = val.user._users_flow_disc_option;

@@ -26,7 +26,7 @@
     "users_tr": {
       "class": "users_tr",
       "section": "users/",
-      "attr": "total_rate,dest_rate,source_rate,active_flows,packet_discard_rate",
+      "attr": "total_rate,dest_rate,source_rate,active_flows,packet_discard_rate,packets_discarded",
       "order": "<total_rate",
       "limit": "10",
       "with": "total_rate>=0.01",
@@ -89,7 +89,7 @@
       "section": "user_groups/:user_group_name/users/",
       "attr": "name,source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
       "order": "<total_rate",
-      "limit": "10",
+      "limit": "5",
       "operation": "auto"
     }
   }
