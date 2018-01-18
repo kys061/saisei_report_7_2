@@ -48,6 +48,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                             var _user_group_download = [];
                             var _user_group_upload = [];
                             var _user_group_active_flows = [];
+                            var _user_group_packet_disc = [];
                             var _user_group_packet_disc_rate = [];
                             var _user_group_tb_data = [];
                             var _user_group_data = [];
@@ -83,6 +84,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                 _user_group_upload.push((elem.source_rate * 0.001).toFixed(3));
                                 _user_group_active_flows.push(elem.active_flows);
                                 _user_group_packet_disc_rate.push(elem.packet_discard_rate);
+                                _user_group_packet_disc.push(elem.packets_discarded);
                                 _user_group_tb_data.push({
                                     name: elem.name,
                                     from: user_group_from.toLocaleString(),
@@ -92,7 +94,8 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                     up: (elem.source_rate * 0.001).toFixed(3),
                                     flows: elem.active_flows,
                                     // max_flows: users_act_flow_max_data,
-                                    disc_rate: elem.packet_discard_rate
+                                    disc_rate: elem.packet_discard_rate,
+                                    pack_disc: elem.packets_discarded
                                 });
                             });
                             // _user_group_data.push(_user_group_total);
@@ -202,6 +205,7 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                     var top1_user_up,top2_user_up,top3_user_up,top4_user_up,top5_user_up;
                                     var top1_user_active_flow,top2_user_active_flow,top3_user_active_flow,top4_user_active_flow,top5_user_active_flow;
                                     var top1_user_packet_disc_rate,top2_user_packet_disc_rate,top3_user_packet_disc_rate,top4_user_packet_disc_rate,top5_user_packet_disc_rate;
+                                    var top1_user_packet_disc,top2_user_packet_disc,top3_user_packet_disc,top4_user_packet_disc,top5_user_packet_disc;
                                     var top1_user_max_flow_data, top2_user_max_flow_data, top3_user_max_flow_data, top4_user_max_flow_data, top5_user_max_flow_data;
                                     var top1_user_max_flow, top2_user_max_flow, top3_user_max_flow, top4_user_max_flow, top5_user_max_flow;
                                     var top1_user_max_flow_time,top2_user_max_flow_time,top3_user_max_flow_time,top4_user_max_flow_time,top5_user_max_flow_time;
@@ -219,672 +223,750 @@ reportApp.service('ReportUserGroupData', function($window, $q, _, ReportData, Us
                                     // 테이블에 들어갈 탑 유저 데이터 준비를 위한 배열
                                     var top_user_data = [];
                                     var top_user_app = [];
-                                    if (data['data']['collection'].length !== 0){
-                                        _(data['data']['collection']).each(function(e, i){
-                                            complete_count += 2;
-                                            if(i===0) {
-                                                complete_count += 2;
-                                                // 1. elem(그룹이름)에 존재하는 각각 유저의 히스토리 active flows의 데이터를 가져온다.
-                                                // 2. elem(그룹이름)에 존재하는 각각 유저의 top5 app의 데이터를 가져온다.
-                                                UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
-                                                    UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data){
-                                                        // top 1 데이터
-                                                        // name, total, down, up, act flow, pkt disc rate, max flow, max flow time
-                                                        // top1 app, top2 app, top3 app
-                                                        try {
-                                                            top1_user_from = new Date(e['from']);
-                                                            top1_user_from.setHours(top1_user_from.getHours() + 9);
-                                                            top1_user_from = top1_user_from.toLocaleString();
-                                                            top1_user_until = new Date(e['until']);
-                                                            top1_user_until.setHours(top1_user_until.getHours() + 9);
-                                                            top1_user_until = top1_user_until.toLocaleString();
-                                                        } catch(exception) {top1_user_from = 'None'; top1_user_until='None'}
-                                                        try { top1_user_name = e['name'];} catch(exception) { top1_user_name = 'None' }
-                                                        try { top1_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_total = 0 }
-                                                        try { top1_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_total = 0 }
-                                                        try { top1_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_total = 0 }
-                                                        try { top1_user_active_flow = e['active_flows']; } catch(exception) { top1_user_total = 0 }
-                                                        try { top1_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top1_user_total = 0 }
-                                                        try {
-                                                            // console.log(user_in_group_flow_data);
-                                                            var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
-                                                            top1_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
-                                                                function (history_user_in_grp_active_flows) {
-                                                                    return history_user_in_grp_active_flows[1];
+                                    var resolve_cnt = 0;
+                                    var makeTableData = function(){
+                                        return $q(function(resolve, reject){
+                                            if (data['data']['collection'].length !== 0){
+                                                _(data['data']['collection']).each(function(e, i){
+                                                    complete_count += 2;
+                                                    if(i===0) {
+                                                        complete_count += 2;
+                                                        // 1. elem(그룹이름)에 존재하는 각각 유저의 히스토리 active flows의 데이터를 가져온다.
+                                                        // 2. elem(그룹이름)에 존재하는 각각 유저의 top5 app의 데이터를 가져온다.
+                                                        UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
+                                                            UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data){
+                                                                // top 1 데이터
+                                                                // name, total, down, up, act flow, pkt disc rate, max flow, max flow time
+                                                                // top1 app, top2 app, top3 app
+                                                                try {
+                                                                    top1_user_from = new Date(e['from']);
+                                                                    top1_user_from.setHours(top1_user_from.getHours() + 9);
+                                                                    top1_user_from = top1_user_from.toLocaleString();
+                                                                    top1_user_until = new Date(e['until']);
+                                                                    top1_user_until.setHours(top1_user_until.getHours() + 9);
+                                                                    top1_user_until = top1_user_until.toLocaleString();
+                                                                } catch(exception) {top1_user_from = 'None'; top1_user_until='None'}
+                                                                try { top1_user_name = e['name'];} catch(exception) { top1_user_name = 'None' }
+                                                                try { top1_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_total = 0 }
+                                                                try { top1_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_down = 0 }
+                                                                try { top1_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_up = 0 }
+                                                                try { top1_user_active_flow = e['active_flows']; } catch(exception) { top1_user_active_flow = 0 }
+                                                                try { top1_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top1_user_packet_disc_rate = 0 }
+                                                                try { top1_user_packet_disc = e['packets_discarded']; } catch(exception) { top1_user_packet_disc = 0 }
+                                                                try {
+                                                                    // console.log(user_in_group_flow_data);
+                                                                    var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
+                                                                    top1_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
+                                                                        function (history_user_in_grp_active_flows) {
+                                                                            return history_user_in_grp_active_flows[1];
+                                                                        });
+                                                                    top1_user_max_flow = top1_user_max_flow_data[1];
+                                                                    top1_user_max_flow_time = (new Date(top1_user_max_flow_data[0])).toLocaleString();
+                                                                } catch(exception) {
+                                                                    top1_user_max_flow = 0; top1_user_max_flow_time = "none";
+                                                                }
+                                                                try {
+                                                                    var top1_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
+                                                                    top1_user_app1_from.setHours(top1_user_app1_from.getHours() + 9);
+                                                                    var top1_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
+                                                                    top1_user_app1_until.setHours(top1_user_app1_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top1_user_app1_from = "None";
+                                                                    var top1_user_app1_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top1_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
+                                                                    top1_user_app2_from.setHours(top1_user_app2_from.getHours() + 9);
+                                                                    var top1_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
+                                                                    top1_user_app2_until.setHours(top1_user_app2_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top1_user_app2_from = "None";
+                                                                    var top1_user_app2_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top1_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
+                                                                    top1_user_app3_from.setHours(top1_user_app3_from.getHours() + 9);
+                                                                    var top1_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
+                                                                    top1_user_app3_until.setHours(top1_user_app3_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top1_user_app3_from = "None";
+                                                                    var top1_user_app3_until = "None";
+                                                                }
+                                                                try { top1_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top1_user_app1_name = 'None' }
+                                                                try { top1_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_app1_total = 0 }
+                                                                try { top1_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top1_user_app2_name = 'None' }
+                                                                try { top1_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_app2_total = 0 }
+                                                                try { top1_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top1_user_app3_name = 'None' }
+                                                                try { top1_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_app3_total = 0 }
+                                                                // 테이블에 들어갈 탑 유저 데이터 준비
+                                                                top_user_data.push({
+                                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top1_user_name:"None",
+                                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top1_user_total:0,
+                                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top1_user_down:0,
+                                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top1_user_up:0,
+                                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top1_user_active_flow:0,
+                                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top1_user_packet_disc_rate:0,
+                                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top1_user_packet_disc:0,
+                                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top1_user_max_flow:0,
+                                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top1_user_max_flow_time:0,
+                                                                    // "top1_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][0]['name']:"None",
+                                                                    // "top1_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
+                                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top1_user_from:"None",
+                                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top1_user_until:"None",
+                                                                    "top_user_app1_name": top1_user_app1_name,
+                                                                    "top_user_app1_total": top1_user_app1_total,
+                                                                    "top_user_app1_from": top1_user_app1_from.toLocaleString(),
+                                                                    "top_user_app1_until": top1_user_app1_until.toLocaleString(),
+                                                                    "top_user_app2_name": top1_user_app2_name,
+                                                                    "top_user_app2_total": top1_user_app2_total,
+                                                                    "top_user_app2_from": top1_user_app2_from.toLocaleString(),
+                                                                    "top_user_app2_until": top1_user_app2_until.toLocaleString(),
+                                                                    "top_user_app3_name": top1_user_app3_name,
+                                                                    "top_user_app3_total": top1_user_app3_total,
+                                                                    "top_user_app3_from": top1_user_app3_from.toLocaleString(),
+                                                                    "top_user_app3_until": top1_user_app3_until.toLocaleString()
                                                                 });
-                                                            top1_user_max_flow = top1_user_max_flow_data[1];
-                                                            top1_user_max_flow_time = (new Date(top1_user_max_flow_data[0])).toLocaleString();
-                                                         } catch(exception) {
-                                                            top1_user_max_flow = 0; top1_user_max_flow_time = "none";
-                                                        }
-                                                        try {
-                                                            var top1_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
-                                                            top1_user_app1_from.setHours(top1_user_app1_from.getHours() + 9);
-                                                            var top1_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
-                                                            top1_user_app1_until.setHours(top1_user_app1_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top1_user_app1_from = "None";
-                                                            var top1_user_app1_until = "None";
-                                                        }
-                                                        try {
-                                                            var top1_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
-                                                            top1_user_app2_from.setHours(top1_user_app2_from.getHours() + 9);
-                                                            var top1_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
-                                                            top1_user_app2_until.setHours(top1_user_app2_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top1_user_app2_from = "None";
-                                                            var top1_user_app2_until = "None";
-                                                        }
-                                                        try {
-                                                            var top1_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
-                                                            top1_user_app3_from.setHours(top1_user_app3_from.getHours() + 9);
-                                                            var top1_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
-                                                            top1_user_app3_until.setHours(top1_user_app3_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top1_user_app3_from = "None";
-                                                            var top1_user_app3_until = "None";
-                                                        }
-                                                        try { top1_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top1_user_app1_name = 'None' }
-                                                        try { top1_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_app1_total = 0 }
-                                                        try { top1_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top1_user_app2_name = 'None' }
-                                                        try { top1_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_app2_total = 0 }
-                                                        try { top1_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top1_user_app3_name = 'None' }
-                                                        try { top1_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top1_user_app3_total = 0 }
-                                                        // 테이블에 들어갈 탑 유저 데이터 준비
-                                                        top_user_data.push({
-                                                            "top_user_name": (data['data']['collection'].length !== 0) ? top1_user_name:"None",
-                                                            "top_user_total": (data['data']['collection'].length !== 0) ? top1_user_total:0,
-                                                            "top_user_down": (data['data']['collection'].length !== 0) ? top1_user_down:0,
-                                                            "top_user_up": (data['data']['collection'].length !== 0) ? top1_user_up:0,
-                                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top1_user_active_flow:0,
-                                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top1_user_packet_disc_rate:0,
-                                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top1_user_max_flow:0,
-                                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top1_user_max_flow_time:0,
-                                                            // "top1_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][0]['name']:"None",
-                                                            // "top1_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
-                                                            "top_user_from": (data['data']['collection'].length !== 0) ? top1_user_from:"None",
-                                                            "top_user_until": (data['data']['collection'].length !== 0) ? top1_user_until:"None",
-                                                            "top_user_app1_name": top1_user_app1_name,
-                                                            "top_user_app1_total": top1_user_app1_total,
-                                                            "top_user_app1_from": top1_user_app1_from.toLocaleString(),
-                                                            "top_user_app1_until": top1_user_app1_until.toLocaleString(),
-                                                            "top_user_app2_name": top1_user_app2_name,
-                                                            "top_user_app2_total": top1_user_app2_total,
-                                                            "top_user_app2_from": top1_user_app2_from.toLocaleString(),
-                                                            "top_user_app2_until": top1_user_app2_until.toLocaleString(),
-                                                            "top_user_app3_name": top1_user_app3_name,
-                                                            "top_user_app3_total": top1_user_app3_total,
-                                                            "top_user_app3_from": top1_user_app3_from.toLocaleString(),
-                                                            "top_user_app3_until": top1_user_app3_until.toLocaleString()
+                                                                resolve("sucess make table data!");
+                                                                resolve_cnt += 1;
+                                                            });
                                                         });
-                                                    });
+                                                    }
+                                                    if(i===1) {
+                                                        complete_count += 2;
+                                                        UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
+                                                            UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data){
+                                                                try {
+                                                                    top2_user_from = new Date(e['from']);
+                                                                    top2_user_from.setHours(top2_user_from.getHours() + 9);
+                                                                    top2_user_from = top2_user_from.toLocaleString();
+                                                                    top2_user_until = new Date(e['until']);
+                                                                    top2_user_until.setHours(top2_user_until.getHours() + 9);
+                                                                    top2_user_until = top2_user_until.toLocaleString();
+
+                                                                } catch(exception) {top2_user_from = 'None'; top2_user_until='None'}
+                                                                try { top2_user_name = e['name'];} catch(exception) { top2_user_name = 'None' }
+                                                                try { top2_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_total = 0 }
+                                                                try { top2_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_total = 0 }
+                                                                try { top2_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_total = 0 }
+                                                                try { top2_user_active_flow = e['active_flows']; } catch(exception) { top2_user_total = 0 }
+                                                                try { top2_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top2_user_total = 0 }
+                                                                try { top2_user_packet_disc = e['packets_discarded']; } catch(exception) { top2_user_packet_disc = 0 }
+                                                                try {
+                                                                    // console.log(user_in_group_flow_data);
+                                                                    var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
+                                                                    top2_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
+                                                                        function (history_user_in_grp_active_flows) {
+                                                                            return history_user_in_grp_active_flows[1];
+                                                                        });
+                                                                    top2_user_max_flow = top2_user_max_flow_data[1];
+                                                                    top2_user_max_flow_time = (new Date(top2_user_max_flow_data[0])).toLocaleString();
+
+                                                                } catch(exception) {
+                                                                    top2_user_max_flow = 0; top2_user_max_flow_time = "none";
+                                                                }
+                                                                try {
+                                                                    var top2_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
+                                                                    top2_user_app1_from.setHours(top2_user_app1_from.getHours() + 9);
+                                                                    var top2_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
+                                                                    top2_user_app1_until.setHours(top2_user_app1_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top2_user_app1_from = "None";
+                                                                    var top2_user_app1_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top2_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
+                                                                    top2_user_app2_from.setHours(top2_user_app2_from.getHours() + 9);
+                                                                    var top2_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
+                                                                    top2_user_app2_until.setHours(top2_user_app2_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top2_user_app2_from = "None";
+                                                                    var top2_user_app2_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top2_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
+                                                                    top2_user_app3_from.setHours(top2_user_app3_from.getHours() + 9);
+                                                                    var top2_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
+                                                                    top2_user_app3_until.setHours(top2_user_app3_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top2_user_app3_from = "None";
+                                                                    var top2_user_app3_until = "None";
+                                                                }
+                                                                try { top2_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top2_user_app1_name = 'None' }
+                                                                try { top2_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_app1_total = 0}
+                                                                try { top2_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top2_user_app2_name = 'None' }
+                                                                try { top2_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_app2_total = 0}
+                                                                try { top2_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top2_user_app3_name = 'None' }
+                                                                try { top2_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_app3_total = 0 }
+                                                                // 테이블에 들어갈 탑 유저 데이터 준비
+                                                                top_user_data.push({
+                                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top2_user_name:"None",
+                                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top2_user_total:0,
+                                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top2_user_down:0,
+                                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top2_user_up:0,
+                                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top2_user_active_flow:0,
+                                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top2_user_packet_disc_rate:0,
+                                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top2_user_packet_disc:0,
+                                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top2_user_max_flow:0,
+                                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top2_user_max_flow_time:0,
+                                                                    // "top2_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][1]['name']:"None",
+                                                                    // "top2_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
+                                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top2_user_from:"None",
+                                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top2_user_until:"None",
+                                                                    "top_user_app1_name": top2_user_app1_name,
+                                                                    "top_user_app1_total": top2_user_app1_total,
+                                                                    "top_user_app1_from": top2_user_app1_from.toLocaleString(),
+                                                                    "top_user_app1_until": top2_user_app1_until.toLocaleString(),
+                                                                    "top_user_app2_name": top2_user_app2_name,
+                                                                    "top_user_app2_total": top2_user_app2_total,
+                                                                    "top_user_app2_from": top2_user_app2_from.toLocaleString(),
+                                                                    "top_user_app2_until": top2_user_app2_until.toLocaleString(),
+                                                                    "top_user_app3_name": top2_user_app3_name,
+                                                                    "top_user_app3_total": top2_user_app3_total,
+                                                                    "top_user_app3_from": top2_user_app3_from.toLocaleString(),
+                                                                    "top_user_app3_until": top2_user_app3_until.toLocaleString()
+                                                                });
+                                                                resolve_cnt += 1;
+                                                            });
+                                                        });
+                                                    }
+                                                    if(i===2) {
+                                                        complete_count += 2;
+                                                        UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
+                                                            UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
+                                                                try {
+                                                                    top3_user_from = new Date(e['from']);
+                                                                    top3_user_from.setHours(top3_user_from.getHours() + 9);
+                                                                    top3_user_from = top3_user_from.toLocaleString();
+
+                                                                    top3_user_until = new Date(e['until']);
+                                                                    top3_user_until.setHours(top3_user_until.getHours() + 9);
+                                                                    top3_user_until = top3_user_until.toLocaleString();
+
+                                                                } catch(exception) {top3_user_from = 'None'; top3_user_until='None'}
+
+                                                                try { top3_user_name = e['name'];} catch(exception) { top3_user_name = 'None'; }
+                                                                try { top3_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_total = 0; }
+                                                                try { top3_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_total = 0 }
+                                                                try { top3_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_total = 0 }
+                                                                try { top3_user_active_flow = e['active_flows']; } catch(exception) { top3_user_total = 0 }
+                                                                try { top3_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top3_user_total = 0 }
+                                                                try { top3_user_packet_disc = e['packets_discarded']; } catch(exception) { top3_user_packet_disc = 0 }
+                                                                try {
+                                                                    // console.log(user_in_group_flow_data);
+                                                                    var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
+                                                                    top3_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
+                                                                        function (history_user_in_grp_active_flows) {
+                                                                            return history_user_in_grp_active_flows[1];
+                                                                        });
+                                                                    top3_user_max_flow = top3_user_max_flow_data[1];
+                                                                    top3_user_max_flow_time = (new Date(top3_user_max_flow_data[0])).toLocaleString();
+                                                                } catch(exception) {
+                                                                    top3_user_max_flow = 0; top3_user_max_flow_time = "none";
+                                                                }
+                                                                try {
+                                                                    var top3_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
+                                                                    top3_user_app1_from.setHours(top3_user_app1_from.getHours() + 9);
+                                                                    var top3_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
+                                                                    top3_user_app1_until.setHours(top3_user_app1_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top3_user_app1_from = "None";
+                                                                    var top3_user_app1_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top3_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
+                                                                    top3_user_app2_from.setHours(top3_user_app2_from.getHours() + 9);
+                                                                    var top3_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
+                                                                    top3_user_app2_until.setHours(top3_user_app2_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top3_user_app2_from = "None";
+                                                                    var top3_user_app2_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top3_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
+                                                                    top3_user_app3_from.setHours(top3_user_app3_from.getHours() + 9);
+                                                                    var top3_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
+                                                                    top3_user_app3_until.setHours(top3_user_app3_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top3_user_app3_from = "None";
+                                                                    var top3_user_app3_until = "None";
+                                                                }
+                                                                try { top3_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top3_user_app1_name = 'None' }
+                                                                try { top3_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_app1_total = 0 }
+                                                                try { top3_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top3_user_app2_name = 'None' }
+                                                                try { top3_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_app2_total = 0 }
+                                                                try { top3_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top3_user_app3_name = 'None' }
+                                                                try { top3_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_app3_total = 0 }
+                                                                // 테이블에 들어갈 탑 유저 데이터 준비
+                                                                top_user_data.push({
+                                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top3_user_name:"None",
+                                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top3_user_total:0,
+                                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top3_user_down:0,
+                                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top3_user_up:0,
+                                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top3_user_active_flow:0,
+                                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top3_user_packet_disc_rate:0,
+                                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top3_user_packet_disc:0,
+                                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top3_user_max_flow:0,
+                                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top3_user_max_flow_time:0,
+                                                                    // "top3_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][2]['name']:"None",
+                                                                    // "top3_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
+                                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top3_user_from:"None",
+                                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top3_user_until:"None",
+                                                                    "top_user_app1_name": top3_user_app1_name,
+                                                                    "top_user_app1_total": top3_user_app1_total,
+                                                                    "top_user_app1_from": top3_user_app1_from.toLocaleString(),
+                                                                    "top_user_app1_until": top3_user_app1_until.toLocaleString(),
+                                                                    "top_user_app2_name": top3_user_app2_name,
+                                                                    "top_user_app2_total": top3_user_app2_total,
+                                                                    "top_user_app2_from": top3_user_app2_from.toLocaleString(),
+                                                                    "top_user_app2_until": top3_user_app2_until.toLocaleString(),
+                                                                    "top_user_app3_name": top3_user_app3_name,
+                                                                    "top_user_app3_total": top3_user_app3_total,
+                                                                    "top_user_app3_from": top3_user_app3_from.toLocaleString(),
+                                                                    "top_user_app3_until": top3_user_app3_until.toLocaleString()
+                                                                });
+                                                                resolve_cnt += 1;
+                                                            });
+                                                        });
+                                                    }
+                                                    if(i===3) {
+                                                        complete_count += 2;
+                                                        UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
+                                                            UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
+                                                                try {
+                                                                    top4_user_from = new Date(e['from']);
+                                                                    top4_user_from.setHours(top4_user_from.getHours() + 9);
+                                                                    top4_user_from = top4_user_from.toLocaleString();
+
+                                                                    top4_user_until = new Date(e['until']);
+                                                                    top4_user_until.setHours(top4_user_until.getHours() + 9);
+                                                                    top4_user_until = top4_user_until.toLocaleString();
+
+                                                                } catch(exception) {top4_user_from = 'None'; top4_user_until='None'}
+
+                                                                try { top4_user_name = e['name'];} catch(exception) { top4_user_name = 'None'; }
+                                                                try { top4_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_total = 0; }
+                                                                try { top4_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_down = 0 }
+                                                                try { top4_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_up = 0 }
+                                                                try { top4_user_active_flow = e['active_flows']; } catch(exception) { top4_user_active_flow = 0 }
+                                                                try { top4_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top4_user_packet_disc_rate = 0 }
+                                                                try { top4_user_packet_disc = e['packets_discarded']; } catch(exception) { top4_user_packet_disc = 0 }
+                                                                try {
+                                                                    // console.log(user_in_group_flow_data);
+                                                                    var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
+                                                                    top4_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
+                                                                        function (history_user_in_grp_active_flows) {
+                                                                            return history_user_in_grp_active_flows[1];
+                                                                        });
+                                                                    top4_user_max_flow = top4_user_max_flow_data[1];
+                                                                    top4_user_max_flow_time = (new Date(top4_user_max_flow_data[0])).toLocaleString();
+                                                                } catch(exception) {
+                                                                    top4_user_max_flow = 0; top4_user_max_flow_time = "none";
+                                                                }
+                                                                try {
+                                                                    var top4_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
+                                                                    top4_user_app1_from.setHours(top4_user_app1_from.getHours() + 9);
+                                                                    var top4_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
+                                                                    top4_user_app1_until.setHours(top4_user_app1_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top4_user_app1_from = "None";
+                                                                    var top4_user_app1_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top4_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
+                                                                    top4_user_app2_from.setHours(top4_user_app2_from.getHours() + 9);
+                                                                    var top4_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
+                                                                    top4_user_app2_until.setHours(top4_user_app2_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top4_user_app2_from = "None";
+                                                                    var top4_user_app2_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top4_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
+                                                                    top4_user_app3_from.setHours(top4_user_app3_from.getHours() + 9);
+                                                                    var top4_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
+                                                                    top4_user_app3_until.setHours(top4_user_app3_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top4_user_app3_from = "None";
+                                                                    var top4_user_app3_until = "None";
+                                                                }
+                                                                try { top4_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top4_user_app1_name = 'None' }
+                                                                try { top4_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_app1_total = 0 }
+                                                                try { top4_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top4_user_app2_name = 'None' }
+                                                                try { top4_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_app2_total = 0 }
+                                                                try { top4_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top4_user_app3_name = 'None' }
+                                                                try { top4_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_app3_total = 0 }
+
+
+                                                                // 테이블에 들어갈 탑 유저 데이터 준비
+                                                                top_user_data.push({
+                                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top4_user_name:"None",
+                                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top4_user_total:0,
+                                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top4_user_down:0,
+                                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top4_user_up:0,
+                                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top4_user_active_flow:0,
+                                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top4_user_packet_disc_rate:0,
+                                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top4_user_packet_disc:0,
+                                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top4_user_max_flow:0,
+                                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top4_user_max_flow_time:0,
+                                                                    // "top4_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][3]['name']:"None",
+                                                                    // "top4_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][3]['total_rate'] * 0.001).toFixed(3):0,
+                                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top4_user_from:"None",
+                                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top4_user_until:"None",
+                                                                    "top_user_app1_name": top4_user_app1_name,
+                                                                    "top_user_app1_total": top4_user_app1_total,
+                                                                    "top_user_app1_from": top4_user_app1_from.toLocaleString(),
+                                                                    "top_user_app1_until": top4_user_app1_until.toLocaleString(),
+                                                                    "top_user_app2_name": top4_user_app2_name,
+                                                                    "top_user_app2_total": top4_user_app2_total,
+                                                                    "top_user_app2_from": top4_user_app2_from.toLocaleString(),
+                                                                    "top_user_app2_until": top4_user_app2_until.toLocaleString(),
+                                                                    "top_user_app3_name": top4_user_app3_name,
+                                                                    "top_user_app3_total": top4_user_app3_total,
+                                                                    "top_user_app3_from": top4_user_app3_from.toLocaleString(),
+                                                                    "top_user_app3_until": top4_user_app3_until.toLocaleString()
+                                                                });
+                                                                resolve_cnt += 1;
+                                                            });
+                                                        });
+                                                    }
+                                                    if(i===4) {
+                                                        complete_count += 2;
+                                                        UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
+                                                            UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
+                                                                try {
+                                                                    var top5_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
+                                                                    top5_user_app1_from.setHours(top5_user_app1_from.getHours() + 9);
+                                                                    var top5_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
+                                                                    top5_user_app1_until.setHours(top5_user_app1_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top5_user_app1_from = "None";
+                                                                    var top5_user_app1_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top5_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
+                                                                    top5_user_app2_from.setHours(top5_user_app2_from.getHours() + 9);
+                                                                    var top5_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
+                                                                    top5_user_app2_until.setHours(top5_user_app2_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top5_user_app2_from = "None";
+                                                                    var top5_user_app2_until = "None";
+                                                                }
+                                                                try {
+                                                                    var top5_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
+                                                                    top5_user_app3_from.setHours(top5_user_app3_from.getHours() + 9);
+                                                                    var top5_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
+                                                                    top5_user_app3_until.setHours(top5_user_app3_until.getHours() + 9);
+                                                                } catch(exception){
+                                                                    var top5_user_app3_from = "None";
+                                                                    var top5_user_app3_until = "None";
+                                                                }
+                                                                try { top5_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top5_user_app1_name = 'None' }
+                                                                try { top5_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_app1_total = 0 }
+                                                                try { top5_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top5_user_app2_name = 'None' }
+                                                                try { top5_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_app2_total = 0 }
+                                                                try { top5_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top5_user_app3_name = 'None' }
+                                                                try { top5_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_app3_total = 0 }
+
+                                                                try {
+                                                                    top5_user_from = new Date(e['from']);
+                                                                    top5_user_from.setHours(top5_user_from.getHours() + 9);
+                                                                    top5_user_from = top5_user_from.toLocaleString();
+
+                                                                    top5_user_until = new Date(e['until']);
+                                                                    top5_user_until.setHours(top5_user_until.getHours() + 9);
+                                                                    top5_user_until = top5_user_until.toLocaleString();
+
+                                                                } catch(exception) {top5_user_from = 'None'; top5_user_until='None'}
+
+                                                                try { top5_user_name = e['name'];} catch(exception) { top5_user_name = 'None'; }
+                                                                try { top5_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_total = 0; }
+                                                                try { top5_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_down = 0 }
+                                                                try { top5_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_up = 0 }
+                                                                try { top5_user_active_flow = e['active_flows']; } catch(exception) { top5_user_active_flow = 0 }
+                                                                try { top5_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top5_user_packet_disc_rate = 0 }
+                                                                try { top5_user_packet_disc = e['packets_discarded']; } catch(exception) { top5_user_packet_disc = 0 }
+                                                                try {
+                                                                    // console.log(user_in_group_flow_data);
+                                                                    var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
+                                                                    top5_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
+                                                                        function (history_user_in_grp_active_flows) {
+                                                                            return history_user_in_grp_active_flows[1];
+                                                                        });
+                                                                    top5_user_max_flow = top5_user_max_flow_data[1];
+                                                                    top5_user_max_flow_time = (new Date(top5_user_max_flow_data[0])).toLocaleString();
+                                                                } catch(exception) {
+                                                                    top5_user_max_flow = 0; top5_user_max_flow_time = "none";
+                                                                }
+                                                                // 테이블에 들어갈 탑 유저 데이터 준비
+                                                                top_user_data.push({
+                                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top5_user_name:"None",
+                                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top5_user_total:0,
+                                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top5_user_down:0,
+                                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top5_user_up:0,
+                                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top5_user_active_flow:0,
+                                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top5_user_packet_disc_rate:0,
+                                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top5_user_packet_disc:0,
+                                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top5_user_max_flow:0,
+                                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top5_user_max_flow_time:0,
+                                                                    // "top5_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][4]['name']:"None",
+                                                                    // "top5_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][4]['total_rate'] * 0.001).toFixed(3):0,
+                                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top5_user_from:"None",
+                                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top5_user_until:"None",
+                                                                    "top_user_app1_name": top5_user_app1_name,
+                                                                    "top_user_app1_total": top5_user_app1_total,
+                                                                    "top_user_app1_from": top5_user_app1_from.toLocaleString(),
+                                                                    "top_user_app1_until": top5_user_app1_until.toLocaleString(),
+                                                                    "top_user_app2_name": top5_user_app2_name,
+                                                                    "top_user_app2_total": top5_user_app2_total,
+                                                                    "top_user_app2_from": top5_user_app2_from.toLocaleString(),
+                                                                    "top_user_app2_until": top5_user_app2_until.toLocaleString(),
+                                                                    "top_user_app3_name": top5_user_app3_name,
+                                                                    "top_user_app3_total": top5_user_app3_total,
+                                                                    "top_user_app3_from": top5_user_app3_from.toLocaleString(),
+                                                                    "top_user_app3_until": top5_user_app3_until.toLocaleString()
+                                                                });
+                                                                resolve_cnt += 1;
+                                                            });
+                                                        });
+                                                    }
+                                                    // else {
+                                                    //     // 그룹 내 사용자 데이터 테이블 정렬
+                                                    //     // if (data['data']['collection'].length !== 0)
+                                                    //     _.sortBy(top_user_data, function(data){
+                                                    //         console.log('sorted data: ', data);
+                                                    //         return data['top_user_total'];
+                                                    //     });
+                                                    //     // top_user_data.sort(function (a, b) { return b['top_user_total'] - a['top_user_total']; });
+                                                    //     // console.log(' _user_in_group_tb.top_user_data: ', top_user_data);
+                                                    // }
+                                                });
+                                                // 그룹내 콜렉션의 사이즈가 없을때,(데이터가 존재하지 않을때)
+                                            } else{
+                                                // 테이블에 들어갈 탑 유저 데이터 준비 top1
+                                                top_user_data.push({
+                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top1_user_name:"None",
+                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top1_user_total:0,
+                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top1_user_down:0,
+                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top1_user_up:0,
+                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top1_user_active_flow:0,
+                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top1_user_packet_disc_rate:0,
+                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top1_user_packet_disc:0,
+                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top1_user_max_flow:0,
+                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top1_user_max_flow_time:0,
+                                                    // "top1_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][0]['name']:"None",
+                                                    // "top1_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
+                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top1_user_from:"None",
+                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top1_user_until:"None",
+                                                    "top_user_app1_name": "None",
+                                                    "top_user_app1_total": 0,
+                                                    "top_user_app1_from": "None",
+                                                    "top_user_app1_until": "None",
+                                                    "top_user_app2_name": "None",
+                                                    "top_user_app2_total": 0,
+                                                    "top_user_app2_from": "None",
+                                                    "top_user_app2_until": "None",
+                                                    "top_user_app3_name": "None",
+                                                    "top_user_app3_total": 0,
+                                                    "top_user_app3_from": "None",
+                                                    "top_user_app3_until": "None"
+                                                });
+                                                // 테이블에 들어갈 탑 유저 데이터 준비 top2
+                                                top_user_data.push({
+                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top2_user_name:"None",
+                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top2_user_total:0,
+                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top2_user_down:0,
+                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top2_user_up:0,
+                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top2_user_active_flow:0,
+                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top2_user_packet_disc_rate:0,
+                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top2_user_packet_disc:0,
+                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top2_user_max_flow:0,
+                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top2_user_max_flow_time:0,
+                                                    // "top2_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][1]['name']:"None",
+                                                    // "top2_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
+                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top2_user_from:"None",
+                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top2_user_until:"None",
+                                                    "top_user_app1_name": "None",
+                                                    "top_user_app1_total": 0,
+                                                    "top_user_app1_from": "None",
+                                                    "top_user_app1_until": "None",
+                                                    "top_user_app2_name": "None",
+                                                    "top_user_app2_total": 0,
+                                                    "top_user_app2_from": "None",
+                                                    "top_user_app2_until": "None",
+                                                    "top_user_app3_name": "None",
+                                                    "top_user_app3_total": 0,
+                                                    "top_user_app3_from": "None",
+                                                    "top_user_app3_until": "None"
+                                                });
+                                                // 테이블에 들어갈 탑 유저 데이터 준비 top3
+                                                top_user_data.push({
+                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top3_user_name:"None",
+                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top3_user_total:0,
+                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top3_user_down:0,
+                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top3_user_up:0,
+                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top3_user_active_flow:0,
+                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top3_user_packet_disc_rate:0,
+                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top3_user_packet_disc:0,
+                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top3_user_max_flow:0,
+                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top3_user_max_flow_time:0,
+                                                    // "top3_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][2]['name']:"None",
+                                                    // "top3_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
+                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top3_user_from:"None",
+                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top3_user_until:"None",
+                                                    "top_user_app1_name": "None",
+                                                    "top_user_app1_total": 0,
+                                                    "top_user_app1_from": "None",
+                                                    "top_user_app1_until": "None",
+                                                    "top_user_app2_name": "None",
+                                                    "top_user_app2_total": 0,
+                                                    "top_user_app2_from": "None",
+                                                    "top_user_app2_until": "None",
+                                                    "top_user_app3_name": "None",
+                                                    "top_user_app3_total": 0,
+                                                    "top_user_app3_from": "None",
+                                                    "top_user_app3_until": "None"
+                                                });
+                                                // 테이블에 들어갈 탑 유저 데이터 준비 top4
+                                                top_user_data.push({
+                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top4_user_name:"None",
+                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top4_user_total:0,
+                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top4_user_down:0,
+                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top4_user_up:0,
+                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top4_user_active_flow:0,
+                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top4_user_packet_disc_rate:0,
+                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top4_user_packet_disc:0,
+                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top4_user_max_flow:0,
+                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top4_user_max_flow_time:0,
+                                                    // "top4_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][3]['name']:"None",
+                                                    // "top4_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][3]['total_rate'] * 0.001).toFixed(3):0,
+                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top4_user_from:"None",
+                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top4_user_until:"None",
+                                                    "top_user_app1_name": "None",
+                                                    "top_user_app1_total": 0,
+                                                    "top_user_app1_from": "None",
+                                                    "top_user_app1_until": "None",
+                                                    "top_user_app2_name": "None",
+                                                    "top_user_app2_total": 0,
+                                                    "top_user_app2_from": "None",
+                                                    "top_user_app2_until": "None",
+                                                    "top_user_app3_name": "None",
+                                                    "top_user_app3_total": 0,
+                                                    "top_user_app3_from": "None",
+                                                    "top_user_app3_until": "None"
+                                                });
+                                                // 테이블에 들어갈 탑 유저 데이터 준비 top5
+                                                top_user_data.push({
+                                                    "top_user_name": (data['data']['collection'].length !== 0) ? top5_user_name:"None",
+                                                    "top_user_total": (data['data']['collection'].length !== 0) ? top5_user_total:0,
+                                                    "top_user_down": (data['data']['collection'].length !== 0) ? top5_user_down:0,
+                                                    "top_user_up": (data['data']['collection'].length !== 0) ? top5_user_up:0,
+                                                    "top_user_active_flow": (data['data']['collection'].length !== 0) ? top5_user_active_flow:0,
+                                                    "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top5_user_packet_disc_rate:0,
+                                                    "top_user_packet_disc": (data['data']['collection'].length !== 0) ? top5_user_packet_disc:0,
+                                                    "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top5_user_max_flow:0,
+                                                    "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top5_user_max_flow_time:0,
+                                                    // "top5_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][4]['name']:"None",
+                                                    // "top5_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][4]['total_rate'] * 0.001).toFixed(3):0,
+                                                    "top_user_from": (data['data']['collection'].length !== 0) ? top5_user_from:"None",
+                                                    "top_user_until": (data['data']['collection'].length !== 0) ? top5_user_until:"None",
+                                                    "top_user_app1_name": "None",
+                                                    "top_user_app1_total": 0,
+                                                    "top_user_app1_from": "None",
+                                                    "top_user_app1_until": "None",
+                                                    "top_user_app2_name": "None",
+                                                    "top_user_app2_total": 0,
+                                                    "top_user_app2_from": "None",
+                                                    "top_user_app2_until": "None",
+                                                    "top_user_app3_name": "None",
+                                                    "top_user_app3_total": 0,
+                                                    "top_user_app3_from": "None",
+                                                    "top_user_app3_until": "None"
                                                 });
                                             }
-                                            if(i===1){
-                                                complete_count += 2;
-                                                UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
-                                                    UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data){
-                                                        try {
-                                                            top2_user_from = new Date(e['from']);
-                                                            top2_user_from.setHours(top2_user_from.getHours() + 9);
-                                                            top2_user_from = top2_user_from.toLocaleString();
-                                                            top2_user_until = new Date(e['until']);
-                                                            top2_user_until.setHours(top2_user_until.getHours() + 9);
-                                                            top2_user_until = top2_user_until.toLocaleString();
-
-                                                        } catch(exception) {top2_user_from = 'None'; top2_user_until='None'}
-                                                        try { top2_user_name = e['name'];} catch(exception) { top2_user_name = 'None' }
-                                                        try { top2_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_total = 0 }
-                                                        try { top2_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_total = 0 }
-                                                        try { top2_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_total = 0 }
-                                                        try { top2_user_active_flow = e['active_flows']; } catch(exception) { top2_user_total = 0 }
-                                                        try { top2_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top2_user_total = 0 }
-                                                        try {
-                                                            // console.log(user_in_group_flow_data);
-                                                            var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
-                                                            top2_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
-                                                                function (history_user_in_grp_active_flows) {
-                                                                    return history_user_in_grp_active_flows[1];
-                                                                });
-                                                            top2_user_max_flow = top2_user_max_flow_data[1];
-                                                            top2_user_max_flow_time = (new Date(top2_user_max_flow_data[0])).toLocaleString();
-
-                                                        } catch(exception) {
-                                                            top2_user_max_flow = 0; top2_user_max_flow_time = "none";
-                                                        }
-                                                        try {
-                                                            var top2_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
-                                                            top2_user_app1_from.setHours(top2_user_app1_from.getHours() + 9);
-                                                            var top2_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
-                                                            top2_user_app1_until.setHours(top2_user_app1_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top2_user_app1_from = "None";
-                                                            var top2_user_app1_until = "None";
-                                                        }
-                                                        try {
-                                                            var top2_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
-                                                            top2_user_app2_from.setHours(top2_user_app2_from.getHours() + 9);
-                                                            var top2_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
-                                                            top2_user_app2_until.setHours(top2_user_app2_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top2_user_app2_from = "None";
-                                                            var top2_user_app2_until = "None";
-                                                        }
-                                                        try {
-                                                            var top2_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
-                                                            top2_user_app3_from.setHours(top2_user_app3_from.getHours() + 9);
-                                                            var top2_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
-                                                            top2_user_app3_until.setHours(top2_user_app3_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top2_user_app3_from = "None";
-                                                            var top2_user_app3_until = "None";
-                                                        }
-                                                        try { top2_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top2_user_app1_name = 'None' }
-                                                        try { top2_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_app1_total = 0}
-                                                        try { top2_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top2_user_app2_name = 'None' }
-                                                        try { top2_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_app2_total = 0}
-                                                        try { top2_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top2_user_app3_name = 'None' }
-                                                        try { top2_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top2_user_app3_total = 0 }
-                                                        // 테이블에 들어갈 탑 유저 데이터 준비
-                                                        top_user_data.push({
-                                                            "top_user_name": (data['data']['collection'].length !== 0) ? top2_user_name:"None",
-                                                            "top_user_total": (data['data']['collection'].length !== 0) ? top2_user_total:0,
-                                                            "top_user_down": (data['data']['collection'].length !== 0) ? top2_user_down:0,
-                                                            "top_user_up": (data['data']['collection'].length !== 0) ? top2_user_up:0,
-                                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top2_user_active_flow:0,
-                                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top2_user_packet_disc_rate:0,
-                                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top2_user_max_flow:0,
-                                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top2_user_max_flow_time:0,
-                                                            // "top2_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][1]['name']:"None",
-                                                            // "top2_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
-                                                            "top_user_from": (data['data']['collection'].length !== 0) ? top2_user_from:"None",
-                                                            "top_user_until": (data['data']['collection'].length !== 0) ? top2_user_until:"None",
-                                                            "top_user_app1_name": top2_user_app1_name,
-                                                            "top_user_app1_total": top2_user_app1_total,
-                                                            "top_user_app1_from": top2_user_app1_from.toLocaleString(),
-                                                            "top_user_app1_until": top2_user_app1_until.toLocaleString(),
-                                                            "top_user_app2_name": top2_user_app2_name,
-                                                            "top_user_app2_total": top2_user_app2_total,
-                                                            "top_user_app2_from": top2_user_app2_from.toLocaleString(),
-                                                            "top_user_app2_until": top2_user_app2_until.toLocaleString(),
-                                                            "top_user_app3_name": top2_user_app3_name,
-                                                            "top_user_app3_total": top2_user_app3_total,
-                                                            "top_user_app3_from": top2_user_app3_from.toLocaleString(),
-                                                            "top_user_app3_until": top2_user_app3_until.toLocaleString()
-                                                        });
-                                                    });
+                                            // 테이블 테이터 최종
+                                            _user_in_group_tb.push({
+                                                "user_group_name": elem,
+                                                "user_group_tr": (elem === _user_group_tb_data[index].name) ? _user_group_tb_data[index].total:"none",
+                                                "top_user_data": top_user_data
+                                            });
+                                            // resolve(_user_in_group_tb);
+                                            // if(data['data']['collection'].length === resolve_cnt){
+                                            //     resolve("sucess make table data!")
+                                            // }
+                                        });
+                                    };
+                                    makeTableData().then(function(res){
+                                        if (data['data']['collection'].length !== 0) {
+                                            for (var i = 0; i<_user_in_group_tb.length; i++) {
+                                                _user_in_group_tb[i]['top_user_data'].sort(function (a, b) {
+                                                    console.log('top_user_data: ', a, b);
+                                                    return b['top_user_total'] - a['top_user_total']
                                                 });
                                             }
-                                            if(i===2) {
-                                                complete_count += 2;
-                                                UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
-                                                    UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
-                                                        try {
-                                                            top3_user_from = new Date(e['from']);
-                                                            top3_user_from.setHours(top3_user_from.getHours() + 9);
-                                                            top3_user_from = top3_user_from.toLocaleString();
 
-                                                            top3_user_until = new Date(e['until']);
-                                                            top3_user_until.setHours(top3_user_until.getHours() + 9);
-                                                            top3_user_until = top3_user_until.toLocaleString();
+                                            _user_in_group_tb.sort(function (a, b) {
+                                                return b['user_group_tr'] - a['user_group_tr'];
+                                            });
+                                        }
+                                        console.log('_user_in_group_tb', _user_in_group_tb);
 
-                                                        } catch(exception) {top3_user_from = 'None'; top3_user_until='None'}
-
-                                                        try { top3_user_name = e['name'];} catch(exception) { top3_user_name = 'None'; }
-                                                        try { top3_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_total = 0; }
-                                                        try { top3_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_total = 0 }
-                                                        try { top3_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_total = 0 }
-                                                        try { top3_user_active_flow = e['active_flows']; } catch(exception) { top3_user_total = 0 }
-                                                        try { top3_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top3_user_total = 0 }
-                                                        try {
-                                                            // console.log(user_in_group_flow_data);
-                                                            var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
-                                                            top3_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
-                                                                function (history_user_in_grp_active_flows) {
-                                                                    return history_user_in_grp_active_flows[1];
-                                                                });
-                                                            top3_user_max_flow = top3_user_max_flow_data[1];
-                                                            top3_user_max_flow_time = (new Date(top3_user_max_flow_data[0])).toLocaleString();
-                                                        } catch(exception) {
-                                                            top3_user_max_flow = 0; top3_user_max_flow_time = "none";
-                                                        }
-                                                        try {
-                                                            var top3_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
-                                                            top3_user_app1_from.setHours(top3_user_app1_from.getHours() + 9);
-                                                            var top3_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
-                                                            top3_user_app1_until.setHours(top3_user_app1_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top3_user_app1_from = "None";
-                                                            var top3_user_app1_until = "None";
-                                                        }
-                                                        try {
-                                                            var top3_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
-                                                            top3_user_app2_from.setHours(top3_user_app2_from.getHours() + 9);
-                                                            var top3_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
-                                                            top3_user_app2_until.setHours(top3_user_app2_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top3_user_app2_from = "None";
-                                                            var top3_user_app2_until = "None";
-                                                        }
-                                                        try {
-                                                            var top3_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
-                                                            top3_user_app3_from.setHours(top3_user_app3_from.getHours() + 9);
-                                                            var top3_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
-                                                            top3_user_app3_until.setHours(top3_user_app3_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top3_user_app3_from = "None";
-                                                            var top3_user_app3_until = "None";
-                                                        }
-                                                        try { top3_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top3_user_app1_name = 'None' }
-                                                        try { top3_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_app1_total = 0 }
-                                                        try { top3_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top3_user_app2_name = 'None' }
-                                                        try { top3_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_app2_total = 0 }
-                                                        try { top3_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top3_user_app3_name = 'None' }
-                                                        try { top3_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top3_user_app3_total = 0 }
-                                                        // 테이블에 들어갈 탑 유저 데이터 준비
-                                                        top_user_data.push({
-                                                            "top_user_name": (data['data']['collection'].length !== 0) ? top3_user_name:"None",
-                                                            "top_user_total": (data['data']['collection'].length !== 0) ? top3_user_total:0,
-                                                            "top_user_down": (data['data']['collection'].length !== 0) ? top3_user_down:0,
-                                                            "top_user_up": (data['data']['collection'].length !== 0) ? top3_user_up:0,
-                                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top3_user_active_flow:0,
-                                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top3_user_packet_disc_rate:0,
-                                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top3_user_max_flow:0,
-                                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top3_user_max_flow_time:0,
-                                                            // "top3_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][2]['name']:"None",
-                                                            // "top3_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
-                                                            "top_user_from": (data['data']['collection'].length !== 0) ? top3_user_from:"None",
-                                                            "top_user_until": (data['data']['collection'].length !== 0) ? top3_user_until:"None",
-                                                            "top_user_app1_name": top3_user_app1_name,
-                                                            "top_user_app1_total": top3_user_app1_total,
-                                                            "top_user_app1_from": top3_user_app1_from.toLocaleString(),
-                                                            "top_user_app1_until": top3_user_app1_until.toLocaleString(),
-                                                            "top_user_app2_name": top3_user_app2_name,
-                                                            "top_user_app2_total": top3_user_app2_total,
-                                                            "top_user_app2_from": top3_user_app2_from.toLocaleString(),
-                                                            "top_user_app2_until": top3_user_app2_until.toLocaleString(),
-                                                            "top_user_app3_name": top3_user_app3_name,
-                                                            "top_user_app3_total": top3_user_app3_total,
-                                                            "top_user_app3_from": top3_user_app3_from.toLocaleString(),
-                                                            "top_user_app3_until": top3_user_app3_until.toLocaleString()
-                                                        });
-                                                    });
-                                                });
-                                            }
-                                            if(i===3) {
-                                                complete_count += 2;
-                                                UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
-                                                    UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
-                                                        try {
-                                                            top4_user_from = new Date(e['from']);
-                                                            top4_user_from.setHours(top4_user_from.getHours() + 9);
-                                                            top4_user_from = top4_user_from.toLocaleString();
-
-                                                            top4_user_until = new Date(e['until']);
-                                                            top4_user_until.setHours(top4_user_until.getHours() + 9);
-                                                            top4_user_until = top4_user_until.toLocaleString();
-
-                                                        } catch(exception) {top4_user_from = 'None'; top4_user_until='None'}
-
-                                                        try { top4_user_name = e['name'];} catch(exception) { top4_user_name = 'None'; }
-                                                        try { top4_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_total = 0; }
-                                                        try { top4_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_down = 0 }
-                                                        try { top4_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_up = 0 }
-                                                        try { top4_user_active_flow = e['active_flows']; } catch(exception) { top4_user_active_flow = 0 }
-                                                        try { top4_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top4_user_packet_disc_rate = 0 }
-                                                        try {
-                                                            // console.log(user_in_group_flow_data);
-                                                            var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
-                                                            top4_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
-                                                                function (history_user_in_grp_active_flows) {
-                                                                    return history_user_in_grp_active_flows[1];
-                                                                });
-                                                            top4_user_max_flow = top4_user_max_flow_data[1];
-                                                            top4_user_max_flow_time = (new Date(top4_user_max_flow_data[0])).toLocaleString();
-                                                        } catch(exception) {
-                                                            top4_user_max_flow = 0; top4_user_max_flow_time = "none";
-                                                        }
-                                                        try {
-                                                            var top4_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
-                                                            top4_user_app1_from.setHours(top4_user_app1_from.getHours() + 9);
-                                                            var top4_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
-                                                            top4_user_app1_until.setHours(top4_user_app1_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top4_user_app1_from = "None";
-                                                            var top4_user_app1_until = "None";
-                                                        }
-                                                        try {
-                                                            var top4_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
-                                                            top4_user_app2_from.setHours(top4_user_app2_from.getHours() + 9);
-                                                            var top4_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
-                                                            top4_user_app2_until.setHours(top4_user_app2_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top4_user_app2_from = "None";
-                                                            var top4_user_app2_until = "None";
-                                                        }
-                                                        try {
-                                                            var top4_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
-                                                            top4_user_app3_from.setHours(top4_user_app3_from.getHours() + 9);
-                                                            var top4_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
-                                                            top4_user_app3_until.setHours(top4_user_app3_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top4_user_app3_from = "None";
-                                                            var top4_user_app3_until = "None";
-                                                        }
-                                                        try { top4_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top4_user_app1_name = 'None' }
-                                                        try { top4_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_app1_total = 0 }
-                                                        try { top4_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top4_user_app2_name = 'None' }
-                                                        try { top4_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_app2_total = 0 }
-                                                        try { top4_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top4_user_app3_name = 'None' }
-                                                        try { top4_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top4_user_app3_total = 0 }
-
-
-                                                        // 테이블에 들어갈 탑 유저 데이터 준비
-                                                        top_user_data.push({
-                                                            "top_user_name": (data['data']['collection'].length !== 0) ? top4_user_name:"None",
-                                                            "top_user_total": (data['data']['collection'].length !== 0) ? top4_user_total:0,
-                                                            "top_user_down": (data['data']['collection'].length !== 0) ? top4_user_down:0,
-                                                            "top_user_up": (data['data']['collection'].length !== 0) ? top4_user_up:0,
-                                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top4_user_active_flow:0,
-                                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top4_user_packet_disc_rate:0,
-                                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top4_user_max_flow:0,
-                                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top4_user_max_flow_time:0,
-                                                            // "top4_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][3]['name']:"None",
-                                                            // "top4_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][3]['total_rate'] * 0.001).toFixed(3):0,
-                                                            "top_user_from": (data['data']['collection'].length !== 0) ? top4_user_from:"None",
-                                                            "top_user_until": (data['data']['collection'].length !== 0) ? top4_user_until:"None",
-                                                            "top_user_app1_name": top4_user_app1_name,
-                                                            "top_user_app1_total": top4_user_app1_total,
-                                                            "top_user_app1_from": top4_user_app1_from.toLocaleString(),
-                                                            "top_user_app1_until": top4_user_app1_until.toLocaleString(),
-                                                            "top_user_app2_name": top4_user_app2_name,
-                                                            "top_user_app2_total": top4_user_app2_total,
-                                                            "top_user_app2_from": top4_user_app2_from.toLocaleString(),
-                                                            "top_user_app2_until": top4_user_app2_until.toLocaleString(),
-                                                            "top_user_app3_name": top4_user_app3_name,
-                                                            "top_user_app3_total": top4_user_app3_total,
-                                                            "top_user_app3_from": top4_user_app3_from.toLocaleString(),
-                                                            "top_user_app3_until": top4_user_app3_until.toLocaleString()
-                                                        });
-                                                    });
-
-                                                });
-                                            }
-                                            if(i===4) {
-                                                complete_count += 2;
-                                                UserInGroupData.getUserInGroupActiveFlows(hostname, e['name']).then(function(user_in_group_flow_data){
-                                                    UserInGroupData.getUserInGroupAppData(hostname, e['name']).then(function(user_in_group_app_data) {
-                                                        try {
-                                                            var top5_user_app1_from = new Date(user_in_group_app_data['data']['collection'][0]['from']);
-                                                            top5_user_app1_from.setHours(top5_user_app1_from.getHours() + 9);
-                                                            var top5_user_app1_until = new Date(user_in_group_app_data['data']['collection'][0]['until']);
-                                                            top5_user_app1_until.setHours(top5_user_app1_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top5_user_app1_from = "None";
-                                                            var top5_user_app1_until = "None";
-                                                        }
-                                                        try {
-                                                            var top5_user_app2_from = new Date(user_in_group_app_data['data']['collection'][1]['from']);
-                                                            top5_user_app2_from.setHours(top5_user_app2_from.getHours() + 9);
-                                                            var top5_user_app2_until = new Date(user_in_group_app_data['data']['collection'][1]['until']);
-                                                            top5_user_app2_until.setHours(top5_user_app2_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top5_user_app2_from = "None";
-                                                            var top5_user_app2_until = "None";
-                                                        }
-                                                        try {
-                                                            var top5_user_app3_from = new Date(user_in_group_app_data['data']['collection'][2]['from']);
-                                                            top5_user_app3_from.setHours(top5_user_app3_from.getHours() + 9);
-                                                            var top5_user_app3_until = new Date(user_in_group_app_data['data']['collection'][2]['until']);
-                                                            top5_user_app3_until.setHours(top5_user_app3_until.getHours() + 9);
-                                                        } catch(exception){
-                                                            var top5_user_app3_from = "None";
-                                                            var top5_user_app3_until = "None";
-                                                        }
-                                                        try { top5_user_app1_name = user_in_group_app_data['data']['collection'][0]['name'];} catch(exception) { top5_user_app1_name = 'None' }
-                                                        try { top5_user_app1_total = (user_in_group_app_data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_app1_total = 0 }
-                                                        try { top5_user_app2_name = user_in_group_app_data['data']['collection'][1]['name'];} catch(exception) { top5_user_app2_name = 'None' }
-                                                        try { top5_user_app2_total = (user_in_group_app_data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_app2_total = 0 }
-                                                        try { top5_user_app3_name = user_in_group_app_data['data']['collection'][2]['name'];} catch(exception) { top5_user_app3_name = 'None' }
-                                                        try { top5_user_app3_total = (user_in_group_app_data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_app3_total = 0 }
-
-                                                        try {
-                                                            top5_user_from = new Date(e['from']);
-                                                            top5_user_from.setHours(top5_user_from.getHours() + 9);
-                                                            top5_user_from = top5_user_from.toLocaleString();
-
-                                                            top5_user_until = new Date(e['until']);
-                                                            top5_user_until.setHours(top5_user_until.getHours() + 9);
-                                                            top5_user_until = top5_user_until.toLocaleString();
-
-                                                        } catch(exception) {top5_user_from = 'None'; top5_user_until='None'}
-
-                                                        try { top5_user_name = e['name'];} catch(exception) { top5_user_name = 'None'; }
-                                                        try { top5_user_total = (e['total_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_total = 0; }
-                                                        try { top5_user_down = (e['dest_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_down = 0 }
-                                                        try { top5_user_up = (e['source_rate'] * 0.001).toFixed(3);} catch(exception) { top5_user_up = 0 }
-                                                        try { top5_user_active_flow = e['active_flows']; } catch(exception) { top5_user_active_flow = 0 }
-                                                        try { top5_user_packet_disc_rate = e['packet_discard_rate']; } catch(exception) { top5_user_packet_disc_rate = 0 }
-                                                        try {
-                                                            // console.log(user_in_group_flow_data);
-                                                            var _history_user_in_group_active_flows_data = user_in_group_flow_data['data']['collection'][0]['_history_active_flows'];
-                                                            top5_user_max_flow_data=_.max(_history_user_in_group_active_flows_data,
-                                                                function (history_user_in_grp_active_flows) {
-                                                                    return history_user_in_grp_active_flows[1];
-                                                                });
-                                                            top5_user_max_flow = top5_user_max_flow_data[1];
-                                                            top5_user_max_flow_time = (new Date(top5_user_max_flow_data[0])).toLocaleString();
-                                                        } catch(exception) {
-                                                            top5_user_max_flow = 0; top5_user_max_flow_time = "none";
-                                                        }
-                                                        // 테이블에 들어갈 탑 유저 데이터 준비
-                                                        top_user_data.push({
-                                                            "top_user_name": (data['data']['collection'].length !== 0) ? top5_user_name:"None",
-                                                            "top_user_total": (data['data']['collection'].length !== 0) ? top5_user_total:0,
-                                                            "top_user_down": (data['data']['collection'].length !== 0) ? top5_user_down:0,
-                                                            "top_user_up": (data['data']['collection'].length !== 0) ? top5_user_up:0,
-                                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top5_user_active_flow:0,
-                                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top5_user_packet_disc_rate:0,
-                                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top5_user_max_flow:0,
-                                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top5_user_max_flow_time:0,
-                                                            // "top5_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][4]['name']:"None",
-                                                            // "top5_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][4]['total_rate'] * 0.001).toFixed(3):0,
-                                                            "top_user_from": (data['data']['collection'].length !== 0) ? top5_user_from:"None",
-                                                            "top_user_until": (data['data']['collection'].length !== 0) ? top5_user_until:"None",
-                                                            "top_user_app1_name": top5_user_app1_name,
-                                                            "top_user_app1_total": top5_user_app1_total,
-                                                            "top_user_app1_from": top5_user_app1_from.toLocaleString(),
-                                                            "top_user_app1_until": top5_user_app1_until.toLocaleString(),
-                                                            "top_user_app2_name": top5_user_app2_name,
-                                                            "top_user_app2_total": top5_user_app2_total,
-                                                            "top_user_app2_from": top5_user_app2_from.toLocaleString(),
-                                                            "top_user_app2_until": top5_user_app2_until.toLocaleString(),
-                                                            "top_user_app3_name": top5_user_app3_name,
-                                                            "top_user_app3_total": top5_user_app3_total,
-                                                            "top_user_app3_from": top5_user_app3_from.toLocaleString(),
-                                                            "top_user_app3_until": top5_user_app3_until.toLocaleString()
-                                                        });
-
-                                                    });
-                                                });
-                                            }
-                                        });
-                                        // 그룹내 콜렉션의 사이즈가 없을때,(데이터가 존재하지 않을때)
-                                    } else{
-                                        // 테이블에 들어갈 탑 유저 데이터 준비 top1
-                                        top_user_data.push({
-                                            "top_user_name": (data['data']['collection'].length !== 0) ? top1_user_name:"None",
-                                            "top_user_total": (data['data']['collection'].length !== 0) ? top1_user_total:0,
-                                            "top_user_down": (data['data']['collection'].length !== 0) ? top1_user_down:0,
-                                            "top_user_up": (data['data']['collection'].length !== 0) ? top1_user_up:0,
-                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top1_user_active_flow:0,
-                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top1_user_packet_disc_rate:0,
-                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top1_user_max_flow:0,
-                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top1_user_max_flow_time:0,
-                                            // "top1_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][0]['name']:"None",
-                                            // "top1_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
-                                            "top_user_from": (data['data']['collection'].length !== 0) ? top1_user_from:"None",
-                                            "top_user_until": (data['data']['collection'].length !== 0) ? top1_user_until:"None",
-                                            "top_user_app1_name": "None",
-                                            "top_user_app1_total": 0,
-                                            "top_user_app1_from": "None",
-                                            "top_user_app1_until": "None",
-                                            "top_user_app2_name": "None",
-                                            "top_user_app2_total": 0,
-                                            "top_user_app2_from": "None",
-                                            "top_user_app2_until": "None",
-                                            "top_user_app3_name": "None",
-                                            "top_user_app3_total": 0,
-                                            "top_user_app3_from": "None",
-                                            "top_user_app3_until": "None"
-                                        });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비 top2
-                                        top_user_data.push({
-                                            "top_user_name": (data['data']['collection'].length !== 0) ? top2_user_name:"None",
-                                            "top_user_total": (data['data']['collection'].length !== 0) ? top2_user_total:0,
-                                            "top_user_down": (data['data']['collection'].length !== 0) ? top2_user_down:0,
-                                            "top_user_up": (data['data']['collection'].length !== 0) ? top2_user_up:0,
-                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top2_user_active_flow:0,
-                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top2_user_packet_disc_rate:0,
-                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top2_user_max_flow:0,
-                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top2_user_max_flow_time:0,
-                                            // "top2_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][1]['name']:"None",
-                                            // "top2_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
-                                            "top_user_from": (data['data']['collection'].length !== 0) ? top2_user_from:"None",
-                                            "top_user_until": (data['data']['collection'].length !== 0) ? top2_user_until:"None",
-                                            "top_user_app1_name": "None",
-                                            "top_user_app1_total": 0,
-                                            "top_user_app1_from": "None",
-                                            "top_user_app1_until": "None",
-                                            "top_user_app2_name": "None",
-                                            "top_user_app2_total": 0,
-                                            "top_user_app2_from": "None",
-                                            "top_user_app2_until": "None",
-                                            "top_user_app3_name": "None",
-                                            "top_user_app3_total": 0,
-                                            "top_user_app3_from": "None",
-                                            "top_user_app3_until": "None"
-                                        });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비 top3
-                                        top_user_data.push({
-                                            "top_user_name": (data['data']['collection'].length !== 0) ? top3_user_name:"None",
-                                            "top_user_total": (data['data']['collection'].length !== 0) ? top3_user_total:0,
-                                            "top_user_down": (data['data']['collection'].length !== 0) ? top3_user_down:0,
-                                            "top_user_up": (data['data']['collection'].length !== 0) ? top3_user_up:0,
-                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top3_user_active_flow:0,
-                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top3_user_packet_disc_rate:0,
-                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top3_user_max_flow:0,
-                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top3_user_max_flow_time:0,
-                                            // "top3_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][2]['name']:"None",
-                                            // "top3_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
-                                            "top_user_from": (data['data']['collection'].length !== 0) ? top3_user_from:"None",
-                                            "top_user_until": (data['data']['collection'].length !== 0) ? top3_user_until:"None",
-                                            "top_user_app1_name": "None",
-                                            "top_user_app1_total": 0,
-                                            "top_user_app1_from": "None",
-                                            "top_user_app1_until": "None",
-                                            "top_user_app2_name": "None",
-                                            "top_user_app2_total": 0,
-                                            "top_user_app2_from": "None",
-                                            "top_user_app2_until": "None",
-                                            "top_user_app3_name": "None",
-                                            "top_user_app3_total": 0,
-                                            "top_user_app3_from": "None",
-                                            "top_user_app3_until": "None"
-                                        });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비 top4
-                                        top_user_data.push({
-                                            "top_user_name": (data['data']['collection'].length !== 0) ? top4_user_name:"None",
-                                            "top_user_total": (data['data']['collection'].length !== 0) ? top4_user_total:0,
-                                            "top_user_down": (data['data']['collection'].length !== 0) ? top4_user_down:0,
-                                            "top_user_up": (data['data']['collection'].length !== 0) ? top4_user_up:0,
-                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top4_user_active_flow:0,
-                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top4_user_packet_disc_rate:0,
-                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top4_user_max_flow:0,
-                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top4_user_max_flow_time:0,
-                                            // "top4_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][3]['name']:"None",
-                                            // "top4_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][3]['total_rate'] * 0.001).toFixed(3):0,
-                                            "top_user_from": (data['data']['collection'].length !== 0) ? top4_user_from:"None",
-                                            "top_user_until": (data['data']['collection'].length !== 0) ? top4_user_until:"None",
-                                            "top_user_app1_name": "None",
-                                            "top_user_app1_total": 0,
-                                            "top_user_app1_from": "None",
-                                            "top_user_app1_until": "None",
-                                            "top_user_app2_name": "None",
-                                            "top_user_app2_total": 0,
-                                            "top_user_app2_from": "None",
-                                            "top_user_app2_until": "None",
-                                            "top_user_app3_name": "None",
-                                            "top_user_app3_total": 0,
-                                            "top_user_app3_from": "None",
-                                            "top_user_app3_until": "None"
-                                        });
-                                        // 테이블에 들어갈 탑 유저 데이터 준비 top5
-                                        top_user_data.push({
-                                            "top_user_name": (data['data']['collection'].length !== 0) ? top5_user_name:"None",
-                                            "top_user_total": (data['data']['collection'].length !== 0) ? top5_user_total:0,
-                                            "top_user_down": (data['data']['collection'].length !== 0) ? top5_user_down:0,
-                                            "top_user_up": (data['data']['collection'].length !== 0) ? top5_user_up:0,
-                                            "top_user_active_flow": (data['data']['collection'].length !== 0) ? top5_user_active_flow:0,
-                                            "top_user_packet_disc_rate": (data['data']['collection'].length !== 0) ? top5_user_packet_disc_rate:0,
-                                            "top_user_max_flow" : (data['data']['collection'].length !== 0) ? top5_user_max_flow:0,
-                                            "top_user_max_flow_time" : (data['data']['collection'].length !== 0) ? top5_user_max_flow_time:0,
-                                            // "top5_user_name": (data['data']['collection'].length !== 0) ? data['data']['collection'][4]['name']:"None",
-                                            // "top5_user_total": (data['data']['collection'].length !== 0) ? (data['data']['collection'][4]['total_rate'] * 0.001).toFixed(3):0,
-                                            "top_user_from": (data['data']['collection'].length !== 0) ? top5_user_from:"None",
-                                            "top_user_until": (data['data']['collection'].length !== 0) ? top5_user_until:"None",
-                                            "top_user_app1_name": "None",
-                                            "top_user_app1_total": 0,
-                                            "top_user_app1_from": "None",
-                                            "top_user_app1_until": "None",
-                                            "top_user_app2_name": "None",
-                                            "top_user_app2_total": 0,
-                                            "top_user_app2_from": "None",
-                                            "top_user_app2_until": "None",
-                                            "top_user_app3_name": "None",
-                                            "top_user_app3_total": 0,
-                                            "top_user_app3_from": "None",
-                                            "top_user_app3_until": "None"
-                                        });
-                                    }
-                                    // 테이블 테이터 최종
-                                    _user_in_group_tb.push({
-                                        "user_group_name": elem,
-                                        "user_group_tr": (elem === _user_group_tb_data[index].name) ? _user_group_tb_data[index].total:"none",
-                                        "top_user_data": top_user_data
+                                        // 그래프 데이터 준비
+                                        if (data['data']['collection'].length !== 0) {
+                                            try {_user_in_group_tr_top1.push((data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3));
+                                            } catch(exception) {_user_in_group_tr_top1.push(0);}
+                                            try {_user_in_group_tr_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3));
+                                            } catch(exception) {_user_in_group_tr_top2.push(0);}
+                                            try {_user_in_group_tr_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3));
+                                            } catch(exception) {_user_in_group_tr_top3.push(0);}
+                                            try {_user_in_group_tr_top4.push((data['data']['collection'][3]['total_rate'] * 0.001).toFixed(3));
+                                            } catch(exception) {_user_in_group_tr_top4.push(0);}
+                                            try {_user_in_group_tr_top5.push((data['data']['collection'][4]['total_rate'] * 0.001).toFixed(3));
+                                            } catch(exception) {_user_in_group_tr_top5.push(0);}
+                                        }else{
+                                            _user_in_group_tr_top1.push(0);
+                                            _user_in_group_tr_top2.push(0);
+                                            _user_in_group_tr_top3.push(0);
+                                            _user_in_group_tr_top4.push(0);
+                                            _user_in_group_tr_top5.push(0);
+                                        }
+                                        // 그래프 라벨 준비
+                                        _user_in_group_label.push("["+elem+"]"
+                                            + " - ( " +
+                                            "1. " + top1_user_name + " , " +
+                                            "2. " + top2_user_name + " , " +
+                                            "3. " + top3_user_name + " , " +
+                                            "4. " + top4_user_name + " , " +
+                                            "5. " + top5_user_name +
+                                            " )"
+                                        );
                                     });
-                                    // 테이블 정렬
-                                    if (data['data']['collection'].length !== 0)
-                                        _user_in_group_tb.sort(function (a, b) { return b['user_group_tr'] - a['user_group_tr']; });
-                                    // 그래프 데이터 준비
-                                    if (data['data']['collection'].length !== 0) {
-                                        try {_user_in_group_tr_top1.push((data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3));
-                                        } catch(exception) {_user_in_group_tr_top1.push(0);}
-                                        try {_user_in_group_tr_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3));
-                                        } catch(exception) {_user_in_group_tr_top2.push(0);}
-                                        try {_user_in_group_tr_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3));
-                                        } catch(exception) {_user_in_group_tr_top3.push(0);}
-                                        try {_user_in_group_tr_top4.push((data['data']['collection'][3]['total_rate'] * 0.001).toFixed(3));
-                                        } catch(exception) {_user_in_group_tr_top4.push(0);}
-                                        try {_user_in_group_tr_top5.push((data['data']['collection'][4]['total_rate'] * 0.001).toFixed(3));
-                                        } catch(exception) {_user_in_group_tr_top5.push(0);}
-                                    }else{
-                                        _user_in_group_tr_top1.push(0);
-                                        _user_in_group_tr_top2.push(0);
-                                        _user_in_group_tr_top3.push(0);
-                                        _user_in_group_tr_top4.push(0);
-                                        _user_in_group_tr_top5.push(0);
-                                    }
-                                    // 그래프 라벨 준비
-                                    _user_in_group_label.push("["+elem+"]"
-                                        + " - ( " +
-                                        "1. " + top1_user_name + " , " +
-                                        "2. " + top2_user_name + " , " +
-                                        "3. " + top3_user_name + " , " +
-                                        "4. " + top4_user_name + " , " +
-                                        "5. " + top5_user_name +
-                                        " )"
-                                    );
+
+                                    // 그룹 데이터 테이블 정렬
+                                    // var sortTopUserData = function() {
+                                    //     return $q(function(resolve, reject){
+                                    //         var resolve_cnt = 0;
+                                    //
+                                    //         resolve("success!!");
+                                    //         // for (var i = 0; i<_user_in_group_tb.length; i++){
+                                    //         //     _user_in_group_tb[i]['top_user_data'].sort(function(a,b){
+                                    //         //         console.log('top_user_data: ', a, b);
+                                    //         //         return b['top_user_total'] - a['top_user_total']
+                                    //         //     });
+                                    //         //     resolve_cnt += 1;
+                                    //         // }
+                                    //         // if(resolve_cnt === 5){resolve("success!!");}
+                                    //     });
+                                    // };
+                                    // sortTopUserData().then(function(response){
+                                    //
+                                    // });
+
+                                        // _.sortBy(_user_in_group_tb['top_user_data'], function (data) {
+                                        //     console.log('sorted data: ', data);
+                                        //
+                                        //     return data['top_user_down'];
+                                        // });
+
                                     // console.log("그룹내 유저 데이터 끝");
                                 });
 

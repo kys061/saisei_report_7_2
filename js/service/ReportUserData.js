@@ -130,6 +130,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                         var _users_upload = [];
                         var _users_active_flows = [];
                         var _users_packet_disc_rate = [];
+                        var _users_packet_disc = [];
                         var _users_tb_data = [];
                         var _users_data = [];
                         var _users_flow_disc_data = [];
@@ -176,6 +177,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                             _users_upload.push((_users[i]['source_rate'] * 0.001).toFixed(3));
                             _users_active_flows.push(_users[i]['active_flows']);
                             _users_packet_disc_rate.push(_users[i]['packet_discard_rate']);
+                            _users_packet_disc_rate.push(_users[i]['packets_discarded']);
                             _users_tb_data.push({
                                 name: _users[i]['name'],
                                 from: (_.has(_users[i], "from")) ? user_from.toLocaleString():"None",
@@ -185,7 +187,8 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                                 up: (_users[i]['source_rate'] * 0.001).toFixed(3),
                                 flows: _users[i]['active_flows'],
                                 // max_flows: users_act_flow_max_data,
-                                disc_rate: _users[i]['packet_discard_rate']
+                                disc_rate: _users[i]['packet_discard_rate'],
+                                pack_disc: _users[i]['packets_discarded']
 
                             });
                         }

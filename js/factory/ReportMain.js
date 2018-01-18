@@ -1,5 +1,5 @@
 reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFrom, ReportUntil, ReportUrl,
-                                               ReportQstring, ReportAuth, ReportConfig, SharedData)
+                                               ReportQstring, ReportAuth, ReportConfig, SharedData, Notification)
 {
     var from = SharedData.getFrom();
     var until = SharedData.getUntil();

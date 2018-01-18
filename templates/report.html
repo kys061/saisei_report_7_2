@@ -1,5 +1,12 @@
 <head>
     <style>
+        #export_print{
+            margin-top: 4px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+            padding-right: 5px;
+            padding-left: 5px;
+        }
         .btn {
             padding: 6px 10px;
         }
@@ -311,7 +318,7 @@
                             <td>{{ user.up }} Mbit/s</td>
                             <td>{{ user.flows }} /s</td>
                             <td>{{ user.max_flows }} /s</td>
-                            <td>{{ user.disc_rate }} /s</td>
+                            <td>{{ user.pack_disc }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -448,7 +455,8 @@
                             <td>{{ user_group.up }} Mbit/s</td>
                             <td>{{ user_group.flows }} /s</td>
                             <td>{{ user_group.max_flows_time}}<br>{{user_group.max_flows}}</td>
-                            <td>{{ user_group.disc_rate }} /s</td>
+                            <!--<td>{{ user_group.disc_rate }} /s</td>-->
+                            <td>{{ user_group.pack_disc }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -526,7 +534,8 @@
                                     <td>{{top_users.top_user_up}} Mbit/s</td>
                                     <td>{{top_users.top_user_active_flow}} /s</td>
                                     <td>{{top_users.top_user_max_flow_time}} <br> {{top_users.top_user_max_flow}}</td>
-                                    <td>{{top_users.top_user_packet_disc_rate}} /s</td>
+                                    <!--<td>{{top_users.top_user_packet_disc_rate}} /s</td>-->
+                                    <td>{{top_users.top_user_packet_disc}}</td>
                                 </tr>
                                 </tbody>
                             <!--</table>-->
