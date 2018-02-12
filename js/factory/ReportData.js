@@ -248,6 +248,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addLimit('&limit='+config.users_tr.limit)
             .addWith('&with='+config.users_tr.with)
             .addFrom('&from='+rest_from)
+            .addOperation('&operation='+config.users_tr.operation)
             .addUntil('&until='+rest_until)
             .getQstring();
         var rest_url = new ReportUrl("")
@@ -456,6 +457,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addLimit('&limit='+group_size)
             // .addWith('&with='+config.user_group_tr.with)
             .addFrom('&from='+rest_from)
+            .addOperation('&operation='+config.user_group_tr.operation)
             .addUntil('&until='+rest_until)
             .getQstring();
         var rest_url = new ReportUrl("")

@@ -30,7 +30,8 @@
       "order": "<total_rate",
       "limit": "10",
       "with": "total_rate>=0.01",
-      "operation": "raw"
+      "operation": "auto"
+
     },
     "users_active_flows": {
       "class": "users_active_flows",
