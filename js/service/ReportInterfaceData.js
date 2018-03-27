@@ -85,14 +85,21 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                1. int_rcv_max : max for interface rcv
             */
             for (var j = 0; j < duration; j++) {
-                int_rcv_max_data.push({
-                    rcv_max_rate: Math.max.apply(null, int_rcv_duration_max_data[j]),
-                    rcv_max_date: int_rcv_duration_max_date[j][int_rcv_duration_max_data[j].indexOf(Math.max.apply(null, int_rcv_duration_max_data[j]))]
-                });
+                if (Math.max.apply(null, int_rcv_duration_max_data[j]) === 0) {
+                    int_rcv_max_data.push({
+                        rcv_max_rate: 0,
+                        rcv_max_date: NaN
+                    });
+                } else {
+                    int_rcv_max_data.push({
+                        rcv_max_rate: Math.max.apply(null, int_rcv_duration_max_data[j]),
+                        rcv_max_date: int_rcv_duration_max_date[j][int_rcv_duration_max_data[j].indexOf(Math.max.apply(null, int_rcv_duration_max_data[j]))]
+                    });
+                }
                 // int_rcv_max_data.push(Math.max.apply(null, int_rcv_duration_max_data[j]));
                 console.log("RCV MAX");
             }
-
+            console.log("int_rcv_max_data", int_rcv_max_data);
             return {
                 label: label,
                 int_date: int_date,
