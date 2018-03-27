@@ -2,8 +2,8 @@
   "config": {
     "common": {
       "id": "admin",
-      "passwd": "admin",
-      "ip": "http://10.161.147.55:",
+      "passwd": "FlowCommand#1",
+      "ip": "http://121.134.34.50:",
       "port": "5000",
       "metapath": "/rest/top/configurations/running",
       "path": "/rest/:hostname/configurations/running/",
