@@ -209,15 +209,17 @@
                     <table id="table1" class="table table-hover">
                         <thead>
                         <tr>
-                            <th colspan="2">1번 세그먼트</th>
+                            <th class="align-middle active" colspan="3">1번 세그먼트</th>
                         </tr>
-                        <tr>
-                            <th>#</th>
-                            <th>날짜</th>
-                            <th>수신 평균 트래픽 속도(Mbit/s)</th>
-                            <th>수신 최대 트래픽 속도(Mbit/s)</th>
-                            <th>송신 평균 트래픽 속도(Mbit/s)</th>
-                            <th>송신 최대 트래픽 속도(Mbit/s)</th>
+                        <tr style="font-weight:bold">
+                            <td class="align-middle active">#</td>
+                            <td class="align-middle active">날짜</td>
+                            <td class="align-middle active">[수신 평균]<br> 전체시간 트래픽 속도(Mbit/s)</td>
+                            <td class="align-middle active" ng-show="getWorktimeState()">[수신 평균]<br> 업무시간(09~18) 트래픽 속도(Mbit/s)</td>
+                            <td class="align-middle active">[수신 최대]<br> 트래픽 속도(Mbit/s)</td>
+                            <td class="align-middle active">[송신 평균]<br> 전체시간 트래픽 속도(Mbit/s)</td>
+                            <td class="align-middle active" ng-show="getWorktimeState()">[송신 평균]<br> 업무시간(09~18) 트래픽 속도(Mbit/s)</td>
+                            <td class="align-middle active">[송신 최대]<br> 트래픽 속도(Mbit/s)</td>
                         </tr>
                         </thead>
                         <tbody>
@@ -225,8 +227,10 @@
                             <td>{{$index+1}}</td>
                             <td>{{ data.date }}</td>
                             <td>{{ data.rcv_avg }} Mbit/s</td>
+                            <td ng-show="getWorktimeState()">{{ data.rcv_office_avg }} Mbit/s</td>
                             <td>{{data.rcv_max_date }} <br>{{ data.rcv_max }} Mbit/s</td>
                             <td>{{ data.trs_avg }} Mbit/s</td>
+                            <td ng-show="getWorktimeState()">{{ data.trs_office_avg }} Mbit/s</td>
                             <td>{{data.trs_max_date }} <br>{{ data.trs_max }} Mbit/s</td>
                             <!--<td>{{ data.rcv_avg }} Mbit/s</td>-->
                             <!--<td>시간: {{data.rcv_max_date }} <br> 속도: {{ data.rcv_max }} Mbit/s</td>-->
@@ -245,15 +249,17 @@
                     <table id="second_seg_table1" class="table table-hover">
                         <thead ng-show="getSegState(segState, 'seg2')">
                             <tr>
-                                <th colspan="2">2번 세그먼트</th>
+                                <th class="align-middle active" colspan="3">2번 세그먼트</th>
                             </tr>
-                            <tr>
-                                <th>#</th>
-                                <th>날짜</th>
-                                <th>수신 평균 트래픽 속도(Mbit/s)</th>
-                                <th>수신 최대 트래픽 속도(Mbit/s)</th>
-                                <th>송신 평균 트래픽 속도(Mbit/s)</th>
-                                <th>송신 최대 트래픽 속도(Mbit/s)</th>
+                            <tr style="font-weight:bold">
+                                <td class="align-middle active">#</td>
+                                <td class="align-middle active">날짜</td>
+                                <td class="align-middle active">[수신 평균]<br> 전체시간 트래픽 속도(Mbit/s)</td>
+                                <td class="align-middle active" ng-show="getWorktimeState()">[수신 평균]<br> 업무시간(09~18) 트래픽 속도(Mbit/s)</td>
+                                <td class="align-middle active">[수신 최대]<br> 트래픽 속도(Mbit/s)</td>
+                                <td class="align-middle active">[송신 평균]<br> 전체시간 트래픽 속도(Mbit/s)</td>
+                                <td class="align-middle active" ng-show="getWorktimeState()">[송신 평균]<br> 업무시간(09~18) 트래픽 속도(Mbit/s)</td>
+                                <td class="align-middle active">[송신 최대]<br> 트래픽 속도(Mbit/s)</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -261,8 +267,10 @@
                                 <td>{{$index+1}}</td>
                                 <td>{{ data.date }}</td>
                                 <td>{{ data.rcv_avg }} Mbit/s</td>
-                                <td>{{data.rcv_max_date }} <br>{{ data.rcv_max }} Mbit/s</td>
+                                <td ng-show="getWorktimeState()">{{ data.rcv_office_avg }} Mbit/s</td>
+                                <td>{{ data.rcv_max_date }} <br>{{ data.rcv_max }} Mbit/s</td>
                                 <td>{{ data.trs_avg }} Mbit/s</td>
+                                <td ng-show="getWorktimeState()">{{ data.trs_office_avg }} Mbit/s</td>
                                 <td>{{data.trs_max_date }} <br>{{ data.trs_max }} Mbit/s</td>
                             </tr>
                         </tbody>

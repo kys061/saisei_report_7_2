@@ -8,6 +8,10 @@ reportApp.service('SharedData', function() {
     sharedData.select2model;
     sharedData.report_type;
     sharedData.group_size = 0;
+    sharedData.is_worktime = false;
+    sharedData.work_from;
+    sharedData.work_until;
+
 
     sharedData.errorCode = {
         user: {
@@ -90,7 +94,24 @@ reportApp.service('SharedData', function() {
         },
         getErrorCode: function(){
             return sharedData.errorCode;
+        },
+        setIsWorktime: function(isworktime) {
+            sharedData.is_worktime = isworktime;
+        },
+        getIsWorktime: function() {
+            return sharedData.is_worktime;
+        },
+        setWorkFrom: function(work_from) {
+            sharedData.work_from = work_from;
+        },
+        setWorkUntil: function(work_until) {
+            sharedData.work_until = work_until;
+        },
+        getWorkFrom: function() {
+            return sharedData.work_from;
+        },
+        getWorkUntil: function() {
+            return sharedData.work_until;
         }
-
     };
 });
