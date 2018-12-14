@@ -47,6 +47,8 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     var until = SharedData.getUntil();
     var select2model = SharedData.getSelect2model();
     var report_type = SharedData.getReportType();
+    var is_worktime = SharedData.getIsWorktime();
+    console.log('is_worktime: ' + is_worktime);
     console.log("from : until -> " + from + ':' + until);
     /*
      *  그래프 상태 체크
@@ -92,7 +94,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             }
         }
     }
-
+    // 그래프 사용여부 체크
     $scope.getGraphState = function(arr, name) {
         // arr.push({cmpname: name});
         for (var i = 0; i < arr.length; i++) {
@@ -112,7 +114,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         // });
     };
     console.log(from + " - " + until);
-
+    // 세그먼트 사용여부 체크
     $scope.getSegState = function(arr, name) {
         for (var i = 0; i < arr.length; i++) {
             if (arr[i].name === name) {
@@ -120,6 +122,11 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             }
         }
     };
+    // 업무시간 항목 사용 여부 체크
+    $scope.getWorktimeState = function() {
+        return is_worktime;
+    };
+
 
     // 메타데이터 가져오기 정의
     var getMetaData = function() {

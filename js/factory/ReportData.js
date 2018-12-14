@@ -162,6 +162,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
  */
     function getIntRcvData(hostname, int_name) {
         // set urls
+        console.log('locations:>>>>>', $window.location.protocol+"//"+$window.location.hostname+":");
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.interface_rcv.attr)
             .addFrom('&from='+rest_from)

@@ -1,5 +1,7 @@
 # Saisei Report Single Page
 
+- grunt serve : 테스트
+- grunt serve dist : 배포
 
 # 배포시 고려사항
 0. 폴더 이름 변경

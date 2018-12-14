@@ -13,6 +13,8 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             // init date vars
             var int_date = [];
             var int_cmp_date = [];
+            // var int_cmp_office_date = [];
+
             // init rcv data vars
             var int_rcv_avg = [];
             var int_rcv_max_data = [];
@@ -20,10 +22,13 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             var int_rcv_duration_max_date = [];
             var rcv_tot = [];
             var rcv_len = [];
+            var int_rcv_office_avg = [];
+            var rcv_office_tot = [];
+            var rcv_office_len = [];
+
             // add date
             int_date.push(from_date.format("%F"));
             int_cmp_date.push(_from_date.format("%m-%d"));
-
 
             /**********************************/
             /* make date array for compare date
@@ -32,6 +37,13 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                 int_date.push(from_date.addDays(1).format("%F").raw);
                 int_cmp_date.push(_from_date.addDays(1).format("%m-%d"));
             }
+
+            // for (var j = 0; j < 10; j++){
+            //     var temp = j+9;
+            //     int_cmp_office_date.push(temp.toString());
+            // }
+
+            // console.log("AAAAAAAAAA: ", int_cmp_office_date);
             /* make array
                1. label : date,
                2. data_rcv_rate : interface rcv,
@@ -54,6 +66,8 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             for (var j = 0; j < duration; j++) {
                 rcv_tot.push(0);
                 rcv_len.push(0);
+                rcv_office_tot.push(0);
+                rcv_office_len.push(0);
                 // int_rcv_max.push(0);
                 int_rcv_duration_max_data.push([]);
                 int_rcv_duration_max_date.push([]);
@@ -65,9 +79,19 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                         rcv_len[j] += 1;
                         int_rcv_duration_max_data[j].push(_history_rcv[i][1]*0.001);
                         int_rcv_duration_max_date[j].push(_history_rcv[i][0]);
+                        // cmp office time(hours: 9~18)
+                        for (var k = 0; k < 10; k++) {
+                            if (parseInt(moment(_history_rcv[i][0]).format('H')) === k + 9) {
+                                rcv_office_tot[j] += _history_rcv[i][1] * 0.001;
+                                rcv_office_len[j] += 1;
+                                console.log("OFFICE RCV: ", parseInt(moment(_history_rcv[i][0]).format('H')));
+                            }
+                        }
                     }else {
                         rcv_tot[j] += 0;
                         rcv_len[j] += 1;
+                        rcv_office_tot[j] += 0;
+                        rcv_office_len[j] += 1;
                         int_rcv_duration_max_data[j].push(0);
                         int_rcv_duration_max_date[j].push(NaN);
                     }
@@ -78,8 +102,8 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             */
             for (var j = 0; j < duration; j++) {
                 int_rcv_avg.push(rcv_tot[j] / rcv_len[j]);
-                console.log("RCV");
-                console.log(j, rcv_tot[j],rcv_len[j])
+                int_rcv_office_avg.push(rcv_office_tot[j] / rcv_office_len[j]);
+                console.log("RCV TOT, LEN", j, rcv_tot[j],rcv_len[j], rcv_office_tot[j], rcv_office_len[j])
             }
             /* make max
                1. int_rcv_max : max for interface rcv
@@ -100,13 +124,16 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                 console.log("RCV MAX");
             }
             console.log("int_rcv_max_data", int_rcv_max_data);
+            console.log("int_rcv_office_avg", int_rcv_office_avg);
+
             return {
                 label: label,
                 int_date: int_date,
                 int_cmp_date: int_cmp_date,
                 data_rcv_rate: data_rcv_rate,
                 int_rcv_avg: int_rcv_avg,
-                int_rcv_max_data: int_rcv_max_data
+                int_rcv_max_data: int_rcv_max_data,
+                int_rcv_office_avg: int_rcv_office_avg
             }
         }
         function makeTrsData(_history_length_trs_rate, _history_trs, int_cmp_date, duration){
@@ -122,6 +149,9 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             var int_trs_duration_max_date = [];
             var trs_tot = [];
             var trs_len = [];
+            var int_trs_office_avg = [];
+            var trs_office_tot = [];
+            var trs_office_len = [];
             /* make trs rate
            1. data_trs_rate : total rate for trs interface
         */
@@ -138,6 +168,8 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             for (var j = 0; j < duration; j++) {
                 trs_tot.push(0);
                 trs_len.push(0);
+                trs_office_tot.push(0);
+                trs_office_len.push(0);
                 int_trs_duration_max_data.push([]);
                 int_trs_duration_max_date.push([]);
             }
@@ -149,9 +181,19 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                         int_trs_duration_max_data[j].push(_history_trs[i][1]*0.001);
                         int_trs_duration_max_date[j].push(_history_trs[i][0]);
                         console.log(int_cmp_date[j].raw);
+                        // cmp office time(hours: 9~18)
+                        for (var k = 0; k < 10; k++) {
+                            if (parseInt(moment(_history_trs[i][0]).format('H')) === k + 9) {
+                                trs_office_tot[j] += _history_trs[i][1] * 0.001;
+                                trs_office_len[j] += 1;
+                                console.log("OFFICE RCV: ", parseInt(moment(_history_trs[i][0]).format('H')));
+                            }
+                        }
                     }else {
                         trs_tot[j] += 0;
                         trs_len[j] += 1;
+                        trs_office_tot[j] += 0;
+                        trs_office_len[j] += 1;
                         int_trs_duration_max_data[j].push(0);
                         int_trs_duration_max_date[j].push(NaN);
                     }
@@ -162,6 +204,7 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
             */
             for (var j = 0; j < duration; j++) {
                 int_trs_avg.push(trs_tot[j] / trs_len[j]);
+                int_trs_office_avg.push(trs_office_tot[j] / trs_office_len[j]);
                 console.log("TRS");
                 console.log(j, trs_tot[j],trs_len[j])
             }
@@ -182,10 +225,11 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                 // int_cmp_date: int_cmp_date,
                 data_trs_rate: data_trs_rate,
                 int_trs_avg: int_trs_avg,
-                int_trs_max_data: int_trs_max_data
+                int_trs_max_data: int_trs_max_data,
+                int_trs_office_avg: int_trs_office_avg
             }
         }
-        function makeReportInterfaceData(int_date, data_rcv_rate, int_rcv_avg, int_rcv_max_data, data_trs_rate, int_trs_avg, int_trs_max_data){
+        function makeReportInterfaceData(int_date, data_rcv_rate, int_rcv_avg, int_rcv_max_data, int_rcv_office_avg, int_trs_office_avg, data_trs_rate, int_trs_avg, int_trs_max_data){
             // for report ctrl
             // setting interface data for table
             var int_data = [];
@@ -201,7 +245,9 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                     rcv_max: (!isNaN(int_rcv_max_data[k].rcv_max_rate)) ? int_rcv_max_data[k].rcv_max_rate.toFixed(3):0,
                     rcv_max_date: (!isNaN(int_rcv_max_data[k].rcv_max_date  && int_rcv_max_data[k].rcv_max_rate !== 0 )) ? (new Date(int_rcv_max_data[k].rcv_max_date)).toLocaleString():'none',
                     trs_max: (!isNaN(int_trs_max_data[k].trs_max_rate)) ? int_trs_max_data[k].trs_max_rate.toFixed(3):0,
-                    trs_max_date: (!isNaN(int_trs_max_data[k].trs_max_date) && int_trs_max_data[k].trs_max_rate !== 0 ) ? (new Date(int_trs_max_data[k].trs_max_date)).toLocaleString():'none'
+                    trs_max_date: (!isNaN(int_trs_max_data[k].trs_max_date) && int_trs_max_data[k].trs_max_rate !== 0 ) ? (new Date(int_trs_max_data[k].trs_max_date)).toLocaleString():'none',
+                    rcv_office_avg: (!isNaN(int_rcv_office_avg[k])) ? int_rcv_office_avg[k].toFixed(3):0,
+                    trs_office_avg: (!isNaN(int_trs_office_avg[k])) ? int_trs_office_avg[k].toFixed(3):0
                 });
             }
             console.log('int_data');
@@ -311,6 +357,7 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                     var data_rcv_rate = r__rcvData.data_rcv_rate;
                     var int_rcv_avg = r__rcvData.int_rcv_avg;
                     var int_rcv_max_data = r__rcvData.int_rcv_max_data;
+                    var int_rcv_office_avg = r__rcvData.int_rcv_office_avg;
                     // for interface graph
                     // var labels = label;
                     var series = ['수신(단위:Mbit/s)', '송신(단위:Mbit/s)'];
@@ -335,14 +382,12 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                         var data_trs_rate = r__trsData.data_trs_rate;
                         var int_trs_avg = r__trsData.int_trs_avg;
                         var int_trs_max_data = r__trsData.int_trs_max_data;
+                        var int_trs_office_avg = r__trsData.int_trs_office_avg;
+                        var r__reportInterfaceData = makeReportInterfaceData(int_date, data_rcv_rate, int_rcv_avg,
+                            int_rcv_max_data, int_rcv_office_avg, int_trs_office_avg, data_trs_rate, int_trs_avg,
+                            int_trs_max_data);
 
-
-
-
-                        var r__reportInterfaceData = makeReportInterfaceData(int_date, data_rcv_rate, int_rcv_avg, int_rcv_max_data,
-                            data_trs_rate, int_trs_avg, int_trs_max_data);
-
-
+                        console.log('r__reportInterfaceData.int_data.rcv_office_avg' + r__reportInterfaceData.int_data.rcv_office_avg);
                         deferred.resolve({
                             data: r__reportInterfaceData.data,
                             labels: labels,

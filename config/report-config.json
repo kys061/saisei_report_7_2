@@ -1,9 +1,9 @@
 {
   "config": {
     "common": {
-      "id": "admin",
-      "passwd": "FlowCommand#1",
-      "ip": "http://121.134.34.50:",
+      "id": "monitor_only",
+      "passwd": "Monitor_Only#1",
+      "ip": "http://113.198.180.14:",
       "port": "5000",
       "metapath": "/rest/top/configurations/running",
       "path": "/rest/:hostname/configurations/running/",
