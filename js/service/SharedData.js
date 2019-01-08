@@ -11,7 +11,7 @@ reportApp.service('SharedData', function() {
     sharedData.is_worktime = false;
     sharedData.work_from;
     sharedData.work_until;
-
+    sharedData.period_type;
 
     sharedData.errorCode = {
         user: {
@@ -47,8 +47,16 @@ reportApp.service('SharedData', function() {
             W05: 'WARN - 그룹 내에 유저-앱 연관 데이터가 존재하지 않습니다.'
         },
         metadata:{
-            E01:  'ERROR - 메타 데이터를 가져오지 못했습니다.',
-            W01:  'WARN - 메타 데이터가 존재하지 않습니다.'
+            E01:  'ERROR - 메타데이터를 받아오지 못해서 리포트를 생성 할 수 없습니다.',
+            W01:  'WARN - 메타 데이터가 존재하지 않기때문에 리포트를 생성 할 수 없습니다.'
+        },
+        main: {
+            E01: 'ERROR - 사용자 그룹 정보를 가지고 올 수 없습니다!!!',
+            E02: 'ERROR - 사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!',
+            E03: 'ERROR - 사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹은 해제해 주십시요!!!',
+            E04: 'ERROR - 최소 하나의 리포트를 선택해주세요!!!',
+            W01: 'WARN - 커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!',
+            W02: 'WARN - 사전 정의된 기간을 선택했을 경우에는 커스텀 달력 선택을 할 수 없습니다.!!!'
         }
     };
 
@@ -112,6 +120,12 @@ reportApp.service('SharedData', function() {
         },
         getWorkUntil: function() {
             return sharedData.work_until;
+        },
+        setPeriodType: function(period_type) {
+            sharedData.period_type = period_type;
+        },
+        getPeriodType: function() {
+            return sharedData.period_type;
         }
     };
 });

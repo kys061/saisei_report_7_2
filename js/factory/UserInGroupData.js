@@ -1,7 +1,29 @@
 reportApp.factory('UserInGroupData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil,
                                               ReportUrl, ReportQstring, ReportAuth, SharedData, Notification) {
-    var from = SharedData.getFrom();
-    var until = SharedData.getUntil();
+    var is_worktime = SharedData.getIsWorktime();
+    var period_type = SharedData.getPeriodType();
+
+    console.log("is_worktime: " + is_worktime);
+    if (period_type === 'day'){
+        var from = SharedData.getWorkFrom();
+        var until = SharedData.getWorkUntil();
+    } else if (period_type === 'week'){
+        var from = SharedData.getWorkFrom();
+        var until = SharedData.getWorkUntil();
+    } else if (period_type === 'month'){
+        var from = SharedData.getWorkFrom();
+        var until = SharedData.getWorkUntil();
+    } else {
+        if (is_worktime){
+            var from = SharedData.getWorkFrom();
+            var until = SharedData.getWorkUntil();
+        } else {
+            var from = SharedData.getFrom();
+            var until = SharedData.getUntil();
+        }
+    }
+    // var from = SharedData.getFrom();
+    // var until = SharedData.getUntil();
     var errorCode = SharedData.getErrorCode();
     // open sync
     $.ajaxSetup({

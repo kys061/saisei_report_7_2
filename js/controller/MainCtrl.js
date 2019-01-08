@@ -1,13 +1,17 @@
 reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templateCache, $location, $window, $q, _,
-                                                   SharedData, ReportMain, ReportMainMetaData) {
+                                                   SharedData, ReportMain, ReportMainMetaData, Notification) {
     var from;
     var until;
     var work_from;
     var work_until;
+    var is_worktime = false;
+    var use_custom_date = true;
+    var use_setted_date = true;
     var today = new $window.Sugar.Date(new Date());
 
     var complete_count;
 
+    var errorCode = SharedData.getErrorCode();
     // util
     function searchWord( word, input ) {
         var regex = new RegExp( '\\b' + word + '\\b' );
@@ -43,18 +47,40 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     // });
 
     $scope.period_model = [];
+    var _one_week_ago = new $window.Sugar.Date(new Date());
+    var _two_week_ago = new $window.Sugar.Date(new Date());
+    var _three_week_ago = new $window.Sugar.Date(new Date());
+    var _four_week_ago = new $window.Sugar.Date(new Date());
+
+    _one_week_ago.addDays(-7).setWeekday(0);
+    _two_week_ago.addDays(-14).setWeekday(0);
+    _three_week_ago.addDays(-21).setWeekday(0);
+    _four_week_ago.addDays(-28).setWeekday(0);
+
     $scope.period_data = [
         {
             id: 1,
-            label: "일간 리포트"
+            label: "주간 리포트("+_four_week_ago.format('{MM}월 {dd}일').raw+")",
+            tag: "four_week_ago"
         },
         {
             id: 2,
-            label: "주간 리포트"
+            label: "주간 리포트("+_three_week_ago.format('{MM}월 {dd}일').raw+")",
+            tag: "three_week_ago"
         },
         {
             id: 3,
-            label: "월간 리포트"
+            label: "주간 리포트("+_two_week_ago.format('{MM}월 {dd}일').raw+")",
+            tag: "two_week_ago"
+        },
+        {
+            id: 4,
+            label: "주간 리포트("+_one_week_ago.format('{MM}월 {dd}일').raw+")",
+            tag: "one_week_ago"
+        },
+        {
+            id: 5,
+            label: "월간 리포트("+today.format('{MM}').raw+"월)"
         }
     ];
     $scope.period_settings = {
@@ -70,16 +96,20 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     };
     $scope.period_event = {
         onItemSelect: function(item) {
-            notie.alert({
-                type: 'info',
-                text: '기간 별 리포트를 선택했을 경우에는 커스텀 달력 선택을 할 수 없습니다.!!!'
-            })
+            $('.custom-date').hide("slow");
+            // notie.alert({
+            //     type: 'info',
+            //     text: '사전 정의된 기간을 선택했을 경우에는 커스텀 달력 선택을 할 수 없습니다.!!!'
+            // })
+            Notification.error(errorCode.main.W02);
         },
         onItemDeselect: function (item){
-            notie.alert({
-                type: 'info',
-                text: '기간 별 리포트를 선택하지 않을 경우에는 커스텀 달력 선택을 할 수 있습니다.!!!'
-            })
+            $('.custom-date').show("slow");
+            // notie.alert({
+            //     type: 'info',
+            //     text: '기간 별 리포트를 선택하지 않을 경우에는 커스텀 달력 선택을 할 수 있습니다.!!!'
+            // })
+            Notification.error(errorCode.main.W02);
         }
     };
     $scope.work_model = [];
@@ -94,10 +124,10 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     };
 
 
-    $scope.selectByGroupData = [ { id: 1, label: "David", gender: 'M' }, { id: 2, label: "Jhon", gender: 'M' }, { id: 3, label: "Lisa", gender: 'F' }, { id: 4, label: "Nicole", gender: 'F' }, { id: 5, label: "Danny", gender: 'M' }, {	id: 6, label: "Unknown", gender: 'O' } ];
-    $scope.selectByGroupSettings = { selectByGroups: ['F', 'M'],
-        groupByTextProvider: function(groupValue) { switch (groupValue) { case 'M': return 'Male'; case 'F': return 'Female'; case 'O': return 'Other'; } },
-        groupBy: 'gender', };
+    // $scope.selectByGroupData = [ { id: 1, label: "David", gender: 'M' }, { id: 2, label: "Jhon", gender: 'M' }, { id: 3, label: "Lisa", gender: 'F' }, { id: 4, label: "Nicole", gender: 'F' }, { id: 5, label: "Danny", gender: 'M' }, {	id: 6, label: "Unknown", gender: 'O' } ];
+    // $scope.selectByGroupSettings = { selectByGroups: ['F', 'M'],
+    //     groupByTextProvider: function(groupValue) { switch (groupValue) { case 'M': return 'Male'; case 'F': return 'Female'; case 'O': return 'Other'; } },
+    //     groupBy: 'gender', };
 
     // $scope.currentState = SharedData.getCurrentState();
     $scope.currentState = true;
@@ -110,20 +140,42 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         //         text: '커스텀 달력을 선택했을 경우에는 기간별 리포트를 선택을 할 수 없습니다.!!!'
         //     })
         // }
-        console.log(val);
-        var work_day = searchWord('[0-9]+-[0-9]+-[0-9]+ ', val);
-        work_from = work_day+'09:00:00';
-        console.log(work_day+'09:00:00');
-        console.log(val);
-        var selected_from = new $window.Sugar.Date(val);
-        // var cus_from = new $window.Sugar.Date(work_from);
-        if (selected_from.isBefore(work_from) && selected_from.isBefore(today)){
-            SharedData.setWorkFrom(work_from);
-            console.log(SharedData.getWorkFrom());
+        if (val === undefined || val === "") {
+            if (until === undefined || until === "") {
+                $('.setted-date').show("slow");
+            } else {
+                $('.setted-date').hide("slow");
+                // notie.alert({
+                //     type: 'info',
+                //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
+                // });
+                Notification.error(errorCode.main.W01);
+            }
+        } else {
+            $('.setted-date').hide("slow");
+                // notie.alert({
+                //     type: 'info',
+                //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
+                // });
+                Notification.error(errorCode.main.W01);
         }
+        console.log(val);
+        // var work_day = searchWord('[0-9]+-[0-9]+-[0-9]+ ', val);
+        // work_from = work_day+'09:00:00';
+        // console.log(work_day+'09:00:00');
+        // console.log(val);
+        // var selected_from = new $window.Sugar.Date(val);
+        // // var cus_from = new $window.Sugar.Date(work_from);
+        // if (selected_from.isBefore(work_from) && selected_from.isBefore(today)){
+        //     SharedData.setWorkFrom(work_from);
+        //     console.log(SharedData.getWorkFrom());
+        // }
         // var test = new $window.Sugar.Date('2018-12-13 12:40:00');
-        console.log(today);
-        console.log(selected_from.isBefore(work_from));
+        // today.setWeekday(1);
+        // console.log(today.format('{yyyy}-{MM}-{dd}').raw+" 00:00:00");
+        // today =
+        // console.log(today.setWeekday(1).format('{yyyy}-{MM}-{dd}'));
+        // console.log(selected_from.isBefore(work_from));
         // $scope.from = new Date(val);
     });
     $scope.$watch('date_until', function(val) {
@@ -134,16 +186,41 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         //         text: '커스텀 달력을 선택했을 경우에는 기간별 리포트를 선택을 할 수 없습니다.!!!'
         //     })
         // }
+        // if (val === undefined || val === ""){
+        //     $('.setted-date').show("slow");
+        // } else {
+        //     $('.setted-date').hide("slow");
+        // }
+        if (val === undefined || val === "") {
+            if (from === undefined || from === "") {
+                $('.setted-date').show("slow");
+            } else {
+                $('.setted-date').hide("slow");
+                // notie.alert({
+                //     type: 'info',
+                //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
+                // });
+                Notification.error(errorCode.main.W01);
+            }
+        } else {
+            $('.setted-date').hide("slow");
+            // notie.alert({
+            //     type: 'info',
+            //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
+            // });
+            Notification.error(errorCode.main.W01);
+        }
         console.log(val);
         // $scope.until = new Date(val);
     });
+
     $scope.$watch('period_model', function(val){
         console.log(val)
     });
     $scope.$watch('select2model', function(val){
         console.log(val);
     });
-    console.log($);
+    // console.log($);
     // $('.has-clear .col-lg-7 input[type="text"]').on('input propertychange', function() {
     //     var $this = $(this);
     //     var visible = Boolean($this.val());
@@ -155,6 +232,15 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     //     $(this).siblings('input[type="text"]').val('')
     //         .trigger('propertychange').focus();
     // });
+    // 업무시간 항목 사용 여부 체크
+    $scope.getUseCustomDate = function() {
+        return use_custom_date;
+    };
+
+    $scope.getUseSettedDate = function() {
+        return use_setted_date;
+    };
+
 
     // 메타데이터 가져오기 정의
     var getMetaData = function() {
@@ -190,18 +276,20 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                             $scope.users_size = size.data.size
                         },
                         function(val){
-                            notie.alert({
-                                type: 'error',
-                                text: '사용자 그룹 정보를 가지고 올 수 없습니다!!!'
-                            });
+                            // notie.alert({
+                            //     type: 'error',
+                            //     text: '사용자 그룹 정보를 가지고 올 수 없습니다!!!'
+                            // });
+                            Notification.error(errorCode.main.E01)
                         }
                     );
                 },
                 function(val){
-                    notie.alert({
-                        type: 'error',
-                        text: '사용자 그룹 정보를 가지고 올 수 없습니다!!!'
-                    })
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: '사용자 그룹 정보를 가지고 올 수 없습니다!!!'
+                    // })
+                    Notification.error(errorCode.main.E01)
                 }
             );
         },
@@ -210,19 +298,37 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         }
     );
 
+    var setPeriodDuration = function(days, is_worktime){
+        if (is_worktime) {
+            today.addDays(days);
+            today.setWeekday(1);
+            from = today.format('{yyyy}-{MM}-{dd}').raw+" 09:00:00";
+            work_from = today.format('{yyyy}-{MM}-{dd}').raw+" 09:00:00";
+            SharedData.setWorkFrom(work_from);
+            today.setWeekday(5);
+            until = today.format('{yyyy}-{MM}-{dd}').raw+" 18:00:00";
+            work_until = today.format('{yyyy}-{MM}-{dd}').raw+" 18:00:00";
+            SharedData.setWorkUntil(work_until);
+        } else {
+            today.addDays(days);
+            today.setWeekday(0);
+            from = today.format('{yyyy}-{MM}-{dd}').raw + " 00:00:00";
+            work_from = today.format('{yyyy}-{MM}-{dd}').raw + " 00:00:00";
+            SharedData.setWorkFrom(work_from);
+            today.setWeekday(6);
+            until = today.format('{yyyy}-{MM}-{dd}').raw + " 23:59:59";
+            work_until = today.format('{yyyy}-{MM}-{dd}').raw + " 23:59:59";
+            SharedData.setWorkUntil(work_until);
+        }
+    };
+
     var checkReportType = function(){
         // 리포트를 한개 이상 선택 한 경우
         if($scope.select2model.length > 0) {
             console.log($scope.group_size);
             var count_group = 0;
             var count_users = 0;
-            var is_worktime = false;
-            // 업무시간 트래픽 사용여부 체크
-            if($scope.work_model.length > 0){
-                is_worktime = true;
-                SharedData.setIsWorktime(is_worktime);
 
-            }
             // 리포트 타입 체크
             _($scope.select2model).each(function(elem, index){
                 if (elem.id === 3){
@@ -257,10 +363,11 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
             // 사용자 가 존재 하지 않는 경우
             else if ($scope.group_size > 0 && $scope.users_size <= 0){
                 if (count_users > 0) {
-                    notie.alert({
-                        type: 'error',
-                        text: '사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!'
-                    })
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: '사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!'
+                    // })
+                    Notification.error(errorCode.main.E02)
                 } else{
                     $scope.currentState = false;
                     $scope.currentDurationState = false;
@@ -275,10 +382,11 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
             // 그룹이 존재 하지 않는 경우
             else if ($scope.group_size <= 0 && $scope.users_size > 0){
                 if (count_group > 0) {
-                    notie.alert({
-                        type: 'error',
-                        text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹은 해제해 주십시요!!!'
-                    })
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹은 해제해 주십시요!!!'
+                    // })
+                    Notification.error(errorCode.main.E03)
                 } else{
                     $scope.currentState = false;
                     $scope.currentDurationState = false;
@@ -294,16 +402,18 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
             else {
                 console.log('count_group', count_group);
                 if (count_group > 0) {
-                    notie.alert({
-                        type: 'error',
-                        text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹 트래픽은 해제해 주십시요!!!'
-                    })
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: '사이세이 내에 사용자 그룹이 존재 하지 않습니다. 사용자 그룹 트래픽은 해제해 주십시요!!!'
+                    // })
+                    Notification.error(errorCode.main.E03)
                 }
                 else if(count_users > 0){
-                    notie.alert({
-                        type: 'error',
-                        text: '사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!'
-                    })
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: '사이세이 내에 사용자가 존재 하지 않습니다. 사용자 트래픽은 해제해 주십시요!!!'
+                    // })
+                    Notification.error(errorCode.main.E02)
                 }
                 else{
                     $scope.currentState = false;
@@ -319,15 +429,17 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         }
         // 리포트를 선택하지 않앗을 경우
         else{
-            notie.alert({
-                type: 'error',
-                text: '최소 하나의 리포트를 선택해주세요!'
-            })
+            // notie.alert({
+            //     type: 'error',
+            //     text: '최소 하나의 리포트를 선택해주세요!!!'
+            // })
+            Notification.error(errorCode.main.E04)
         }
     };
 
     $scope.sendDate = function() {
         var duration = $window.Sugar.Date.range(from, until).every('days').length;
+        var period_type, period_duration;
         console.log(duration);
         console.log($scope.select2model);
 
@@ -340,14 +452,61 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         var _from = new $window.Sugar.Date(from);
         console.log("from : until -> " + _from.raw + ':' + _until.raw);
         console.log("is_meta: " + $scope.is_metadata);
+        // 기간 체크 후 기간 타입 및 기간설정
+        if ($scope.period_model.length > 0 ) {
+            _($scope.period_model).each(function (e, i) {
+                if (e.id === 1) {
+                    period_type = 'week';
+                    period_duration = 'four_week_ago';
+                    SharedData.setPeriodType(period_type)
+                } else if (e.id === 2) {
+                    period_type = 'week';
+                    period_duration = 'three_week_ago';
+                    SharedData.setPeriodType(period_type)
+                } else if (e.id === 3) {
+                    period_type = 'week';
+                    period_duration = 'two_week_ago';
+                    SharedData.setPeriodType(period_type)
+                } else if (e.id === 4) {
+                    period_type = 'week';
+                    period_duration = 'one_week_ago';
+                    SharedData.setPeriodType(period_type)
+                } else if (e.id === 5) {
+                    period_type = 'month';
+                    period_duration = 'month';
+                    SharedData.setPeriodType(period_type)
+                }
+            });
+        }
+
         if ($scope.is_metadata){
+            // 업무시간 트래픽 사용여부 체크
+            if($scope.work_model.length > 0) {
+                is_worktime = true;
+                SharedData.setIsWorktime(is_worktime);
+
+            }
             if ($scope.period_model.length > 0 ) {
                 if (from !== undefined || until !== undefined) {
-                    notie.alert({
-                        type: 'error',
-                        text: '기간 별 리포트를 선택했을 경우에는 달력 선택을 할 수 없습니다.!!!'
-                    })
+                    console.log(from+" : "+until);
+                    // notie.alert({
+                    //     type: 'error',
+                    //     text: '기간 별 리포트를 선택했을 경우에는 달력 선택을 할 수 없습니다.!!! \ ' +
+                    //     '선택한 달력을 삭제해주세요.'
+                    // });
+                    Notification.error(errorCode.main.W02);
                 } else {
+                    // 업무시간 && 기간 체크 후 시간 설정
+                    if (period_duration === "four_week_ago") {
+                        setPeriodDuration(-28, is_worktime)
+                    } else if (period_duration === "three_week_ago"){
+                        setPeriodDuration(-21, is_worktime)
+                    } else if (period_duration === "two_week_ago"){
+                        setPeriodDuration(-14, is_worktime)
+                    } else {    // 현재 기준으로 일주일전 날짜 셋팅
+                        setPeriodDuration(-7, is_worktime)
+                    }
+                    // 리포트 타입 체크
                     checkReportType()
                 }
             } else {
@@ -372,14 +531,17 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                         text: '리포트 시작 시점은 현재보다 미래로 설정할 수 없습니다!!'
                     });
                 } else {
+                    // 특정 리포트 기간 타입 체크
+                    SharedData.setPeriodType('total');
                     checkReportType()
                 }
             }
         } else {
-            notie.alert({
-                type: 'error',
-                text: '메타데이터를 받아오지 못해서 리포트를 생성 할 수 없습니다.'
-            });
+            // notie.alert({
+            //     type: 'error',
+            //     text: '메타데이터를 받아오지 못해서 리포트를 생성 할 수 없습니다.'
+            // });
+            Notification.error(errorCode.metadata.E01)
         }
 
 

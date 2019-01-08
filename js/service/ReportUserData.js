@@ -5,7 +5,7 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
         //     var deferred = $q.defer();
         //
         // };
-        this.q_userData = function(hostname, from, until, duration, isset) {
+        this.q_userData = function(hostname, from, until, work_from, work_until, duration, isset) {
             var deferred = $q.defer();
             var from = from;
             var until = until;
@@ -112,6 +112,9 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
 
                     ReportData.getUserData(hostname).then(function (data) {
                         complete_count += 1;
+                        // console.log("getUserData : ", data);
+                        var _arr_collection = data.data.collection;
+                        console.log("getUserData : ", _arr_collection);
                         /*
                          * USER TOTAL RATE OF INTERFACE
                          */
