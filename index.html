@@ -149,6 +149,8 @@
     <!--<link href="./libs/angularjs-datepicker/dist/angular-datepicker.css" rel="stylesheet" type="text/css" />-->
     <!--<link rel="stylesheet" href="./libs/angularjs-datetime-picker/angularjs-datetime-picker.css" />-->
     <link rel="stylesheet" href="./libs/angularjs-datetime-picker/angularjs-datetime-picker.css" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
     <script src="./libs/underscore/underscore.js"></script>
     <script src="./libs/jquery/jquery.js"></script>
     <script src="./libs/bootstrap/bootstrap.js"></script>
@@ -213,19 +215,15 @@
                         <div class="container">
                             <form class="form-horizontal">
                                 <fieldset>
-                                    <div class="form-group">
-                                        <legend>리포트 기간 선택</legend>
+                                    <div class="form-group setted-date">
+                                        <legend>리포트 기간 선택(Pre-Define)</legend>
                                         <label class="col-lg-2 control-label">기간</label>
                                         <div class="col-lg-3">
                                             <div ng-dropdown-multiselect="" options="period_data" selected-model="period_model" extra-settings="period_settings" events="period_event"></div>
                                         </div>
-                                        <label class="col-lg-2 control-label">업무시간 유/무</label>
-                                        <div class="col-lg-3">
-                                            <div ng-dropdown-multiselect="" options="work_data" selected-model="work_model" extra-settings="work_settings"></div>
-                                        </div>
                                     </div>
-                                    <br>
-                                    <div class="form-group has-feedback has-clear">
+                                    <br class="setted-date">
+                                    <div class="form-group has-feedback has-clear custom-date">
                                         <legend>리포트 기간 선택(Custom)</legend>
                                         <label class="col-lg-2 control-label">Strat(시작)</label>
                                         <div class="col-lg-7">
@@ -242,7 +240,7 @@
                                     </div>
 
 
-                                    <div class="form-group">
+                                    <div class="form-group custom-date">
                                         <label class="col-lg-2 control-label">End(종료)</label>
                                         <div class="col-lg-7">
                                             <!--<input class="form-control"-->
@@ -261,8 +259,12 @@
                                     <div class="form-group">
                                         <legend>리포트 유형 선택</legend>
                                         <label for="select" class="col-lg-2 control-label">유형 선택</label>
-                                        <div class="col-lg-7">
-                                            <div ng-dropdown-multiselect="" id="select" events="" options="select2data" selected-model="select2model" extra-settings="select2settings"></div>
+                                        <div class="col-lg-3">
+                                            <div ng-dropdown-multiselect="유형선택" id="select" events="" options="select2data" selected-model="select2model" extra-settings="select2settings"></div>
+                                        </div>
+                                        <label class="col-lg-2 control-label">업무시간 유/무</label>
+                                        <div class="col-lg-3">
+                                            <div ng-dropdown-multiselect="" options="work_data" selected-model="work_model" extra-settings="work_settings"></div>
                                         </div>
                                     </div>
                                     <div class="form-group">

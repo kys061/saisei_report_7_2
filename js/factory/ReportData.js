@@ -1,8 +1,32 @@
 reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFrom, ReportUntil, ReportUrl,
                                          ReportQstring, ReportAuth, ReportConfig, SharedData, Notification)
 {
-    var from = SharedData.getFrom();
-    var until = SharedData.getUntil();
+    var is_worktime = SharedData.getIsWorktime();
+    var period_type = SharedData.getPeriodType();
+
+    console.log("is_worktime: " + is_worktime);
+    if (period_type === 'day'){
+        var from = SharedData.getWorkFrom();
+        var until = SharedData.getWorkUntil();
+    } else if (period_type === 'week'){
+        var from = SharedData.getWorkFrom();
+        var until = SharedData.getWorkUntil();
+    } else if (period_type === 'month'){
+        var from = SharedData.getWorkFrom();
+        var until = SharedData.getWorkUntil();
+    } else {
+        if (is_worktime){
+            var from = SharedData.getWorkFrom();
+            var until = SharedData.getWorkUntil();
+        } else {
+            var from = SharedData.getFrom();
+            var until = SharedData.getUntil();
+        }
+    }
+
+
+    console.log("from in ReportData: " + from);
+
     var errorCode = SharedData.getErrorCode();
     console.log("REPORTDATA->from : until -> " + from + ':' + until);
     // open sync
@@ -257,7 +281,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        // console.log(rest_url);
+        console.log("getUserData : "+rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -466,7 +490,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.user_group_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        // console.log(rest_url);
+        console.log("getUserGroupData : "+rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
