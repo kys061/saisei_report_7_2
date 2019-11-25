@@ -1,48 +1,9 @@
 reportApp.controller('ReportCtrl', function ReportCtrl(
     $rootScope, $scope, $log, _, ReportData, SharedData, UserAppData, $location, $route, $window, cfpLoadingBar,
-    $q, $timeout, ReportInterfaceData, ReportUserData, ReportMetaData, ReportIntName, ReportUserGroupData,
+    $q, $timeout, ReportInterfaceData, ReportUserData, ReportUserWorkTimeData, ReportMetaData, ReportIntName, ReportUserGroupData,
     Notification) {
 
-    $scope.$on('$routeChangeStart', function(scope, next, current) {
-        SharedData.setCurrentState(true);
-        console.log("change back");
-        $location.path('/');
-        $window.location.href = '/report/';
-    });
-
-    // 메타 데이터 요청(1) + 인터페이스 정보 요청(1) + 인터페이스 데이터 요청(수신, 송신)(세그먼트*2) + 유저 데이터 요청 + ?(3) + 10명의 유저에 대한 각 앱 사용량 요청
-    var req_count = 2+4+12+3+22;
-    $scope.complete_check_count = req_count; // 나중에 계산 수식 필요~!!
-    $scope.loaded_count = 0;
-    $scope.started_count = 0;
-
-    // report create time
-    $scope.created_time = (new Date()).toLocaleString('ko-KR',{hour12: false}).replace('시 ', ':').replace('분 ', ':').replace('초','');
-    // cfpLoadingBar:started
-    $rootScope.$on('cfpLoadingBar:loading', function() {
-        $scope.started_count += 1;
-        // console.log("started_count : " + $scope.started_count);
-    });
-
-    $rootScope.$on('cfpLoadingBar:loaded', function() {
-        $scope.loaded_count += 1;
-        console.log("loaded_count : " + $scope.loaded_count);
-    });
-
-    $rootScope.$on('cfpLoadingBar:completed', function() {
-        console.log('cfpLoadingBar:completed!!!!!!!!!!!!!!!!!!!');
-        // if ($scope.complete_check_count === $scope.loaded_count) {
-        // console.log('user_count', $scope.complete_user_count+$scope.complete_first_seg_count+$scope.complete_second_seg_count+$scope.complete_usergroup_count);
-        // if (2+$scope.complete_user_count+$scope.complete_first_seg_count+$scope.complete_second_seg_count+$scope.complete_usergroup_count === $scope.loaded_count) {
-        //     notie.alert({
-        //         type: 'info',
-        //         stay: 'true',
-        //         time: 30,
-        //         text: 'SAISEI 트래픽 보고서가 완성 되었습니다!!!'
-        //     });
-        // }
-    });
-
+    // 변수 선언
     var is_worktime = SharedData.getIsWorktime();
     var period_type = SharedData.getPeriodType();
     var from = SharedData.getFrom();
@@ -52,12 +13,20 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
     var select2model = SharedData.getSelect2model();
     var report_type = SharedData.getReportType();
 
+    // 리포트 기간 구분 변수
     $scope.report_type;
-    console.log('is_worktime: ' + is_worktime);
-    console.log('from: ' + from);
-    console.log('work_from: ' + work_from);
-    console.log('work_until: ' + work_until);
-    console.log("from : until -> " + from + ':' + until);
+    // console.log('is_worktime: ' + is_worktime);
+    // console.log('from: ' + from);
+    // console.log('work_from: ' + work_from);
+    // console.log('work_until: ' + work_until);
+    // console.log("from : until -> " + from + ':' + until);
+
+    // 메타 데이터 요청(1) + 인터페이스 정보 요청(1) + 인터페이스 데이터 요청(수신, 송신)(세그먼트*2) + 유저 데이터 요청 + ?(3) + 10명의 유저에 대한 각 앱 사용량 요청
+    var req_count = 2+4+12+3+22;
+    $scope.complete_check_count = req_count; // 나중에 계산 수식 필요~!!
+    $scope.loaded_count = 0;
+    $scope.started_count = 0;
+
     /*
      *  그래프 상태 체크
      *  [0] : 인터페이스 그래프
@@ -102,6 +71,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             }
         }
     }
+
     // 그래프 사용여부 체크
     $scope.getGraphState = function(arr, name) {
         // arr.push({cmpname: name});
@@ -122,6 +92,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
         // });
     };
     console.log(from + " - " + until);
+
     // 세그먼트 사용여부 체크
     $scope.getSegState = function(arr, name) {
         for (var i = 0; i < arr.length; i++) {
@@ -130,10 +101,46 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             }
         }
     };
+
     // 업무시간 항목 사용 여부 체크
     $scope.getWorktimeState = function() {
         return is_worktime;
     };
+
+    $scope.$on('$routeChangeStart', function(scope, next, current) {
+        SharedData.setCurrentState(true);
+        console.log("change back");
+        $location.path('/');
+        $window.location.href = '/report/';
+    });
+
+    // report create time
+    $scope.created_time = (new Date()).toLocaleString('ko-KR',{hour12: false}).replace('시 ', ':').replace('분 ', ':').replace('초','');
+    // cfpLoadingBar:started
+    $rootScope.$on('cfpLoadingBar:loading', function() {
+        $scope.started_count += 1;
+        console.log("started_count : " + $scope.started_count);
+    });
+
+    $rootScope.$on('cfpLoadingBar:loaded', function() {
+        $scope.loaded_count += 1;
+        console.log("loaded_count : " + $scope.loaded_count);
+    });
+
+    $rootScope.$on('cfpLoadingBar:completed', function() {
+        console.log('cfpLoadingBar:completed!!!!!!!!!!!!!!!!!!!');
+        // if ($scope.complete_check_count === $scope.loaded_count) {
+        // console.log('user_count', $scope.complete_user_count+$scope.complete_first_seg_count+$scope.complete_second_seg_count+$scope.complete_usergroup_count);
+        // if (2+$scope.complete_user_count+$scope.complete_first_seg_count+$scope.complete_second_seg_count+$scope.complete_usergroup_count === $scope.loaded_count) {
+        //     notie.alert({
+        //         type: 'info',
+        //         stay: 'true',
+        //         time: 30,
+        //         text: 'SAISEI 트래픽 보고서가 완성 되었습니다!!!'
+        //     });
+        // }
+    });
+
 
 
     // 메타데이터 가져오기 정의
@@ -278,8 +285,7 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
             //     })
             // }
 
-            // 2. 유저 트래픽 그래프
-            // 2.1. 전체시간
+            // 2. 유저 트래픽 데이터
             var getUserTotalTimeData = function () {
                 var userGrpDataset = new ReportUserData();
                 userGrpDataset.q_userData(hostname, from, until, work_from, work_until, duration, $scope.grpState[1].state).then(
@@ -295,12 +301,12 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                         $scope._users_flow_disc_option = val.user._users_flow_disc_option;
                         $scope._users_datasetOverride = val.user._users_datasetOverride;
                         $scope.colors = val.user.colors;
-                        //
+                        // user_app data
                         $scope._users_app = val.user_app._users_app; // for table
-                        $scope._users_app_data = val.user_app._users_app_data;
-                        $scope._users_app_label = val.user_app._users_app_label;
-                        $scope._users_app_series = val.user_app._users_app_series;
-                        $scope._users_app_option = val.user_app._users_app_option;
+                        // $scope._users_app_data = val.user_app._users_app_data;
+                        // $scope._users_app_label = val.user_app._users_app_label;
+                        // $scope._users_app_series = val.user_app._users_app_series;
+                        // $scope._users_app_option = val.user_app._users_app_option;
                         //
                         console.log('user_count: ', val.complete_count);
                         $scope.complete_user_count = val.complete_count;
@@ -310,15 +316,100 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                     }
                 );
             };
-            // 2.2. 업무시간
+            var getUserWorkTimeData = function () {
+                var userGrpDataset = new ReportUserWorkTimeData();
+                userGrpDataset.q_userData(hostname, from, until, work_from, work_until, duration, $scope.grpState[1].state).then(
+                    function(val){
+                        console.log(val.user._users_data);
+                        $scope._users_tb_data = val.user._users_tb_data;
+                        $scope._users_data = val.user._users_data;
+                        $scope._users_flow_disc_data = val.user._users_flow_disc_data;
+                        $scope._users_label = val.user._users_label;
+                        $scope._users_series = val.user._users_series;
+                        $scope._users_flow_disc_series = val.user._users_flow_disc_series;
+                        $scope._users_option = val.user._users_option;
+                        $scope._users_flow_disc_option = val.user._users_flow_disc_option;
+                        $scope._users_datasetOverride = val.user._users_datasetOverride;
+                        $scope.colors = val.user.colors;
+                        // user_app data
+                        $scope._users_app = val.user_app._users_app; // for table
+                        // $scope._users_app_data = val.user_app._users_app_data;
+                        // $scope._users_app_label = val.user_app._users_app_label;
+                        // $scope._users_app_series = val.user_app._users_app_series;
+                        // $scope._users_app_option = val.user_app._users_app_option;
+                        //
+                        console.log('user_count: ', val.complete_count);
+                        $scope.complete_user_count = val.complete_count;
+                    },
+                    function(val){
+                        console.log(val);
+                    }
+                );
+            };
 
+            // 3. 유저 그룹 트래픽 데이터
+            console.log($scope.grpState);
+            console.log(period_type);
+            $scope._user_group_size = 0;
+            var getUserGroupTotalTimeData = function () {
+                var userGroupGrpData = new ReportUserGroupData();
+                userGroupGrpData.q_userGroupData(hostname, from, until, work_from, work_until, duration, $scope.grpState[2].state).then(
+                    function(val) {
+                        console.log(' 3. 유저 그룹 트래픽 그래프');
+                        console.log(val);
+                        $scope._user_group_label = val.user_group._user_group_label;
+                        $scope._user_group_data = val.user_group._user_group_data;
+                        $scope._user_group_series = val.user_group._user_group_series;
+                        $scope._user_group_option = val.user_group._user_group_option;
+                        $scope._user_group_colors = val.user_group._user_group_colors;
+                        $scope._user_group_size = val.user_group._user_group_size;
+                        $scope._user_group_tb_data = val.user_group._user_group_tb_data;
+                        $scope._user_group_size = val.user_group._user_group_size;
+
+                        // 그룹내 유저 데이터
+                        // var sort_cnt = 0;
+                        // if (val.user_in_group._user_in_group_tb.length !== 0)
+                        //     val.user_in_group._user_in_group_tb.top_user_data.sort(function (a, b) { return b['top_user_total'] - a['top_user_total']; });
+                        //     sort_cnt += 1;
+                        // $scope._user_in_group_tb = val.user_in_group._user_in_group_tb; // for table
+                        $scope._user_in_group_tb = val.user_in_group._user_in_group_tb; // for table
+                        $scope._user_in_group_tr_data = val.user_in_group._user_in_group_tr_data;
+                        $scope._user_in_group_label = val.user_in_group._user_in_group_label;
+                        $scope._user_in_group_series = val.user_in_group._user_in_group_series;
+                        $scope._user_in_group_option = val.user_in_group._user_in_group_option;
+
+                        // $scope._user_group_flow_disc_data = val.user_group._user_group_flow_disc_data;
+                        // $scope._user_group_flow_disc_series = val.user_group._user_group_flow_disc_series;
+                        // $scope._user_group_flow_disc_option = val.user._users_flow_disc_option;
+                        // $scope._user_group_datasetOverride = val.user._users_datasetOverride;
+
+                        //
+                        $scope.complete_usergroup_count = val.complete_count;
+                    },
+                    function(val) {
+                        console.log(val);
+                    }
+                )
+            };
+            
+            // 4. 리포트 기간 별 구분하여 리포트 함수 불러오기
             if (period_type === 'day') {
                 $scope.report_type = "일간 리포트";
                 console.log(period_type);
             } else if (period_type === 'week') {
                 $scope.report_type = "주간 리포트";
-                console.log(period_type);
-                getUserTotalTimeData();
+                if (!is_worktime){
+                    console.log(period_type);
+                    getUserTotalTimeData();
+                    getUserGroupTotalTimeData();
+                } else {
+                    console.log(period_type);
+                    getUserWorkTimeData();
+                    getUserGroupTotalTimeData();
+                }
+                // $scope.report_type = "주간 리포트";
+                // console.log(period_type);
+                // getUserTotalTimeData();
                 // if (is_worktime) {
                 //     console.log(period_type);
                 //     // getUserWorkTimeData()
@@ -331,50 +422,17 @@ reportApp.controller('ReportCtrl', function ReportCtrl(
                 console.log(period_type);
             } else {
                 $scope.report_type = "커스텀 리포트";
-                console.log(period_type);
-                getUserTotalTimeData();
+                if (!is_worktime){
+                    console.log(period_type);
+                    getUserTotalTimeData();
+                    getUserGroupTotalTimeData();
+                } else {
+                    console.log(period_type);
+                    getUserWorkTimeData();
+                    getUserGroupTotalTimeData();
+                }
+
             }
-
-            // 3. 유저 그룹 트래픽 그래프
-            $scope._user_group_size = 0;
-
-            var userGroupGrpData = new ReportUserGroupData();
-            userGroupGrpData.q_userGroupData(hostname, from, until, work_from, work_until, duration, $scope.grpState[2].state).then(
-                function(val) {
-                    console.log(' 3. 유저 그룹 트래픽 그래프');
-                    console.log(val);
-                    $scope._user_group_label = val.user_group._user_group_label;
-                    $scope._user_group_data = val.user_group._user_group_data;
-                    $scope._user_group_series = val.user_group._user_group_series;
-                    $scope._user_group_option = val.user_group._user_group_option;
-                    $scope._user_group_colors = val.user_group._user_group_colors;
-                    $scope._user_group_size = val.user_group._user_group_size;
-                    $scope._user_group_tb_data = val.user_group._user_group_tb_data;
-                    $scope._user_group_size = val.user_group._user_group_size;
-
-                    // 그룹내 유저 데이터
-                    // var sort_cnt = 0;
-                    // if (val.user_in_group._user_in_group_tb.length !== 0)
-                    //     val.user_in_group._user_in_group_tb.top_user_data.sort(function (a, b) { return b['top_user_total'] - a['top_user_total']; });
-                    //     sort_cnt += 1;
-                    // $scope._user_in_group_tb = val.user_in_group._user_in_group_tb; // for table
-                    $scope._user_in_group_tb = val.user_in_group._user_in_group_tb; // for table
-                    $scope._user_in_group_tr_data = val.user_in_group._user_in_group_tr_data;
-                    $scope._user_in_group_label = val.user_in_group._user_in_group_label;
-                    $scope._user_in_group_series = val.user_in_group._user_in_group_series;
-                    $scope._user_in_group_option = val.user_in_group._user_in_group_option;
-
-                    // $scope._user_group_flow_disc_data = val.user_group._user_group_flow_disc_data;
-                    // $scope._user_group_flow_disc_series = val.user_group._user_group_flow_disc_series;
-                    // $scope._user_group_flow_disc_option = val.user._users_flow_disc_option;
-                    // $scope._user_group_datasetOverride = val.user._users_datasetOverride;
-
-                    //
-                    $scope.complete_usergroup_count = val.complete_count;
-                },
-                function(val) {
-                    console.log(val);
-                })
         },
         // get metadata fail
         function(val){

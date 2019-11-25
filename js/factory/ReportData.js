@@ -3,38 +3,19 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
 {
     var is_worktime = SharedData.getIsWorktime();
     var period_type = SharedData.getPeriodType();
-
-    console.log("is_worktime: " + is_worktime);
-    if (period_type === 'day'){
-        var from = SharedData.getWorkFrom();
-        var until = SharedData.getWorkUntil();
-    } else if (period_type === 'week'){
-        var from = SharedData.getWorkFrom();
-        var until = SharedData.getWorkUntil();
-    } else if (period_type === 'month'){
-        var from = SharedData.getWorkFrom();
-        var until = SharedData.getWorkUntil();
-    } else {
-        if (is_worktime){
-            var from = SharedData.getWorkFrom();
-            var until = SharedData.getWorkUntil();
-        } else {
-            var from = SharedData.getFrom();
-            var until = SharedData.getUntil();
-        }
-    }
-
-
-    console.log("from in ReportData: " + from);
-
     var errorCode = SharedData.getErrorCode();
-    console.log("REPORTDATA->from : until -> " + from + ':' + until);
+    var from;
+    var until;
+    var rest_from;
+    var rest_until;
+    var headers;
+    var result;
+
     // open sync
     $.ajaxSetup({
         async: false
     });
     // get config
-    var result;
     var config = (function() {
         // var result;
         $.getJSON("./config/report-config.json", function(d) {
@@ -48,15 +29,50 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
         async: true
     });
     console.log(config);
-    // set date and headers
-    var rest_from = new ReportFrom("").setFrom(from).getFrom();
-    var rest_until = new ReportUntil("").setUntil(until).getUntil();
-    var headers = new ReportAuth("").addId(config.common.id).addPasswd(config.common.passwd).getAuth();
+
+
+
+    console.log("is_worktime: " + is_worktime);
+
+    var setExtras = function (){
+        if (period_type === 'day'){
+            from = SharedData.getWorkFrom();
+            until = SharedData.getWorkUntil();
+        } else if (period_type === 'week'){
+            from = SharedData.getWorkFrom();
+            until = SharedData.getWorkUntil();
+        } else if (period_type === 'month'){
+            from = SharedData.getWorkFrom();
+            until = SharedData.getWorkUntil();
+        } else {
+            if (is_worktime){
+                from = SharedData.getWorkFrom();
+                until = SharedData.getWorkUntil();
+            } else {
+                from = SharedData.getFrom();
+                until = SharedData.getUntil();
+            }
+        }
+
+        // set date and headers
+        rest_from = new ReportFrom("").setFrom(from).getFrom();
+        rest_until = new ReportUntil("").setUntil(until).getUntil();
+        headers = new ReportAuth("").addId(config.common.id).addPasswd(config.common.passwd).getAuth();
+    };
+
+
+    console.log("from in ReportData: " + from + " : " + until);
+
+
+    console.log("REPORTDATA->from : until -> " + from + ':' + until);
+
+    //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
- *   get meta data link
- */
+     *   get meta data link
+     */
     function getMetaLink() {
+        setExtras();
         var meta_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.metapath)
             .addSection("")
@@ -89,6 +105,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get interface name
      */
     function getInterfaceName(hostname) {
+        setExtras();
         //http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
         var int_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.path.replace(':hostname', hostname))
@@ -121,6 +138,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get EXT interface name
      */
     function getExtInterfaceNameWithSpan(hostname) {
+        setExtras();
         //http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
         var int_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.path.replace(':hostname', hostname))
@@ -153,6 +171,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get INT interface name
      */
     function getIntInterfaceNameWithSpan(hostname) {
+        setExtras();
         //http://10.161.147.55:5000/rest/stm/configurations/running/interfaces/?token=1&order=%3Eactual_direction&with=actual_direction=external,class%3C=ethernet_interface&start=0&limit=10&select=name,type,actual_direction,state,description
         var int_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.path.replace(':hostname', hostname))
@@ -185,27 +204,32 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
  *   get interface rcv rate
  */
     function getIntRcvData(hostname, int_name) {
+        setExtras();
         // set urls
         console.log('locations:>>>>>', $window.location.protocol+"//"+$window.location.hostname+":");
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.interface_rcv.attr)
-            .addFrom('&from='+rest_from)
+            .addFrom('?from='+rest_from)
             .addOrder('&operation='+config.interface_rcv.operation)
             .addLimit('&history_points='+config.interface_rcv.hist_point)
             .addUntil('&until='+rest_until)
+            // .addUntil('&until='+rest_until+"&int_name="+int_name)    // for report api
             .getQstring();
         var rest_url = new ReportUrl("")
             .addDefault(config.common.ip, config.common.port, config.common.path.replace(":hostname", hostname))
             .addSection(config.interface_rcv.section.replace(":int_name", int_name))
+            // .addDefault(config.common.ip, config.common.port, config.common.report_api_path.replace(":hostname", hostname))  // for report api
+            // .addSection("interfaces")    // for report api
             .addQstring(rest_qstring)
             .getUrls();
-
+        console.log(rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
             headers: headers
         }).
         then(function(data, status, headers, config) {
+                console.log("report data : ", data)
                 // successcb(data);
                 return data;
             },
@@ -227,6 +251,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get interface trs rate
      */
     function getIntTrsData(hostname, int_name) {
+        setExtras();
         // set urls
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.interface_trs.attr)
@@ -266,6 +291,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
  *   get user's total rate
  */
     function getUserData(hostname) {
+        setExtras();
         // set urls
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.users_tr.attr)
@@ -308,6 +334,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get user's total rate
      */
     function getUserActiveFlows(hostname) {
+        setExtras();
         // set urls
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.users_active_flows.attr)
@@ -323,7 +350,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        console.log("get active url : " + rest_url);
+        console.log(this.name, rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -349,6 +376,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get user's packet disc rate
      */
     function getUserPacketDiscRate(hostname) {
+        setExtras();
         // set urls
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.users_tr.attr)
@@ -390,6 +418,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get user group act flows
      */
     function getUserGroupActiveFlows(hostname, size) {
+        setExtras();
         // set urls
         //http://10.161.147.55:5000/rest/stm/configurations/running/user_groups/
         // ?select=active_flows
@@ -438,6 +467,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get user's total rate
      */
     function getUserGroupSize(hostname) {
+        setExtras();
         // set urls
         var rest_qstring = new ReportQstring("")
             .addLimit('?limit=0')
@@ -447,7 +477,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
             .addSection(config.user_group_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        // console.log(rest_url);
+        console.log("getUserGroupSize in reportData.js", rest_url);
         return $http({
             method: 'GET',
             url: rest_url,
@@ -475,6 +505,7 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
      *   get user's total rate
      */
     function getUserGroupData(hostname, group_size) {
+        setExtras();
         // set urls
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.user_group_tr.attr)

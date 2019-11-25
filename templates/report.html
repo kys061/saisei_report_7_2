@@ -325,11 +325,11 @@
                             <td>{{ user.name }}</td>
                             <td>{{user.from}} ~ {{user.until}}</td>
                             <!--<td>{{ user.total }} Mbit/s</td>-->
-                            <td>{{ user.down }} Mbit/s</td>
-                            <td>{{ user.up }} Mbit/s</td>
-                            <td>{{ user.flows }} /s</td>
+                            <td>{{ user.dest_rate }} Mbit/s</td>
+                            <td>{{ user.source_rate }} Mbit/s</td>
+                            <td>{{ user.active_flows }} /s</td>
                             <td>{{ user.max_flows }} /s</td>
-                            <td>{{ user.pack_disc }}</td>
+                            <td>{{ user.packets_discarded }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -571,11 +571,11 @@
                                 <tr>
                                     <td>{{$index+1}}</td>
                                     <td><b>{{ top_users.top_user_name }}</b></td>
-                                    <td>{{top_users.top_user_app1_from}} ~ <br>{{top_users.top_user_app1_from}}</td>
+                                    <td>{{top_users.top_user_app1_from}} ~ <br>{{top_users.top_user_app1_until}}</td>
                                     <td>{{top_users.top_user_app1_name}}<br>{{top_users.top_user_app1_total}} Mbit/s</td>
-                                    <td>{{top_users.top_user_app2_from}} ~ <br>{{top_users.top_user_app2_from}}</td>
+                                    <td>{{top_users.top_user_app2_from}} ~ <br>{{top_users.top_user_app2_until}}</td>
                                     <td>{{top_users.top_user_app2_name}} <br>{{top_users.top_user_app2_total}} Mbit/s</td>
-                                    <td>{{top_users.top_user_app3_from}} ~ <br>{{top_users.top_user_app3_from}}</td>
+                                    <td>{{top_users.top_user_app3_from}} ~ <br>{{top_users.top_user_app3_until}}</td>
                                     <td>{{top_users.top_user_app3_name}} <br>{{top_users.top_user_app3_total}} Mbit/s</td>
                                 </tr>
                                 </tbody>

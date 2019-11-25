@@ -1,5 +1,7 @@
 reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templateCache, $location, $window, $q, _,
                                                    SharedData, ReportMain, ReportMainMetaData, Notification) {
+     $('.setted-date').hide("fast");
+
     var from;
     var until;
     var work_from;
@@ -8,6 +10,7 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
     var use_custom_date = true;
     var use_setted_date = true;
     var today = new $window.Sugar.Date(new Date());
+
 
     var complete_count;
 
@@ -41,7 +44,25 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         //     label: "사용자-어플리케이션 트래픽"
         // }
     ];
-    $scope.select2settings = {};
+    $scope.select2settings = {
+        events: {
+            onItemSelect: function (item) {
+                console.log('selected: '+item);
+            },
+            onItemDeselect: function (item){
+                console.log('Deselected: '+item);
+            }
+        }
+    };
+    $scope.select2event = {
+        onItemSelect: function(item) {
+            console.log('selected: ', item);
+        },
+        onItemDeselect: function (item){
+            console.log('Deselected: ', item);
+            // Notification.error(errorCode.main.W02);
+        }
+    };
     // $scope.$on('', function(){
     //
     // });
@@ -142,14 +163,17 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         // }
         if (val === undefined || val === "") {
             if (until === undefined || until === "") {
-                $('.setted-date').show("slow");
+                // TODO: predefined 리포트를 사용하려면 아래 주석을 제거 할것
+                console.log(until)
+                // $('.setted-date').show("slow");
             } else {
                 $('.setted-date').hide("slow");
                 // notie.alert({
                 //     type: 'info',
                 //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
                 // });
-                Notification.error(errorCode.main.W01);
+
+                // Notification.error(errorCode.main.W01);
             }
         } else {
             $('.setted-date').hide("slow");
@@ -157,7 +181,8 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                 //     type: 'info',
                 //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
                 // });
-                Notification.error(errorCode.main.W01);
+
+                // Notification.error(errorCode.main.W01);
         }
         console.log(val);
         // var work_day = searchWord('[0-9]+-[0-9]+-[0-9]+ ', val);
@@ -193,14 +218,17 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         // }
         if (val === undefined || val === "") {
             if (from === undefined || from === "") {
-                $('.setted-date').show("slow");
+                // TODO: predefined 리포트를 사용하려면 아래 주석을 제거 할것
+                console.log(until)
+                // $('.setted-date').show("slow");
             } else {
                 $('.setted-date').hide("slow");
                 // notie.alert({
                 //     type: 'info',
                 //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
                 // });
-                Notification.error(errorCode.main.W01);
+
+                // Notification.error(errorCode.main.W01);
             }
         } else {
             $('.setted-date').hide("slow");
@@ -208,7 +236,7 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
             //     type: 'info',
             //     text: '커스텀 달력을 선택했을 경우에는 사전정의된 기간을 선택을 할 수 없습니다.!!!'
             // });
-            Notification.error(errorCode.main.W01);
+            // Notification.error(errorCode.main.W01);
         }
         console.log(val);
         // $scope.until = new Date(val);
@@ -442,7 +470,7 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
         var period_type, period_duration;
         console.log(duration);
         console.log($scope.select2model);
-
+        // 리포트 유형 저장
         $scope.report_type = [];
         for (var i = 0; i < $scope.select2model.length; i++) {
             $scope.report_type.push({name : $scope.report_def[$scope.select2model[i]['id']], status: true});
@@ -458,23 +486,28 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                 if (e.id === 1) {
                     period_type = 'week';
                     period_duration = 'four_week_ago';
-                    SharedData.setPeriodType(period_type)
+                    SharedData.setPeriodType(period_type);
+                    SharedData.setPeriodDuration(period_duration);
                 } else if (e.id === 2) {
                     period_type = 'week';
                     period_duration = 'three_week_ago';
-                    SharedData.setPeriodType(period_type)
+                    SharedData.setPeriodType(period_type);
+                    SharedData.setPeriodDuration(period_duration);
                 } else if (e.id === 3) {
                     period_type = 'week';
                     period_duration = 'two_week_ago';
-                    SharedData.setPeriodType(period_type)
+                    SharedData.setPeriodType(period_type);
+                    SharedData.setPeriodDuration(period_duration);
                 } else if (e.id === 4) {
                     period_type = 'week';
                     period_duration = 'one_week_ago';
-                    SharedData.setPeriodType(period_type)
+                    SharedData.setPeriodType(period_type);
+                    SharedData.setPeriodDuration(period_duration);
                 } else if (e.id === 5) {
                     period_type = 'month';
                     period_duration = 'month';
-                    SharedData.setPeriodType(period_type)
+                    SharedData.setPeriodType(period_type);
+                    SharedData.setPeriodDuration(period_duration);
                 }
             });
         }
@@ -532,7 +565,7 @@ reportApp.controller('MainCtrl', function MainCtrl($scope, $log, $route, $templa
                     });
                 } else {
                     // 특정 리포트 기간 타입 체크
-                    SharedData.setPeriodType('total');
+                    SharedData.setPeriodType('custom');
                     checkReportType()
                 }
             }
