@@ -30,8 +30,8 @@ reportApp.factory('ReportWorkTimeData', function($http, $log, $base64, $window, 
     // set date and headers
     var rest_from = new ReportFrom("").setFrom(from).getFrom();
     var rest_until = new ReportUntil("").setUntil(until).getUntil();
-    var rest_work_from = new ReportWorkTimeFrom("").setWorkFrom(work_from).getWorkFrom();
-    var rest_work_until = new ReportWorkTimeUntil("").setWorkUntil(work_until).getWorkUntil();
+    var rest_work_from = new ReportWorkTimeFrom("").setWorkTimeFrom(work_from).getWorkTimeFrom();
+    var rest_work_until = new ReportWorkTimeUntil("").setWorkTimeUntil(work_until).getWorkTimeUntil();
     var headers = new ReportAuth("").addId(config.common.id).addPasswd(config.common.passwd).getAuth();
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*

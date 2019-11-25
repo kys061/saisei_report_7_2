@@ -132,7 +132,7 @@ module.exports = function(grunt) {
                 src: [ 'report/js/<%= pkg.name %>-<%= pkg.version %>.js'] // files to remove comments from
             }
         },
-        // 배포할 폴더로 복사한다.
+        // copy to deploy folder
         copy: {
             main: {
                 expand: true,

@@ -5,7 +5,7 @@ var reportApp = angular.module('reportApp', [
     'angularjs-datetime-picker', 'angularjs-dropdown-multiselect', 'ui-notification'
 ])
     .config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
-        cfpLoadingBarProvider.latencyThreshold = 400;
+        cfpLoadingBarProvider.latencyThreshold = 800;
         // cfpLoadingBarProvider.includeSpinner = false;
         // cfpLoadingBarProvider.includeBar = true;
         // cfpLoadingBarProvider.parentSelector = '#loading-bar-container';

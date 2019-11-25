@@ -1,4 +1,5 @@
-reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil, ReportUrl, ReportQstring, ReportAuth, SharedData) {
+reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportConfig, ReportFrom, ReportUntil,
+                                          ReportUrl, ReportQstring, ReportAuth, SharedData, Notification) {
 
     var is_worktime = SharedData.getIsWorktime();
     var period_type = SharedData.getPeriodType();
@@ -79,7 +80,9 @@ reportApp.factory('UserAppData', function($http, $log, $base64, $window, ReportC
                 // console.log(data);
                 // console.log(data.data.collection.length);
                 if (data.data.collection.length === 0){
+                    console.log(data);
                     Notification.error(errorCode.user.W05);
+                    return data;
                     // notie.alert({
                     //     type: 'error',
                     //     // stay: 'true',

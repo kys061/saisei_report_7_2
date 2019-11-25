@@ -12,8 +12,14 @@ reportApp.service('SharedData', function() {
     sharedData.work_from;
     sharedData.work_until;
     sharedData.period_type;
+    sharedData.period_duration;
 
     sharedData.errorCode = {
+        title: {
+            error: '<p style="color:white;">에러</p>',
+            warning: '<p style="color:white;">경고</p>',
+            success: '<p style="color:white;">성공</p>'
+        },
         user: {
             E01: 'ERROR - 유저 데이터를 가져오지 못했습니다.',
             E02: 'ERROR - 유저 ActiveFlows데이터를 가져오지 못했습니다.',
@@ -47,7 +53,7 @@ reportApp.service('SharedData', function() {
             W05: 'WARN - 그룹 내에 유저-앱 연관 데이터가 존재하지 않습니다.'
         },
         metadata:{
-            E01:  'ERROR - 메타데이터를 받아오지 못해서 리포트를 생성 할 수 없습니다.',
+            E01:  '메타데이터를 받아오지 못해서 리포트를 생성 할 수 없습니다. 관리자에게 문의 하세요.',
             W01:  'WARN - 메타 데이터가 존재하지 않기때문에 리포트를 생성 할 수 없습니다.'
         },
         main: {
@@ -126,6 +132,12 @@ reportApp.service('SharedData', function() {
         },
         getPeriodType: function() {
             return sharedData.period_type;
+        },
+        setPeriodDuration: function(period_duration) {
+            sharedData.period_duration = period_duration;
+        },
+        getPeriodDuration: function() {
+            return sharedData.period_duration;
         }
     };
 });

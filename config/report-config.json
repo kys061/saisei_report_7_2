@@ -1,12 +1,13 @@
 {
   "config": {
     "common": {
-      "id": "monitor_only",
-      "passwd": "Monitor_Only#1",
-      "ip": "http://113.198.180.14:",
+      "id": "admin",
+      "passwd": "FlowCommand#1",
+      "ip": "http://10.161.147.55:",
       "port": "5000",
       "metapath": "/rest/top/configurations/running",
       "path": "/rest/:hostname/configurations/running/",
+      "report_api_path": "/api/report/",
       "class": "common"
     },
     "interface_rcv": {
@@ -36,7 +37,7 @@
     "users_active_flows": {
       "class": "users_active_flows",
       "section": "users/",
-      "attr": "active_flows",
+      "attr": "active_flows,total_rate",
       "order": "<total_rate",
       "limit": "10",
       "operation": "raw",
@@ -45,7 +46,7 @@
     "users_packet_disc_rate": {
       "class": "users_packet_disc_rate",
       "section": "users/",
-      "attr": "packet_discard_rate",
+      "attr": "packet_discard_rate,total_rate",
       "order": "<total_rate",
       "limit": "10",
       "operation": "raw",
@@ -62,7 +63,7 @@
     "user_group_tr": {
       "class": "user_group_tr",
       "section": "user_groups/",
-      "attr": "name,source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
+      "attr": "source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
       "order": "<total_rate",
       "limit": "100",
       "operation": "auto"
@@ -70,7 +71,7 @@
     "user_group_active_flows": {
       "class": "user_group_active_flows",
       "section": "user_groups/",
-      "attr": "active_flows",
+      "attr": "active_flows,total_rate",
       "order": "<total_rate",
       "limit": "50",
       "operation": "raw",
@@ -79,7 +80,7 @@
     "user_in_group_active_flows": {
       "class": "user_in_group_active_flows",
       "section": "/users/:user_name",
-      "attr": "active_flows",
+      "attr": "active_flows,total_rate",
       "order": "<total_rate",
       "limit": "50",
       "operation": "raw",
@@ -88,7 +89,7 @@
     "user_in_group_tr": {
       "class": "user_in_group_tr",
       "section": "user_groups/:user_group_name/users/",
-      "attr": "name,source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
+      "attr": "source_rate,dest_rate,total_rate,active_flows,packet_discard_rate,packets_discarded,description",
       "order": "<total_rate",
       "limit": "5",
       "operation": "auto"

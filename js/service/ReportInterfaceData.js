@@ -346,6 +346,94 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                     /**********************************/
                     /* RCV DATA OF INTERFACE          */
                     /**********************************/
+                    console.log("data in report : ", data['data']['data']['rcv_rate']);
+                    var _rcv_rate = data['data']['data']['rcv_rate'];
+                    var _trs_rate = data['data']['data']['trs_rate'];
+                    var _rcv_time = data['data']['data']['rcv_time'];
+                    var _trs_time = data['data']['data']['trs_time'];
+                    var int_data = data['data']['int_data'];
+                    var _graph_data = [
+                        _rcv_rate,
+                        _trs_rate
+                    ];
+                    var _graph_labels = _rcv_time;
+                    var int_name = int_ext_name;
+                    var series = ['수신(단위:Mbit/s)', '송신(단위:Mbit/s)'];
+                    var colors = ['#ff6384', '#45b7cd', '#ffe200'];
+                    var datasetOverride = [{
+                        yAxisID: 'y-axis-1'
+                    }, {
+                        yAxisID: 'y-axis-2'
+                    }];
+                    var options = {
+                        scales: {
+                            yAxes: [{
+                                id: 'y-axis-1',
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                scaleLabel: {
+                                    display: true,
+                                    fontSize: 14,
+                                    labelString: '수신(Mbit/s)',
+                                    fontStyle: "bold"
+                                },
+                                ticks: {
+                                    // max: Math.ceil(int_max * 0.001) * 1000,
+                                    max: option_max,
+                                    min: 0,
+                                    beginAtZero: true,
+                                    fontSize: 12,
+                                    fontStyle: "bold"
+                                }
+                            },
+                                {
+                                    id: 'y-axis-2',
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    scaleLabel: {
+                                        display: true,
+                                        fontSize: 14,
+                                        labelString: '송신(Mbit/s)',
+                                        fontStyle: "bold"
+                                    },
+                                    ticks: {
+                                        // max: Math.ceil(int_max * 0.001) * 1000,
+                                        max: option_max,
+                                        min: 0,
+                                        beginAtZero: true,
+                                        fontSize: 12,
+                                        fontStyle: "bold"
+                                    }
+                                }
+                            ],
+                            xAxes: [{
+                                ticks: {
+                                    fontSize: 12,
+                                    fontStyle: "bold"
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    fontSize: 14,
+                                    labelString: '시간',
+                                    fontStyle: "bold"
+                                }
+                            }]
+                        }
+                    };
+
+                    deferred.resolve({
+                        data: _graph_data,
+                        labels: _graph_labels,
+                        series: series,
+                        colors: colors,
+                        options: options,
+                        datasetOverride: datasetOverride,
+                        int_data: int_data,
+                        int_name: int_name,
+                        complete_count: complete_count
+                    });
                     var _history_length_rcv_rate = data['data']['collection'][0]['_history_length_receive_rate'];
                     var _history_rcv = data['data']['collection'][0]['_history_receive_rate'];
                     var int_name = data['data']['collection'][0]['name'];
@@ -360,13 +448,7 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                     var int_rcv_office_avg = r__rcvData.int_rcv_office_avg;
                     // for interface graph
                     // var labels = label;
-                    var series = ['수신(단위:Mbit/s)', '송신(단위:Mbit/s)'];
-                    var colors = ['#ff6384', '#45b7cd', '#ffe200'];
-                    var datasetOverride = [{
-                        yAxisID: 'y-axis-1'
-                    }, {
-                        yAxisID: 'y-axis-2'
-                    }];
+
 
                     ReportData.getIntRcvData(hostname, int_int_name).then(function (data) {
                         complete_count += 1;
@@ -388,6 +470,7 @@ reportApp.service('ReportInterfaceData', function($window, $q, ReportData) {
                             int_trs_max_data);
 
                         console.log('r__reportInterfaceData.int_data.rcv_office_avg' + r__reportInterfaceData.int_data.rcv_office_avg);
+                        console.log('data in rcv_data: ', r__reportInterfaceData.data);
                         deferred.resolve({
                             data: r__reportInterfaceData.data,
                             labels: labels,

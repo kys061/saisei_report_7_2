@@ -151,6 +151,7 @@
     <link rel="stylesheet" href="./libs/angularjs-datetime-picker/angularjs-datetime-picker.css" />
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
     <script src="./libs/underscore/underscore.js"></script>
     <script src="./libs/jquery/jquery.js"></script>
     <script src="./libs/bootstrap/bootstrap.js"></script>
@@ -221,6 +222,10 @@
                                         <div class="col-lg-3">
                                             <div ng-dropdown-multiselect="" options="period_data" selected-model="period_model" extra-settings="period_settings" events="period_event"></div>
                                         </div>
+                                        <label class="col-lg-2 control-label">업무시간 유/무</label>
+                                        <div class="col-lg-3">
+                                            <div ng-dropdown-multiselect="" options="work_data" selected-model="work_model" extra-settings="work_settings"></div>
+                                        </div>
                                     </div>
                                     <br class="setted-date">
                                     <div class="form-group has-feedback has-clear custom-date">
@@ -260,11 +265,7 @@
                                         <legend>리포트 유형 선택</legend>
                                         <label for="select" class="col-lg-2 control-label">유형 선택</label>
                                         <div class="col-lg-3">
-                                            <div ng-dropdown-multiselect="유형선택" id="select" events="" options="select2data" selected-model="select2model" extra-settings="select2settings"></div>
-                                        </div>
-                                        <label class="col-lg-2 control-label">업무시간 유/무</label>
-                                        <div class="col-lg-3">
-                                            <div ng-dropdown-multiselect="" options="work_data" selected-model="work_model" extra-settings="work_settings"></div>
+                                            <div ng-dropdown-multiselect="유형선택" id="select" options="select2data" selected-model="select2model" extra-settings="select2settings" events="select2event"></div>
                                         </div>
                                     </div>
                                     <div class="form-group">

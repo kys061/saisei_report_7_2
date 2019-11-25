@@ -51,7 +51,7 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
             },
             function onError(response) {
                 if (response.status < 0) {
-                    Notification.error(errorCode.metadata.E01);
+                    Notification.error({ message: errorCode.metadata.E01, delay: null, title: errorCode.title.error });
                     // notie.alert({
                     //     type: 'error',
                     //     // stay: 'true',
@@ -143,7 +143,7 @@ reportApp.factory('ReportMain', function($http, $log, $base64, $window, ReportFr
             .addSection(config.users_tr.section)
             .addQstring(rest_qstring)
             .getUrls();
-        // console.log(rest_url);
+        console.log("getUserSize", rest_url);
         return $http({
             method: 'GET',
             url: rest_url,

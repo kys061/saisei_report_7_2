@@ -16,5 +16,5 @@ reportApp.service('ReportWorkTimeFrom', function() {
             return start;
         };
     };
-    return From;
+    return WorkTimeFrom;
 });

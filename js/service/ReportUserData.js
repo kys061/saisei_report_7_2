@@ -1,15 +1,15 @@
 reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppData, _) {
     var UserData = function() {
-        var self = this;
+        // var self = this;
         // this.q_userAppData = function(){
         //     var deferred = $q.defer();
         //
         // };
         this.q_userData = function(hostname, from, until, work_from, work_until, duration, isset) {
             var deferred = $q.defer();
-            var from = from;
-            var until = until;
-            var duration = duration;
+            // var from = from;
+            // var until = until;
+            // var duration = duration;
             var complete_count = 0;
             if (isset) {
                 ReportData.getUserActiveFlows(hostname).then(function (data) {
@@ -19,23 +19,17 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                     // 3. 데이터 배열에서 max값을 가진 index를 구한다.
                     // 4. 해당 index를 가진 배열의 데이터 값과 시간 값을 가진 쌍으로 가진 10개의 2차원 배열을 만든다.
                     //  -> [[시간, max값], ... [시간, max값]]
-                    /**
-                     * Add attributes to each object of an array.
-                     *
-                     * @param {array} foo - Array of objects where we will add the attibutes
-                     * @param {function} iterator
-                     */
                     // _.each(foo, function(element, index) {
                     //     _.extend(element, {field1: index}, {field2: 'bar', field3: 'baz'});
                     // });
                     console.log(data);
                     var _history_users_active_flows_data = data['data']['collection'];
-                    var _history_users_active_flows = data['data']['collection'][0]['_history_active_flows'];
-                    var _history_users_active_flows_length = data['data']['collection'][0]['_history_length_active_flows'];
-                    var users_act_flow_data = [];
-                    var users_act_flow_time = [];
-                    var arr_users_act_flow_data = [];
-                    var arr_users_act_flow_time = [];
+                    // var _history_users_active_flows = data['data']['collection'][0]['_history_active_flows'];
+                    // var _history_users_active_flows_length = data['data']['collection'][0]['_history_length_active_flows'];
+                    // var users_act_flow_data = [];
+                    // var users_act_flow_time = [];
+                    // var arr_users_act_flow_data = [];
+                    // var arr_users_act_flow_time = [];
                     var users_act_flow_max_data = [];
 
                     // change date to ko
@@ -62,9 +56,6 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                         var t = new Date(elem[0]);
                         elem.push(t.toLocaleString());
                     });
-
-
-
                     // console.log(_history_users_active_flows_data);
                     // for(var j = 0; j < _history_users_active_flows_data.length; j++) {
                     //     for (var i = 0; i < _history_users_active_flows_data[j]['_history_active_flows'].length; i++) {
@@ -113,8 +104,12 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                     ReportData.getUserData(hostname).then(function (data) {
                         complete_count += 1;
                         // console.log("getUserData : ", data);
-                        var _arr_collection = data.data.collection;
-                        console.log("getUserData : ", _arr_collection);
+                        var _arr_user_collection = data.data.collection;
+                        console.log("getUserData : ", _arr_user_collection);
+                        var _map_collection = d3.group(_arr_user_collection, function (d) {
+                            return d.name;
+                        });
+                        console.log("getUserData_MAP : ", _map_collection);
                         /*
                          * USER TOTAL RATE OF INTERFACE
                          */
@@ -124,37 +119,39 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                         /******************************************************************************************************************/
                         // for users data
                         var _users_label = [];
-                        var _users_from = [];
-                        var _users_until = [];
+                        // var _users_from = [];
+                        // var _users_until = [];
                         var _users_series = ['다운로드 사용량(Mbit/s)', '업로드 사용량(Mbit/s)'];
                         var _users_flow_disc_series = ['플로우 사용량(/s)', '제어량(/s)'];
-                        var _users_total = [];
+                        // var _users_total = [];
                         var _users_download = [];
                         var _users_upload = [];
                         var _users_active_flows = [];
                         var _users_packet_disc_rate = [];
-                        var _users_packet_disc = [];
-                        var _users_tb_data = [];
+                        // var _users_packet_disc = [];
+                        // var _users_tb_data = [];
                         var _users_data = [];
                         var _users_flow_disc_data = [];
                         /******************************************************************************************************************/
                         /* 사용자-어플리케이션 TOP3 데이터 변수
                         /******************************************************************************************************************/
                         // for users app data
-                        var _users_app = [];
-                        var _users_app_top1 = [];
-                        var _users_app_top2 = [];
-                        var _users_app_top3 = [];
-                        var _users_app_data = [];
-                        var _users_appName_top1 = [];
-                        var _users_appName_top2 = [];
-                        var _users_appName_top3 = [];
-                        var _users_app_label = [];
-                        var _users_app_series = [];
-                        var _users_app_option = [];
+                        // var _users_app = [];
+                        // var _users_app_top1 = [];
+                        // var _users_app_top2 = [];
+                        // var _users_app_top3 = [];
+                        // var _users_app_data = [];
+                        // var _users_appName_top1 = [];
+                        // var _users_appName_top2 = [];
+                        // var _users_appName_top3 = [];
+                        // var _users_app_label = [];
+                        // var _users_app_series = [];
+                        // var _users_app_option = [];
+                        var __users_app = [];
+                        // var __users_app = [];
 
                         var colors = ['#ff6384', '#45b7cd', '#ffe200'];
-                        var _users = data['data']['collection'];
+                        // var _users = data['data']['collection'];
                         // console.log(data['data']['collection']);
                         /*
                            1. _users_label : username for user graph,
@@ -168,45 +165,83 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                            9. _users_option : option for user graph,
                            10.
                         */
-                        for (var i = 0; i < _users.length; i++) {
-                            _users_label.push(_users[i]['name']);
-                            var user_from = new Date(_users[i]['from']);
-                            user_from.setHours(user_from.getHours() + 9);
-                            _users_from.push(user_from.toLocaleString());
-                            var user_until = new Date(_users[i]['until']);
-                            _users_until.push(user_until.setHours(user_until.getHours() + 9));
-                            _users_total.push((_users[i]['total_rate'] * 0.001).toFixed(3));
-                            _users_download.push((_users[i]['dest_rate'] * 0.001).toFixed(3));
-                            _users_upload.push((_users[i]['source_rate'] * 0.001).toFixed(3));
-                            _users_active_flows.push(_users[i]['active_flows']);
-                            _users_packet_disc_rate.push(_users[i]['packet_discard_rate']);
-                            _users_packet_disc_rate.push(_users[i]['packets_discarded']);
-                            _users_tb_data.push({
-                                name: _users[i]['name'],
-                                from: (_.has(_users[i], "from")) ? user_from.toLocaleString():"None",
-                                until: (_.has(_users[i], "until")) ? user_until.toLocaleString():"None",
-                                total: (_users[i]['total_rate'] * 0.001).toFixed(3),
-                                down: (_users[i]['dest_rate'] * 0.001).toFixed(3),
-                                up: (_users[i]['source_rate'] * 0.001).toFixed(3),
-                                flows: _users[i]['active_flows'],
-                                // max_flows: users_act_flow_max_data,
-                                disc_rate: _users[i]['packet_discard_rate'],
-                                pack_disc: _users[i]['packets_discarded']
+                        // for saisei-7.3.1-11114
+                        var from = new Date(data['data']['from']);
+                        from.setHours(from.getHours() + 9);
+                        var _from = from.toLocaleString();
+                        var until = new Date(data['data']['until']);
+                        until.setHours(until.getHours() + 9);
+                        var _until = until.toLocaleString();
+                        _.each(_arr_user_collection, function (e, i) {
+                            e.from = new Date(e.from);
+                            e.from.setHours(e.from.getHours() + 9);
+                            e.from = e.from.toLocaleString();
+                            e.from = _from;
+                            // e.from = (_.has(e, "from")) ? e.from.setHours(e.from.getHours() + 9).toLocaleString():"None";
+                            e.until = new Date(e.until);
+                            e.until.setHours(e.until.getHours() + 9);
+                            e.until = e.until.toLocaleString();
+                            e.until = _until;
+                            e.total_rate = (e.total_rate * 0.001).toFixed(3);
+                            e.dest_rate = (e.dest_rate * 0.001).toFixed(3);
+                            e.source_rate = (e.source_rate * 0.001).toFixed(3);
+                            // e.until = (_.has(e, "until")) ? e.until.setHours(e.until.getHours() + 9).toLocaleString():"None";
+                            // e.until= e.until.setHours(e.until.getHours() + 9).toLocaleString();
+                            _users_label.push(e.name);
+                            _users_download.push((e.dest_rate * 0.001).toFixed(3));
+                            _users_upload.push((e.source_rate * 0.001).toFixed(3));
+                        });
 
-                            });
-                        }
+                        console.log("after _arr_user_collection : ", _arr_user_collection);
+
+                        // for (var i = 0; i < _users.length; i++) {
+                        //     _users_label.push(_users[i]['name']);
+                        //     var user_from = new Date(_users[i]['from']);
+                        //     user_from.setHours(user_from.getHours() + 9);
+                        //     _users_from.push(user_from.toLocaleString());
+                        //     var user_until = new Date(_users[i]['until']);
+                        //     user_until.setHours(user_until.getHours() + 9);
+                        //     _users_until.push(user_until.toLocaleString());
+                        //     // _users_total.push((_users[i]['total_rate'] * 0.001).toFixed(3));
+                        //     _users_download.push((_users[i]['dest_rate'] * 0.001).toFixed(3));
+                        //     _users_upload.push((_users[i]['source_rate'] * 0.001).toFixed(3));
+                        //     // _users_active_flows.push(_users[i]['active_flows']);
+                        //     // _users_packet_disc_rate.push(_users[i]['packet_discard_rate']);
+                        //     // _users_packet_disc_rate.push(_users[i]['packets_discarded']);
+                        //     _users_tb_data.push({
+                        //         name: _users[i]['name'],
+                        //         from: (_.has(_users[i], "from")) ? user_from.toLocaleString():"None",
+                        //         until: (_.has(_users[i], "until")) ? user_until.toLocaleString():"None",
+                        //         total: (_users[i]['total_rate'] * 0.001).toFixed(3),
+                        //         down: (_users[i]['dest_rate'] * 0.001).toFixed(3),
+                        //         up: (_users[i]['source_rate'] * 0.001).toFixed(3),
+                        //         flows: _users[i]['active_flows'],
+                        //         // max_flows: users_act_flow_max_data,
+                        //         disc_rate: _users[i]['packet_discard_rate'],
+                        //         pack_disc: _users[i]['packets_discarded']
+                        //
+                        //     });
+                        // }
                         console.log("user_act_flow_max_data");
                         console.log(users_act_flow_max_data);
-                        _.each(_users_tb_data, function(e, i){
+                        // add max flow value of each user to _arr_user_collection
+                        _.each(_arr_user_collection, function(e, i){
                             _.each(users_act_flow_max_data, function(elem, index){
                                 if (index === i) {
                                     _.extend(e, {max_flows: elem[1]}, {max_flows_time: elem[2]});
                                 }
                             });
                         });
+                        // _.each(_users_tb_data, function(e, i){
+                        //     _.each(users_act_flow_max_data, function(elem, index){
+                        //         if (index === i) {
+                        //             _.extend(e, {max_flows: elem[1]}, {max_flows_time: elem[2]});
+                        //         }
+                        //     });
+                        // });
 
 
-                        console.log(_users_tb_data);
+                        // console.log("_users_tb_data : ", _users_tb_data);
 
                         // var _users_data = [_users_total, _users_download, _users_upload];
                         // _users_data.push(_users_total);
@@ -334,6 +369,116 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                             /* USER-APP DATA                  */
                             /**********************************/
                             UserAppData.getUserAppData(hostname, _users_label[i]).then(function (data) {
+                                if (data.data.collection.length === 0){
+                                    console.log(data);
+                                    var obj = {
+                                        "user_name": data.data.request_url.split('/')[6],
+                                        "top1_app_name": 'None',
+                                        "top1_app_total": 0,
+                                        "top1_app_from": 'None',
+                                        "top1_app_until": 'None',
+                                        "top2_app_name": 'None',
+                                        "top2_app_total": 0,
+                                        "top2_app_from": 'None',
+                                        "top2_app_until": 'None',
+                                        "top3_app_name": 'None',
+                                        "top3_app_total": 0,
+                                        "top3_app_from": 'None',
+                                        "top3_app_until": 'None'
+                                    };
+                                    __users_app.push(obj);
+                                }
+                                var _arr_user_app_collection = data.data.collection;
+                                console.log("getUserAppData : ", _arr_user_app_collection);
+                                // _.each(_arr_user_app_collection, function(e){
+                                //    __users_app.push({e.link.href.split('/')[6]: })
+                                // });
+                                var _arr_user_app_map = d3.group(_arr_user_app_collection, function(d){
+                                    return d.link.href.split('/')[6]
+                                });
+
+                                // _.each(_arr_user_app_map, function(e){
+                                //     console.log("_arr_user_app_map's e: ", e)
+                                // });
+                                //
+                                // _.reduce(_arr_user_app_map, function (e) {
+                                //     console.log("_arr_user_app_map's e: ", e)
+                                //     // __users_app.push(e);
+                                // });
+                                // console.log(_arr_user_app_map.keys());
+                                // console.log(_arr_user_app_map.values());
+                                // _arr_user_app_map.values().forEach(function(val, key, map){
+                                //     console.log(key, val);
+                                // });
+                                // _.each(_arr_user_app_map.values(), function (e) {
+                                //    console.log("e : ", e);
+                                // });
+                                // for saisei-7.3.1-11114
+                                var from = new Date(data['data']['from']);
+                                from.setHours(from.getHours() + 9);
+                                var _from = from.toLocaleString();
+                                var until = new Date(data['data']['until']);
+                                until.setHours(until.getHours() + 9);
+                                var _until = until.toLocaleString();
+                                _arr_user_app_map.forEach(function(val, key){
+                                    // var _key = key;
+                                    var obj = {};
+                                    obj["user_name"] = key;
+                                    _.each(val, function (e, i) {
+                                        if (_.has(e, "from") && _.has(e, "until")) {
+                                            e.from = new Date(e.from);
+                                            e.from.setHours(e.from.getHours() + 9);
+                                            e.until = new Date(e.until);
+                                            e.until.setHours(e.until.getHours() + 9);
+                                        } else {
+                                            e.from = _from;
+                                            e.until = _until;
+                                            // e.from = "None";
+                                            // e.until = "None";
+                                        }
+                                        if (i === 0){
+                                            obj["top1_app_name"] = _.has(e, "name")?e.name:"none";
+                                            obj["top1_app_total"] = _.has(e, "total_rate")?(e.total_rate * 0.001).toFixed(4):0;
+                                            obj["top1_app_from"] = _from;
+                                            obj["top1_app_until"] = _until;
+                                            // (_.has(e, "total_rate"))?_users_app_top1.push((e.total_rate * 0.0001).toFixed(3)):_users_app_top1.push(0);
+                                            // (_.has(e, "name"))?_users_appName_top1.push((e.name * 0.0001).toFixed(3)):_users_appName_top1.push(0);
+                                        } else if(i === 1){
+                                            obj["top2_app_name"] = _.has(e, "name")?e.name:"none";
+                                            obj["top2_app_total"] = _.has(e, "total_rate")?(e.total_rate * 0.001).toFixed(4):0;
+                                            obj["top2_app_from"] = _from;
+                                            obj["top2_app_until"] = _until;
+                                            // (_.has(e, "total_rate"))?_users_app_top2.push((e.total_rate * 0.0001).toFixed(3)):_users_app_top2.push(0);
+                                            // (_.has(e, "name"))?_users_appName_top2.push((e.name * 0.0001).toFixed(3)):_users_appName_top2.push(0);
+                                        } else if(i === 2){
+                                            obj["top3_app_name"] = _.has(e, "name")?e.name:"none";
+                                            obj["top3_app_total"] = _.has(e, "total_rate")?(e.total_rate * 0.001).toFixed(4):0;
+                                            obj["top3_app_from"] = _from;
+                                            obj["top3_app_until"] = _until;
+                                            // (_.has(e, "total_rate"))?_users_app_top3.push((e.total_rate * 0.0001).toFixed(3)):_users_app_top3.push(0);
+                                            // (_.has(e, "name"))?_users_appName_top3.push((e.name * 0.0001).toFixed(3)):_users_appName_top3.push(0);
+                                        } else {
+                                            console.log("top4, 5")
+                                        }
+                                    });
+
+                                    // var obj = {
+                                    //     "user_name": key,
+                                    //     "top1_app_name": val.name,
+                                    //     "top1_app_total": (val.total_rate * 0.001).toFixed(3),
+                                    //     "top1_app_from": val.from,
+                                    //     "top1_app_until": val.until
+                                    // };
+                                    // obj["user_name"] = key;
+                                    __users_app.push(obj);
+                                    // console.log(key, val)
+                                });
+                                // __users_app.set(_arr_user_app_map.keys(), _arr_user_app_map.entries())
+                                // console.log(_arr_user_app_map.entries());
+                                // __users_app.set(_arr_user_app_map.keys(), _arr_user_app_map.get(_arr_user_app_map.keys()));
+                                console.log("getUserAppDataMAP : ", _arr_user_app_map);
+
+                                // __users_app.push(_arr_user_app_map);
                                 /*
                                     1. top1_from, top1_until
                                     2. top2_from, top2_until
@@ -345,142 +490,153 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                                     8. _users_app_option : options for graph
                                 */
 
-                                if (_.has(data['data']['collection'][0], "from") && _.has(data['data']['collection'][0], "until")) {
-                                    var top1_from = new Date(data['data']['collection'][0]['from']);
-                                    top1_from.setHours(top1_from.getHours() + 9);
-                                    var top1_until = new Date(data['data']['collection'][0]['until']);
-                                    top1_until.setHours(top1_until.getHours() + 9);
-                                }else{
-                                    var top1_from = "None";
-                                    var top1_until = "None";
-                                }
-                                if (_.has(data['data']['collection'][1], "from") && _.has(data['data']['collection'][1], "until")) {
-                                    var top2_from = new Date(data['data']['collection'][1]['from']);
-                                    top2_from.setHours(top2_from.getHours() + 9);
-                                    var top2_until = new Date(data['data']['collection'][1]['until']);
-                                    top2_until.setHours(top2_until.getHours() + 9);
-                                }else{
-                                    var top2_from = "None";
-                                    var top2_until = "None";
-                                }
-                                if (_.has(data['data']['collection'][2], "from") && _.has(data['data']['collection'][2], "until")) {
-                                    var top3_from = new Date(data['data']['collection'][2]['from']);
-                                    top3_from.setHours(top3_from.getHours() + 9);
-                                    var top3_until = new Date(data['data']['collection'][2]['until']);
-                                    top3_until.setHours(top3_until.getHours() + 9);
-                                }else{
-                                    var top3_from = "None";
-                                    var top3_until = "None";
-                                }
+                                // if (_.has(data['data']['collection'][0], "from") && _.has(data['data']['collection'][0], "until")) {
+                                //     var top1_from = new Date(data['data']['collection'][0]['from']);
+                                //     top1_from.setHours(top1_from.getHours() + 9);
+                                //     var top1_until = new Date(data['data']['collection'][0]['until']);
+                                //     top1_until.setHours(top1_until.getHours() + 9);
+                                // }else{
+                                //     var top1_from = "None";
+                                //     var top1_until = "None";
+                                // }
+                                // if (_.has(data['data']['collection'][1], "from") && _.has(data['data']['collection'][1], "until")) {
+                                //     var top2_from = new Date(data['data']['collection'][1]['from']);
+                                //     top2_from.setHours(top2_from.getHours() + 9);
+                                //     var top2_until = new Date(data['data']['collection'][1]['until']);
+                                //     top2_until.setHours(top2_until.getHours() + 9);
+                                // }else{
+                                //     var top2_from = "None";
+                                //     var top2_until = "None";
+                                // }
+                                // if (_.has(data['data']['collection'][2], "from") && _.has(data['data']['collection'][2], "until")) {
+                                //     var top3_from = new Date(data['data']['collection'][2]['from']);
+                                //     top3_from.setHours(top3_from.getHours() + 9);
+                                //     var top3_until = new Date(data['data']['collection'][2]['until']);
+                                //     top3_until.setHours(top3_until.getHours() + 9);
+                                // }else{
+                                //     var top3_from = "None";
+                                //     var top3_until = "None";
+                                // }
                                 // var top3_from = new Date(data['data']['collection'][2]['from']);
                                 // top3_from.setHours(top3_from.getHours() + 9);
                                 // var top3_until = new Date(data['data']['collection'][2]['until']);
                                 // top3_until.setHours(top3_until.getHours() + 9);
                                 // console.log(data['data']['collection'][0].link.href.split('/')[6]);
-                                _users_app.push({
-                                    "user_name": data['data']['collection'][0].link.href.split('/')[6],
-                                    "top1_app_name": (_.has(data['data']['collection'][0], "name")) ? data['data']['collection'][0]['name']:'None',
-                                    "top1_app_total": (_.has(data['data']['collection'][0], "total_rate")) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
-                                    "top1_app_from": top1_from.toLocaleString(),
-                                    "top1_app_until": top1_until.toLocaleString(),
-                                    "top2_app_name": (_.has(data['data']['collection'][1], "name")) ? data['data']['collection'][1]['name']:'None',
-                                    "top2_app_total": (_.has(data['data']['collection'][1], "total_rate")) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
-                                    "top2_app_from": top2_from.toLocaleString(),
-                                    "top2_app_until": top2_until.toLocaleString(),
-                                    "top3_app_name": (_.has(data['data']['collection'][2], "name")) ? data['data']['collection'][2]['name']:'None',
-                                    "top3_app_total": (_.has(data['data']['collection'][2], "total_rate")) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
-                                    "top3_app_from": top3_from.toLocaleString(),
-                                    "top3_app_until": top3_until.toLocaleString()
-                                });
-                                _users_app.sort(function (a, b) { // DESC
-                                    return b['top1_app_total'] - a['top1_app_total'];
-                                });
-                                (_.has(data['data']['collection'][0], "total_rate"))?_users_app_top1.push((data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3)):_users_app_top1.push(0);
-                                (_.has(data['data']['collection'][1], "total_rate"))?_users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3)):_users_app_top2.push(0);
-                                (_.has(data['data']['collection'][2], "total_rate"))?_users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3)):_users_app_top3.push(0);
-                                // _users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3));
-                                // _users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3));
-                                (_.has(data['data']['collection'][0], "name"))?_users_appName_top1.push((data['data']['collection'][0]['name'] * 0.001).toFixed(3)):_users_appName_top1.push(0);
-                                (_.has(data['data']['collection'][1], "name"))?_users_appName_top2.push((data['data']['collection'][1]['name'] * 0.001).toFixed(3)):_users_appName_top2.push(0);
-                                (_.has(data['data']['collection'][2], "name"))?_users_appName_top3.push((data['data']['collection'][2]['name'] * 0.001).toFixed(3)):_users_appName_top3.push(0);
-                                // _users_appName_top1.push(data['data']['collection'][0]['name']);
-                                // _users_appName_top2.push(data['data']['collection'][1]['name']);
-                                // _users_appName_top3.push(data['data']['collection'][2]['name']);
-                                // $rootScope._users_app_top1 = _users_app_top1;
-                                if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][1], "name") && _.has(data['data']['collection'][2], "name")){
-                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
-                                        "1." + data['data']['collection'][0]['name'] + "," +
-                                        "2." + data['data']['collection'][1]['name'] + "," +
-                                        "3." + data['data']['collection'][2]['name'] + ")"
-                                    );
-                                }else if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][1], "name")){
-                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
-                                        "1." + data['data']['collection'][0]['name'] + "," +
-                                        "2." + data['data']['collection'][1]['name'] + ")"
-                                    );
-                                }else if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][2], "name")){
-                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
-                                        "1." + data['data']['collection'][0]['name'] + "," +
-                                        "3." + data['data']['collection'][2]['name'] + ")"
-                                    );
-                                }else if (_.has(data['data']['collection'][1], "name") && _.has(data['data']['collection'][2], "name")){
-                                    _users_app_label.push(data['data']['collection'][1].link.href.split('/')[6] + "(" +
-                                        "2." + data['data']['collection'][1]['name'] + "," +
-                                        "3." + data['data']['collection'][2]['name'] + ")"
-                                    );
-                                }else if (_.has(data['data']['collection'][0], "name")){
-                                    _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
-                                        "1." + data['data']['collection'][0]['name'] + ")"
-                                    );
-                                }else if (_.has(data['data']['collection'][1], "name")){
-                                    _users_app_label.push(data['data']['collection'][1].link.href.split('/')[6] + "(" +
-                                        "2." + data['data']['collection'][1]['name'] + ")"
-                                    );
-                                }else{
-                                    _users_app_label.push(data['data']['collection'][2].link.href.split('/')[6] + "(" +
-                                        "3." + data['data']['collection'][2]['name'] + ")"
-                                    );
-                                }
+                                // _users_app.push({
+                                //     "user_name": data['data']['collection'][0].link.href.split('/')[6],
+                                //     "top1_app_name": (_.has(data['data']['collection'][0], "name")) ? data['data']['collection'][0]['name']:'None',
+                                //     "top1_app_total": (_.has(data['data']['collection'][0], "total_rate")) ? (data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3):0,
+                                //     "top1_app_from": top1_from.toLocaleString(),
+                                //     "top1_app_until": top1_until.toLocaleString(),
+                                //     "top2_app_name": (_.has(data['data']['collection'][1], "name")) ? data['data']['collection'][1]['name']:'None',
+                                //     "top2_app_total": (_.has(data['data']['collection'][1], "total_rate")) ? (data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3):0,
+                                //     "top2_app_from": top2_from.toLocaleString(),
+                                //     "top2_app_until": top2_until.toLocaleString(),
+                                //     "top3_app_name": (_.has(data['data']['collection'][2], "name")) ? data['data']['collection'][2]['name']:'None',
+                                //     "top3_app_total": (_.has(data['data']['collection'][2], "total_rate")) ? (data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3):0,
+                                //     "top3_app_from": top3_from.toLocaleString(),
+                                //     "top3_app_until": top3_until.toLocaleString()
+                                // });
+                                // _users_app.sort(function (a, b) { // DESC
+                                //     return b['top1_app_total'] - a['top1_app_total'];
+                                // });
+                                // (_.has(data['data']['collection'][0], "total_rate"))?_users_app_top1.push((data['data']['collection'][0]['total_rate'] * 0.001).toFixed(3)):_users_app_top1.push(0);
+                                // (_.has(data['data']['collection'][1], "total_rate"))?_users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3)):_users_app_top2.push(0);
+                                // (_.has(data['data']['collection'][2], "total_rate"))?_users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3)):_users_app_top3.push(0);
+                                // // _users_app_top2.push((data['data']['collection'][1]['total_rate'] * 0.001).toFixed(3));
+                                // // _users_app_top3.push((data['data']['collection'][2]['total_rate'] * 0.001).toFixed(3));
+                                // (_.has(data['data']['collection'][0], "name"))?_users_appName_top1.push((data['data']['collection'][0]['name'] * 0.001).toFixed(3)):_users_appName_top1.push(0);
+                                // (_.has(data['data']['collection'][1], "name"))?_users_appName_top2.push((data['data']['collection'][1]['name'] * 0.001).toFixed(3)):_users_appName_top2.push(0);
+                                // (_.has(data['data']['collection'][2], "name"))?_users_appName_top3.push((data['data']['collection'][2]['name'] * 0.001).toFixed(3)):_users_appName_top3.push(0);
+                                // // _users_appName_top1.push(data['data']['collection'][0]['name']);
+                                // // _users_appName_top2.push(data['data']['collection'][1]['name']);
+                                // // _users_appName_top3.push(data['data']['collection'][2]['name']);
+                                // // $rootScope._users_app_top1 = _users_app_top1;
+                                // if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][1], "name") && _.has(data['data']['collection'][2], "name")){
+                                //     _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                //         "1." + data['data']['collection'][0]['name'] + "," +
+                                //         "2." + data['data']['collection'][1]['name'] + "," +
+                                //         "3." + data['data']['collection'][2]['name'] + ")"
+                                //     );
+                                // }else if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][1], "name")){
+                                //     _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                //         "1." + data['data']['collection'][0]['name'] + "," +
+                                //         "2." + data['data']['collection'][1]['name'] + ")"
+                                //     );
+                                // }else if (_.has(data['data']['collection'][0], "name") && _.has(data['data']['collection'][2], "name")){
+                                //     _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                //         "1." + data['data']['collection'][0]['name'] + "," +
+                                //         "3." + data['data']['collection'][2]['name'] + ")"
+                                //     );
+                                // }else if (_.has(data['data']['collection'][1], "name") && _.has(data['data']['collection'][2], "name")){
+                                //     _users_app_label.push(data['data']['collection'][1].link.href.split('/')[6] + "(" +
+                                //         "2." + data['data']['collection'][1]['name'] + "," +
+                                //         "3." + data['data']['collection'][2]['name'] + ")"
+                                //     );
+                                // }else if (_.has(data['data']['collection'][0], "name")){
+                                //     _users_app_label.push(data['data']['collection'][0].link.href.split('/')[6] + "(" +
+                                //         "1." + data['data']['collection'][0]['name'] + ")"
+                                //     );
+                                // }else if (_.has(data['data']['collection'][1], "name")){
+                                //     _users_app_label.push(data['data']['collection'][1].link.href.split('/')[6] + "(" +
+                                //         "2." + data['data']['collection'][1]['name'] + ")"
+                                //     );
+                                // }else{
+                                //     _users_app_label.push(data['data']['collection'][2].link.href.split('/')[6] + "(" +
+                                //         "3." + data['data']['collection'][2]['name'] + ")"
+                                //     );
+                                // }
                             });
                             // console.log("status : " + cfpLoadingBar.status());
                         }
-                        var _users_app_data = [
-                            _users_app_top1,
-                            _users_app_top2,
-                            _users_app_top3
-                        ];
-                        var _users_app_series = ["TOP APP 1", "TOP APP 2", "TOP APP 3"];
-                        var _users_app_option = {
-                            scales: {
-                                xAxes: [{
-                                    ticks: {
-                                        fontSize: 12,
-                                        fontStyle: "bold"
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        fontSize: 14,
-                                        labelString: 'APP 사용량(Mbit/s)',
-                                        fontStyle: "bold"
-                                    }
-                                }],
-                                yAxes: [{
-                                    ticks: {
-                                        fontSize: 12,
-                                        fontStyle: "bold"
-                                    },
-                                    scaleLabel: {
-                                        display: true,
-                                        fontSize: 14,
-                                        labelString: '사용자 어플리케이션(Top1,Top2,Top3)',
-                                        fontStyle: "bold"
-                                    }
-                                }]
-                            }
-                        };
+
+                        // var _users_app_data = [
+                        //     _users_app_top1,
+                        //     _users_app_top2,
+                        //     _users_app_top3
+                        // ];
+
+                        // _users_app_data.push(_users_app_top1);
+                        // _users_app_data.push(_users_app_top2);
+                        // _users_app_data.push(_users_app_top3);
+
+                        // console.log("_users_app : ", _users_app);
+                        // console.log("_users_app_data : ", _users_app_data);
+
+                        console.log("__users_app : ", __users_app);
+                        // var _users_app_series = ["TOP APP 1", "TOP APP 2", "TOP APP 3"];
+                        // var _users_app_option = {
+                        //     scales: {
+                        //         xAxes: [{
+                        //             ticks: {
+                        //                 fontSize: 12,
+                        //                 fontStyle: "bold"
+                        //             },
+                        //             scaleLabel: {
+                        //                 display: true,
+                        //                 fontSize: 14,
+                        //                 labelString: 'APP 사용량(Mbit/s)',
+                        //                 fontStyle: "bold"
+                        //             }
+                        //         }],
+                        //         yAxes: [{
+                        //             ticks: {
+                        //                 fontSize: 12,
+                        //                 fontStyle: "bold"
+                        //             },
+                        //             scaleLabel: {
+                        //                 display: true,
+                        //                 fontSize: 14,
+                        //                 labelString: '사용자 어플리케이션(Top1,Top2,Top3)',
+                        //                 fontStyle: "bold"
+                        //             }
+                        //         }]
+                        //     }
+                        // };
                         deferred.resolve({
                             user: {
-                                _users_tb_data: _users_tb_data, // for table
+                                // _users_tb_data: _users_tb_data, // for table
+                                _users_tb_data: _arr_user_collection, // for table
                                 _users_data: _users_data,
                                 _users_flow_disc_data: _users_flow_disc_data,
                                 _users_label: _users_label,
@@ -492,12 +648,13 @@ reportApp.service('ReportUserData', function($window, $q, ReportData, UserAppDat
                                 colors: colors
                             },
                             user_app: {
-                                _users_app: _users_app, // for table
-                                _users_app_data: _users_app_data,
-                                _users_app_label: _users_app_label,
-                                _users_app_series: _users_app_series,
-                                _users_app_option: _users_app_option,
-                                colors: colors
+                                // _users_app: _users_app, // for table
+                                _users_app: __users_app, // for table
+                                // _users_app_data: _users_app_data,
+                                // _users_app_label: _users_app_label,
+                                // _users_app_series: _users_app_series,
+                                // _users_app_option: _users_app_option,
+                                // colors: colors
                             },
                             complete_count: complete_count
                         });

@@ -16,5 +16,5 @@ reportApp.service('ReportWorkTimeUntil', function() {
             return start;
         };
     };
-    return Until;
+    return WorkTimeUntil;
 });
