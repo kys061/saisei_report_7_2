@@ -15,14 +15,16 @@
       "section": "interfaces/:int_name",
       "attr": "receive_rate",
       "operation": "raw",
-      "hist_point": "true"
+      "hist_point": "true",
+      "timezone": "utc"
     },
     "interface_trs": {
       "class": "interface",
       "section": "interfaces/:int_name",
       "attr": "transmit_rate",
       "operation": "raw",
-      "hist_point": "true"
+      "hist_point": "true",
+      "timezone": "utc"
     },
     "users_tr": {
       "class": "users_tr",

@@ -188,6 +188,6 @@ module.exports = function(grunt) {
             'watch'
         ]);
     });
-    grunt.registerTask('package', ['bower', 'concat', 'copy']);
+    grunt.registerTask('package', ['bower',  'copy', 'concat:dist', 'uglify:dist', 'htmlmin:dist', 'comments:dist']);
     grunt.registerTask('default', ['bower', 'connect', 'watch']);
 };
