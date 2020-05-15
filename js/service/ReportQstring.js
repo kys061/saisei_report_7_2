@@ -33,6 +33,10 @@ reportApp.service('ReportQstring', function() {
             start = start + until;
             return self;
         };
+        this.addTimezone = function(timezone){
+            start = start + timezone;
+            return self;
+        };
 
         this.getQstring = function(){
             return start;

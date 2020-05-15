@@ -209,8 +209,9 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
         console.log('locations:>>>>>', $window.location.protocol+"//"+$window.location.hostname+":");
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.interface_rcv.attr)
-            .addFrom('?from='+rest_from)
-            .addOrder('&operation='+config.interface_rcv.operation)
+            .addFrom('&from='+rest_from)
+            .addTimezone('&time='+config.interface_rcv.timezone)
+            .addOperation('&operation='+config.interface_rcv.operation)
             .addLimit('&history_points='+config.interface_rcv.hist_point)
             .addUntil('&until='+rest_until)
             // .addUntil('&until='+rest_until+"&int_name="+int_name)    // for report api
@@ -256,7 +257,8 @@ reportApp.factory('ReportData', function($http, $log, $base64, $window, ReportFr
         var rest_qstring = new ReportQstring("")
             .addSelect('?select='+config.interface_trs.attr)
             .addFrom('&from='+rest_from)
-            .addOrder('&operation='+config.interface_trs.operation)
+            .addTimezone('&time='+config.interface_trs.timezone)
+            .addOperation('&operation='+config.interface_trs.operation)
             .addLimit('&history_points='+config.interface_trs.hist_point)
             .addUntil('&until='+rest_until)
             .getQstring();
